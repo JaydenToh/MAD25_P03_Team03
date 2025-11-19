@@ -15,6 +15,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import np.ict.mad.mad25_p03_team03.navigation.AppNavGraph
+import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import np.ict.mad.mad25_p03_team03.navigation.AppNavGraph
 import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +35,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SongGuessGameScreen()
+                    // 🔥 改成 Navigation
+                    AppNavGraph()
                 }
             }
         }
