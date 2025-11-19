@@ -117,7 +117,7 @@ fun SongGuessGameScreen() {
 
         Button(
             onClick = {
-              
+
                 mediaPlayer?.stop()
                 mediaPlayer?.release()
 
