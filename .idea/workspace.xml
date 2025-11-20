@@ -8,8 +8,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/GameScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/HomeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/navigation/AppNavGraph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/navigation/AppNavGraph.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/LibraryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/LibraryScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SearchScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SearchScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,6 +61,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
     "git-widget-placeholder": "feat/song-guessing-game-ui",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.17",
@@ -165,19 +167,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="kotlin-function">
-          <url>file://$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MainActivity.kt</url>
-          <line>178</line>
-          <properties class="np.ict.mad.mad25_p03_team03.SongQuestion" method="&lt;init&gt;">
-            <option name="WATCH_EXIT" value="false" />
-          </properties>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

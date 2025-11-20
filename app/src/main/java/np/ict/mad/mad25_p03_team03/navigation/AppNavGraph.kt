@@ -6,8 +6,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
-//import np.ict.mad.mad25_p03_team03.ui.LibraryScreen
-//import np.ict.mad.mad25_p03_team03.ui.SearchScreen
+import np.ict.mad.mad25_p03_team03.ui.LibraryScreen
+import np.ict.mad.mad25_p03_team03.ui.SearchScreen
 
 @Composable
 fun AppNavGraph() {
@@ -31,12 +31,12 @@ fun AppNavGraph() {
             GameScreen()
         }
 
-        /*composable("library") {
-            LibraryScreen()
+        composable("library") {
+            LibraryScreen(onBack = { navController.popBackStack() })
         }
 
         composable("search") {
-            SearchScreen()
-        }*/
+            SearchScreen(onBack = { navController.popBackStack() })
+        }
     }
 }
