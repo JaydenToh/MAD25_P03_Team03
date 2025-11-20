@@ -32,7 +32,7 @@ fun AppNavGraph() {
         }
 
         composable("library") {
-            LibraryScreen(onBack = { navController.popBackStack() })
+            LibraryScreen()
         }
 
         composable("search") {

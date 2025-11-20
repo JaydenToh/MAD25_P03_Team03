@@ -13,45 +13,32 @@ import np.ict.mad.mad25_p03_team03.data.AppDatabase
 import np.ict.mad.mad25_p03_team03.data.SongEntity
 
 @Composable
-fun LibraryScreen(onBack: () -> Unit) {
+fun LibraryScreen() {
 
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
-    val songDao = db.songDao()
+    val dao = db.songDao()
 
-    var songs by remember { mutableStateOf<List<SongEntity>>(emptyList()) }
+    var songList by remember { mutableStateOf(listOf<SongEntity>()) }
 
-    // Load data once when screen appears
+    // Load songs when screen opens
     LaunchedEffect(true) {
-        songs = songDao.getAllSongs()
+        songList = dao.getAllSongs()
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
         Text("Song Library", style = MaterialTheme.typography.headlineMedium)
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = onBack) {
-            Text("Back")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(songs) { song ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(song.title, style = MaterialTheme.typography.titleMedium)
-                        Text(song.artist, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
+        if (songList.isEmpty()) {
+            Text("No songs in the database.")
+        } else {
+            songList.forEach { song ->
+                Text("${song.title} - ${song.artist}")
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
 }
+
