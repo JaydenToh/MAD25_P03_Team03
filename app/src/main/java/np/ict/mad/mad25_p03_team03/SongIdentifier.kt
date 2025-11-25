@@ -153,7 +153,7 @@ class SongIdentifier : ComponentActivity() {
 
 //////////////////////////////// - Need API KEY - /////////////////////////////////////////////////////////////
     private fun uploadToAudD(file: File) {
-        val apiKeyRequest = "6034ab075806ceaa28059015ddf20e61xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        val apiKeyRequest = "MY API KEY"
             .toRequestBody("text/plain".toMediaTypeOrNull())
 
         val audioRequest = file.asRequestBody("audio/*".toMediaTypeOrNull())
