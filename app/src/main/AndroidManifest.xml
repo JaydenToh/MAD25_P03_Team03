@@ -1,6 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permission to access microphone and internet -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -11,17 +14,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD25_P03_Team03">
+
+        <!-- Main Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name="SongIdentifier"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MAD25_P03_Team03">
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- SongIdentifier Activity -->
+        <activity
+            android:name="MainActivity"
+            android:exported="false"
+            android:label="SongIdentifier"
+            android:theme="@style/Theme.MAD25_P03_Team03" />
+    </application>
 </manifest>
