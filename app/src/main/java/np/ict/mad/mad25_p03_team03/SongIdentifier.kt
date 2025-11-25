@@ -17,9 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -42,15 +41,15 @@ import java.io.File
 
 class SongIdentifier : ComponentActivity() {
 
-    // UI state observed by Compose
+    // Compose UI state
     private var isRecording by mutableStateOf(false)
+    private var statusText by mutableStateOf("Tap the button to start listening")
     private var songText by mutableStateOf("Song not identified yet")
 
     // Recording state
     private var mediaRecorder: MediaRecorder? = null
     private var audioFile: File? = null
 
-    // Permission launcher (modern API – replaces onRequestPermissionsResult)
     private val requestMicPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -67,6 +66,7 @@ class SongIdentifier : ComponentActivity() {
             MaterialTheme {
                 SongIdentifierScreen(
                     isRecording = isRecording,
+                    statusText = statusText,
                     songText = songText,
                     onButtonClick = {
                         if (isRecording) {
@@ -80,7 +80,7 @@ class SongIdentifier : ComponentActivity() {
         }
     }
 
-    // -------- Permission + Recording (no override needed) --------
+
 
     private fun checkPermissionAndStart() {
         val hasPermission = ContextCompat.checkSelfPermission(
@@ -91,7 +91,6 @@ class SongIdentifier : ComponentActivity() {
         if (hasPermission) {
             startRecording()
         } else {
-            // Ask for permission using Activity Result API
             requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
@@ -112,7 +111,8 @@ class SongIdentifier : ComponentActivity() {
             }
 
             isRecording = true
-            songText = "Listening…"
+            statusText = "Listening…"
+            songText = "Listening for music…"
 
             // Auto-stop after 8 seconds
             Handler(Looper.getMainLooper()).postDelayed({
@@ -132,15 +132,17 @@ class SongIdentifier : ComponentActivity() {
                 release()
             }
         } catch (_: Exception) {
-            // ignore stop errors
+
         }
 
         mediaRecorder = null
         isRecording = false
+        statusText = "Processing audio…"
         songText = "Processing audio…"
 
         val file = audioFile
         if (file == null || !file.exists() || file.length() <= 1000) {
+            statusText = "Tap the button to start listening"
             songText = "Recording failed or was too short."
             return
         }
@@ -148,8 +150,8 @@ class SongIdentifier : ComponentActivity() {
         uploadToAudD(file)
     }
 
-    // ---------------- AudD Upload ----------------
 
+//////////////////////////////// - Need API KEY - /////////////////////////////////////////////////////////////
     private fun uploadToAudD(file: File) {
         val apiKeyRequest = "MY API KEY"
             .toRequestBody("text/plain".toMediaTypeOrNull())
@@ -165,28 +167,35 @@ class SongIdentifier : ComponentActivity() {
                     response: Response<SongResponse>
                 ) {
                     if (!response.isSuccessful) {
+                        statusText = "Tap the button to start listening"
                         songText = "API error: ${response.code()}"
                         return
                     }
 
                     val result = response.body()?.result
-                    songText = result?.let {
-                        "Song: ${it.title}\nArtist: ${it.artist}"
-                    } ?: "No match found."
+                    if (result != null) {
+                        statusText = "Tap the button to identify another song"
+                        songText = "Song: ${result.title}\nArtist: ${result.artist}"
+                    } else {
+                        statusText = "Tap the button to try again"
+                        songText = "No match found."
+                    }
                 }
 
                 override fun onFailure(call: Call<SongResponse>, t: Throwable) {
+                    statusText = "Tap the button to try again"
                     songText = "Network failure: ${t.message}"
                 }
             })
     }
 }
 
-// UI
+// ---------------- COMPOSE UI ----------------
 
 @Composable
 fun SongIdentifierScreen(
     isRecording: Boolean,
+    statusText: String,
     songText: String,
     onButtonClick: () -> Unit
 ) {
@@ -211,11 +220,10 @@ fun SongIdentifierScreen(
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
-                text = "Tap to identify music",
+                text = "Song Identifier",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(top = 100.dp)
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -223,7 +231,9 @@ fun SongIdentifierScreen(
             Text(
                 text = "Hold your phone near the music source",
                 fontSize = 14.sp,
-                color = Color(0xCCFFFFFF)
+                color = Color(0xCCFFFFFF),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -258,18 +268,32 @@ fun SongIdentifierScreen(
                             text = "STOP SEARCHING",
                             color = Color.White,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     } else {
                         Icon(
                             imageVector = Icons.Default.MusicNote,
                             contentDescription = "Identify music",
                             tint = Color.White,
-                            modifier = Modifier.size(100.dp)
+                            modifier = Modifier.size(72.dp)
                         )
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = statusText,
+                fontSize = 16.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -277,13 +301,12 @@ fun SongIdentifierScreen(
                 text = songText,
                 fontSize = 18.sp,
                 color = Color.White,
-                modifier = Modifier
-                    .padding(bottom = 400.dp)
-                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
                 lineHeight = 22.sp,
-                textAlign = TextAlign.Center
+                modifier = Modifier
+                    .padding(bottom = 32.dp)
+                    .fillMaxWidth()
             )
         }
     }
 }
-//
