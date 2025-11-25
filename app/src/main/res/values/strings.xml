@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MAD25_P03_Team03</string>
+    <string name="title_activity_song_identifier">SongIdentifier</string>
 </resources>
