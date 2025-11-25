@@ -44,7 +44,7 @@ class SongIdentifier : ComponentActivity() {
     // Compose UI state
     private var isRecording by mutableStateOf(false)
     private var statusText by mutableStateOf("Tap the button to start listening")
-    private var songText by mutableStateOf("Song not identified yet")
+    private var songText by mutableStateOf("")
 
     // Recording state
     private var mediaRecorder: MediaRecorder? = null
@@ -112,7 +112,7 @@ class SongIdentifier : ComponentActivity() {
 
             isRecording = true
             statusText = "Listening…"
-            songText = "Listening for music…"
+
 
             // Auto-stop after 8 seconds
             Handler(Looper.getMainLooper()).postDelayed({
@@ -138,7 +138,7 @@ class SongIdentifier : ComponentActivity() {
         mediaRecorder = null
         isRecording = false
         statusText = "Processing audio…"
-        songText = "Processing audio…"
+
 
         val file = audioFile
         if (file == null || !file.exists() || file.length() <= 1000) {
@@ -177,8 +177,8 @@ class SongIdentifier : ComponentActivity() {
                         statusText = "Tap the button to identify another song"
                         songText = "Song: ${result.title}\nArtist: ${result.artist}"
                     } else {
-                        statusText = "Tap the button to try again"
-                        songText = "No match found."
+                        statusText = "No match found please try again"
+
                     }
                 }
 
@@ -190,7 +190,7 @@ class SongIdentifier : ComponentActivity() {
     }
 }
 
-// ---------------- COMPOSE UI ----------------
+// ---------------- UI ----------------
 
 @Composable
 fun SongIdentifierScreen(
@@ -214,86 +214,96 @@ fun SongIdentifierScreen(
             .padding(24.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "Song Identifier",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Hold your phone near the music source",
-                fontSize = 14.sp,
-                color = Color(0xCCFFFFFF),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            // Big circular button
-            Button(
-                onClick = onButtonClick,
-                shape = CircleShape,
-                modifier = Modifier.size(220.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-                contentPadding = PaddingValues(0.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    Color(0xFF4C6FFF),
-                                    Color(0xFF3A7BD5),
-                                    Color(0xFF1E2C6F)
-                                )
-                            ),
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isRecording) {
-                        Text(
-                            text = "STOP SEARCHING",
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.MusicNote,
-                            contentDescription = "Identify music",
-                            tint = Color.White,
-                            modifier = Modifier.size(72.dp)
-                        )
-                    }
-                }
+                Spacer(modifier = Modifier.height(40.dp))
+
+                Text(
+                    text = "Song Identifier",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.padding(top = 150.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Hold your phone near the music source",
+                    fontSize = 14.sp,
+                    color = Color(0xCCFFFFFF),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            Text(
-                text = statusText,
-                fontSize = 16.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = onButtonClick,
+                    shape = CircleShape,
+                    modifier = Modifier.size(220.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFF4C6FFF),
+                                        Color(0xFF3A7BD5),
+                                        Color(0xFF1E2C6F)
+                                    )
+                                ),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isRecording) {
+                            Text(
+                                text = "STOP SEARCHING",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.MusicNote,
+                                contentDescription = "Identify music",
+                                tint = Color.White,
+                                modifier = Modifier.size(72.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = statusText,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 50.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -304,8 +314,8 @@ fun SongIdentifierScreen(
                 textAlign = TextAlign.Center,
                 lineHeight = 22.sp,
                 modifier = Modifier
-                    .padding(bottom = 32.dp)
                     .fillMaxWidth()
+                    .padding(bottom = 100.dp)
             )
         }
     }
