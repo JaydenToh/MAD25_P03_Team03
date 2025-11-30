@@ -39,10 +39,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.setValue
 
 
-@Preview
+
 // In a new file, e.g., GameScreen.kt, or within MainActivity.kt/SongIdentifier.kt
 @Composable
-fun SongGuessingGameScreen() {
+fun SongGuessingGameScreen(// 🚨 UPDATED: Add parameters for click actions
+    onStartGameClick: () -> Unit,
+    onSongLibraryClick: () -> Unit) {
+
     // --- State variables for the game screen ---
     val lives by remember { mutableStateOf(3) }
     val score by remember { mutableStateOf(0) }
@@ -102,24 +105,27 @@ fun SongGuessingGameScreen() {
             ) {
                 // Play Game Button (Active)
                 Button(
-                    onClick = { /* Currently on this screen */ },
+                    onClick = {
+                        isGameStarted = true
+                        onStartGameClick() // 🚨 Call the navigation function here
+                    },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black.copy(alpha = 0.6f),
+                        containerColor = Color.Black,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
-                        .height(48.dp)
-                        .padding(end = 8.dp)
+                        .fillMaxWidth()
+                        .height(56.dp)
                 ) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Play Icon", modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Play Game")
+                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Start Game", modifier = Modifier.size(24.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Start Game", fontSize = 18.sp)
                 }
 
                 // Song Library Button
                 Button(
-                    onClick = { /* Navigate to Song Library */ },
+                    onClick = onSongLibraryClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
                         contentColor = Color.Black
