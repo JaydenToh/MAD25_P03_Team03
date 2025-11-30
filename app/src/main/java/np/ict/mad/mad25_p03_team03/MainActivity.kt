@@ -1,7 +1,6 @@
 package np.ict.mad.mad25_p03_team03
 
 
-import SongGuessingGameScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,14 +32,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import np.ict.mad.mad25_p03_team03.navigation.AppNavHost
+import np.ict.mad.mad25_p03_team03.ui.GamePlayScreen
 
-// 1. Define the possible screens/destinations
-sealed class Screen {
-    data object Login : Screen()
-    data object GameSplash : Screen()
-    data object GamePlay : Screen()
-    data object SongIdentifier : Screen() // The song ID activity you implemented earlier
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,38 +45,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    AppScreenHost()
+                    AppNavHost()
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun AppScreenHost() {
-    // 2. Track the current screen state. Start on the splash screen for the game.
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.GameSplash) }
-
-    when (currentScreen) {
-        Screen.Login -> LoginScreen()
-
-        Screen.GameSplash -> SongGuessingGameScreen(
-            // Pass a callback to transition to the GamePlay screen
-            onStartGameClick = {
-                currentScreen = Screen.GamePlay
-            },
-            // Example for Song Library button
-            onSongLibraryClick = {
-                // You can add logic here to navigate to a Library screen if you create one
-            }
-        )
-
-        Screen.GamePlay -> GamePlayScreen()
-
-        Screen.SongIdentifier -> {
-            // You can add logic here to launch the SongIdentifier activity
-            // or show its composable if you convert it.
-            Text("Song Identifier Screen Placeholder")
         }
     }
 }

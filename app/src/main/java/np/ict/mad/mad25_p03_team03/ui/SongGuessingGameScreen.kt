@@ -1,3 +1,5 @@
+package np.ict.mad.mad25_p03_team03.ui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,15 +39,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.setValue
 
 
-
-// In a new file, e.g., GameScreen.kt, or within MainActivity.kt/SongIdentifier.kt
 @Composable
-fun SongGuessingGameScreen(// 🚨 UPDATED: Add parameters for click actions
+fun SongGuessingGameScreen(
     onStartGameClick: () -> Unit,
-    onSongLibraryClick: () -> Unit) {
+    onSongLibraryClick: () -> Unit
+) {
 
     // --- State variables for the game screen ---
     val lives by remember { mutableStateOf(3) }
@@ -96,36 +97,33 @@ fun SongGuessingGameScreen(// 🚨 UPDATED: Add parameters for click actions
                 modifier = Modifier.padding(start = 40.dp, bottom = 32.dp)
             )
 
-            // Buttons: Play Game & Song Library
+            // Buttons: Play Game & Song Library (Header Tabs)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 32.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
-                // Play Game Button (Active)
+                // Play Game Button (Active - Represents current screen tab)
                 Button(
-                    onClick = {
-                        isGameStarted = true
-                        onStartGameClick() // 🚨 Call the navigation function here
-                    },
+                    onClick = { /* Do nothing, already on this screen */ },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
+                        containerColor = Color.Black.copy(alpha = 0.6f),
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
+                        .height(48.dp)
+                        .padding(end = 8.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Start Game", modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Start Game", fontSize = 18.sp)
+                    Icon(imageVector = Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "Play Icon", modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Play Game")
                 }
 
-                // Song Library Button
+                // Song Library Button (Tab)
                 Button(
-                    onClick = onSongLibraryClick,
+                    onClick = onSongLibraryClick, // 🚨 This navigation will eventually go to the LibraryScreen
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
                         contentColor = Color.Black
@@ -141,7 +139,7 @@ fun SongGuessingGameScreen(// 🚨 UPDATED: Add parameters for click actions
             }
 
 
-            // Game Information Card (Matches image_cb59c0.png)
+            // Game Information Card (Now contains the only "Start Game" button)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -200,9 +198,8 @@ fun SongGuessingGameScreen(// 🚨 UPDATED: Add parameters for click actions
                     // Start Game Button
                     Button(
                         onClick = {
-                            // TODO: Implement game start logic here
                             isGameStarted = true
-                            // If needed, navigate to the main gameplay screen
+                            onStartGameClick() // 🚨 Call the navigation to GamePlayScreen
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Black,

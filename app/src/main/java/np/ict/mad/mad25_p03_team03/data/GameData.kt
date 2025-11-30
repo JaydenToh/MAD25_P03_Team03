@@ -1,4 +1,4 @@
-package np.ict.mad.mad25_p03_team03
+package np.ict.mad.mad25_p03_team03.data
 
 // --- GAME DATA STRUCTURES ---
 
