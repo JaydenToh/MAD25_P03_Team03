@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
                     LoginScreen()
+                    MusicAppNavigation()
                 }
             }
         }

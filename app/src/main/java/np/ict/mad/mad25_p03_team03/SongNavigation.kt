@@ -1,94 +1,79 @@
 package np.ict.mad.mad25_p03_team03
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+//import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
+//import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 
-class SongNavigation : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MAD25_P03_Team03Theme {
-                MAD25_P03_Team03App()
-            }
-        }
-    }
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+
+
+enum class MusicDestination(
+    val route: String,
+    val label: String,
+    val icon: ImageVector
+) {
+    LIBRARY("library", "Library", Icons.Filled.LibraryMusic),
+    IDENTIFY("identify", "Identify", Icons.Filled.Mic),
+    FAVORITES("favorites", "Favorites", Icons.Filled.Favorite)
 }
 
-@PreviewScreenSizes
 @Composable
-fun MAD25_P03_Team03App() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+fun MusicAppNavigation() {
+    val navController = rememberNavController()
+
+    // Track which tab is selected using your enum
+    var currentDestination by rememberSaveable { mutableStateOf(MusicDestination.LIBRARY) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            AppDestinations.entries.forEach {
+            MusicDestination.entries.forEach { destination ->
+                val selected = currentDestination == destination
+
                 item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = it.label
-                        )
+                    selected = selected,
+                    onClick = {
+                        currentDestination = destination
+                        navController.navigate(destination.route)
                     },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
+                    icon = { Icon(destination.icon, contentDescription = destination.label) },
+                    label = { Text(destination.label) }
                 )
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = MusicDestination.LIBRARY.route,
                 modifier = Modifier.padding(innerPadding)
-            )
+            ) {
+                composable(MusicDestination.LIBRARY.route) {
+                    SongLibraryScreen()          // ⬅️ no navController passed
+                }
+                composable(MusicDestination.IDENTIFY.route) {
+                    //SongIdentifierScreen()       // ⬅️ no navController passed
+                }
+            }
         }
     }
 }
 
-enum class AppDestinations(
-    val label: String,
-    val icon: ImageVector,
-) {
-    HOME("Home", Icons.Default.Home),
-    FAVORITES("Favorites", Icons.Default.Favorite),
-    PROFILE("Profile", Icons.Default.AccountBox),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MAD25_P03_Team03Theme {
-        Greeting("Android")
-    }
-}

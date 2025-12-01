@@ -49,6 +49,7 @@ class SongLibrary : ComponentActivity() {
         setContent {
             MAD25_P03_Team03Theme {
                 SongLibraryScreen()
+                MusicAppNavigation()
             }
         }
     }
