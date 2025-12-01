@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "113481626978",
+    "project_id": "music-audio-mad",
+    "storage_bucket": "music-audio-mad.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113481626978:android:e43ae3222a807af28be83b",
+        "android_client_info": {
+          "package_name": "np.ict.mad.mad25_p03_team03"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0qrT80Pau2noGHI8ynDu6fsNHJcmUp0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
