@@ -1,24 +1,31 @@
 package np.ict.mad.mad25_p03_team03.navigation
 
+import SongRepository
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import np.ict.mad.mad25_p03_team03.ui.*
 
 @Composable
-fun AppNavHost() {
-    val navController = rememberNavController()
-
+fun AppNavHost(
+    navController: NavHostController = rememberNavController(),
+    songRepository: SongRepository
+) {
     NavHost(
         navController = navController,
-        startDestination = "game_splash"  // 从你的游戏开始页面开始
+        startDestination = "test_firebase"  // 暂时改为测试页面
     ) {
+        composable("test_firebase") {
+            FirebaseTestScreen(songRepository = songRepository)
+        }
 
         composable("game_splash") {
             SongGuessingGameScreen(
                 onStartGameClick = {
-                    navController.navigate("game_play")
+                    // navController.navigate("game_play")  // ❌ 注释掉，因为 GamePlayScreen 已被注释
+                    navController.navigate("test_firebase")  // ✅ 临时导航到测试页面
                 },
                 onSongLibraryClick = {
                     navController.navigate("library")
@@ -26,16 +33,11 @@ fun AppNavHost() {
             )
         }
 
-        composable("game_play") {
-            GamePlayScreen(
-                onGameComplete = { navController.navigate("game_splash") }
-            )
-        }
-
-        /*composable("library") {
-            LibraryScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }*/
+        // composable("game_play") {  // ❌ 注释掉整个 GamePlayScreen 的路由
+        //     GamePlayScreen(
+        //         songRepository = songRepository,
+        //         onGameComplete = { navController.navigate("game_splash") }
+        //     )
+        // }
     }
 }

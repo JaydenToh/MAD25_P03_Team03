@@ -1,7 +1,8 @@
-package np.ict.mad.mad25_p03_team03.ui
+/*package np.ict.mad.mad25_p03_team03.ui
 
+import SongDto
+import np.ict.mad.mad25_p03_team03.data.repository.SongRepository
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,30 +13,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import np.ict.mad.mad25_p03_team03.data.SongChoice
-import np.ict.mad.mad25_p03_team03.data.mockQuestions
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
+import SongChoice
+import np.ict.mad.mad25_p03_team03.data.SongChoice.Question
 
 
 
-// NOTE: SongChoice and Question are now imported from GameData.kt.
+// NOTE: SongChoice and np.ict.mad.mad25_p03_team03.data.Question are now imported from GameData.kt.
 
 @Composable
-fun GamePlayScreen(onGameComplete: () -> Unit) {
-    var lives by remember { mutableStateOf(3) }
-    var score by remember { mutableStateOf(0) }
-    var currentQuestionIndex by remember { mutableStateOf(0) }
-    var selectedOption by remember { mutableStateOf<SongChoice?>(null) }
-    var isAnswerChecking by remember { mutableStateOf(false) }
+fun GamePlayScreen(
+    songRepository: np.ict.mad.mad25_p03_team03.data.repository.SongRepository,
+    onGameComplete: () -> Unit
+) {
+    var songs by remember { mutableStateOf<List<SongDto>>(emptyList()) }
+    var questions by remember { mutableStateOf<List<Question>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var hasError by remember { mutableStateOf(false) }
 
-    val currentQuestion = mockQuestions.getOrNull(currentQuestionIndex)
+    // 加载数据
+    LaunchedEffect(Unit) {
+        try {
+            val songList = songRepository.getSongs()
+            songs = songList
+            questions = generateQuestionsFromSongs(songList)
+            isLoading = false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            hasError = true
+            isLoading = false
+        }
+    }
 
+    // Current question (only if data is loaded)
+    val currentQuestion = questions.getOrNull(currentQuestionIndex)
+
+    // Game Over
     if (lives <= 0 || currentQuestion == null) {
         GameOverScreen(score = score)
         onGameComplete()
@@ -63,7 +79,7 @@ fun GamePlayScreen(onGameComplete: () -> Unit) {
         shouldAdvanceQuestion = true
     }
 
-
+    // Advance to next question after delay
     LaunchedEffect(shouldAdvanceQuestion) {
         if (shouldAdvanceQuestion) {
             delay(1000)
@@ -74,7 +90,41 @@ fun GamePlayScreen(onGameComplete: () -> Unit) {
         }
     }
 
-    // UI Layout...
+    // Loading State
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator()
+                Text("Loading songs...", color = Color.White, modifier = Modifier.padding(top = 16.dp))
+            }
+        }
+        return
+    }
+
+    // Error State
+    if (hasError) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Failed to load songs", color = Color.Red)
+                Button(onClick = {
+                    // Retry loading
+                    hasError = false
+                    isLoading = true
+                }) {
+                    Text("Retry")
+                }
+            }
+        }
+        return
+    }
+
+    // Main Game UI
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -105,7 +155,7 @@ fun GamePlayScreen(onGameComplete: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "What song is playing? (Q${currentQuestionIndex + 1})",
+                        text = "What song is playing? (Q${currentQuestionIndex + 1}/${questions.size})",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -124,6 +174,55 @@ fun GamePlayScreen(onGameComplete: () -> Unit) {
             }
         }
     }
+}
+
+// Helper function to generate questions from Firebase songs
+private fun generateQuestionsFromSongs(songs: List<SongDto>): List<Question> {
+    if (songs.size < 4) return emptyList()
+
+    val questions = mutableListOf<Question>()
+
+    songs.forEach { correctSong ->
+        // 获取3个错误答案
+        val wrongAnswers = songs
+            .filterNot { it.id == correctSong.id }
+            .shuffled()
+            .take(3)
+            .map {
+                SongChoice(
+                    title = it.title ?: "",
+                    artist = it.artist ?: "",
+                    url = it.url ?: ""  // ✅ 现在可以传递 url 了
+                )
+            }
+
+        // 创建选项列表
+        val allOptions = mutableListOf<SongChoice>().apply {
+            add(
+                SongChoice(
+                    title = correctSong.title ?: "",
+                    artist = correctSong.artist ?: "",
+                    url = correctSong.url ?: ""  // ✅ 正确传递 url
+                )
+            )
+            addAll(wrongAnswers)
+        }.shuffled()
+
+        // 找到正确答案的索引
+        val correctIndex = allOptions.indexOfFirst {
+            it.title == correctSong.title && it.artist == correctSong.artist
+        }
+
+        questions.add(
+            Question(
+                songUrl = correctSong.url ?: "",  // ✅ 正确传递 songUrl
+                options = allOptions,
+                correctIndex = correctIndex
+            )
+        )
+    }
+
+    return questions
 }
 
 @Composable
@@ -172,4 +271,4 @@ fun GameOverScreen(score: Int) {
             }
         }
     }
-}
+}*/
