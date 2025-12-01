@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import np.ict.mad.mad25_p03_team03.navigation.AppNavHost
+import np.ict.mad.mad25_p03_team03.ui.GamePlayScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -50,6 +52,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 @Preview
 @Composable
 fun LoginScreen() {
