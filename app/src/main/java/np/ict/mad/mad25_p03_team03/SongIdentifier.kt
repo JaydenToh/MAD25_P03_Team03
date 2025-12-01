@@ -64,6 +64,7 @@ class SongIdentifier : ComponentActivity() {
 
         setContent {
             MaterialTheme {
+                MusicAppNavigation()
                 SongIdentifierScreen(
                     isRecording = isRecording,
                     statusText = statusText,
