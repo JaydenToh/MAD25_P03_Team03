@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                 ) {
 
-                    App()
-                    //AppNavHost()
+                    //App()
+                    AppNavHost()
                 }
             }
         }
