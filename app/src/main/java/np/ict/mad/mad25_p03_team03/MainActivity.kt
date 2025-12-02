@@ -1,6 +1,5 @@
 package np.ict.mad.mad25_p03_team03
 
-import FirebaseService
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,12 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dagger.hilt.android.AndroidEntryPoint
-import np.ict.mad.mad25_p03_team03.data.remote.FirestoreService
+import np.ict.mad.mad25_p03_team03.data.FirestoreService
 import np.ict.mad.mad25_p03_team03.navigation.AppNavHost
 import SongRepository
 
-import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
