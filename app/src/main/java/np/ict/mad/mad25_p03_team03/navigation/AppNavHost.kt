@@ -1,52 +1,43 @@
 package np.ict.mad.mad25_p03_team03.navigation
 
+import SongRepository
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
-
-// 🚨 IMPORT SCREEN COMPOSABLES FROM THEIR NEW 'ui' LOCATION
-import np.ict.mad.mad25_p03_team03.ui.SongGuessingGameScreen
-import np.ict.mad.mad25_p03_team03.ui.GamePlayScreen
-import np.ict.mad.mad25_p03_team03.LoginScreen // LoginScreen is being left in MainActivity.kt
-
-// 1. Define the possible screens/destinations (Sealed Class)
-sealed class Screen {
-    data object Login : Screen()
-    data object GameSplash : Screen()
-    data object GamePlay : Screen()
-    data object SongIdentifier : Screen() // The song ID activity you implemented earlier
-}
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import np.ict.mad.mad25_p03_team03.ui.*
 
 @Composable
-fun AppNavHost() {
-    // 2. Track the current screen state. Start on the splash screen for the game.
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.GameSplash) }
-
-    when (currentScreen) {
-        Screen.Login -> LoginScreen()
-
-        Screen.GameSplash -> SongGuessingGameScreen(
-            // Pass a callback to transition to the GamePlay screen
-            onStartGameClick = {
-                currentScreen = Screen.GamePlay
-            },
-            // Example for Song Library button
-            onSongLibraryClick = {
-                // You can add logic here to navigate to a Library screen if you create one
-            }
-        )
-
-        Screen.GamePlay -> GamePlayScreen()
-
-        Screen.SongIdentifier -> {
-            // Placeholder for SongIdentifier screen
-            Text("Song Identifier Screen Placeholder")
+fun AppNavHost(
+    navController: NavHostController = rememberNavController(),
+    songRepository: SongRepository
+) {
+    NavHost(
+        navController = navController,
+        startDestination = "test_firebase"  // 暂时改为测试页面
+    ) {
+        composable("test_firebase") {
+            FirebaseTestScreen(songRepository = songRepository)
         }
+
+        composable("game_splash") {
+            SongGuessingGameScreen(
+                onStartGameClick = {
+                    // navController.navigate("game_play")  // ❌ 注释掉，因为 GamePlayScreen 已被注释
+                    navController.navigate("test_firebase")  // ✅ 临时导航到测试页面
+                },
+                onSongLibraryClick = {
+                    navController.navigate("library")
+                }
+            )
+        }
+
+        // composable("game_play") {  // ❌ 注释掉整个 GamePlayScreen 的路由
+        //     GamePlayScreen(
+        //         songRepository = songRepository,
+        //         onGameComplete = { navController.navigate("game_splash") }
+        //     )
+        // }
     }
 }

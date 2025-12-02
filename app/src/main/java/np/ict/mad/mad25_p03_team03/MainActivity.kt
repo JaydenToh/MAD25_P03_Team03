@@ -31,8 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import np.ict.mad.mad25_p03_team03.data.FirestoreService
 import np.ict.mad.mad25_p03_team03.navigation.AppNavHost
-import np.ict.mad.mad25_p03_team03.ui.GamePlayScreen
+import SongRepository
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +45,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
+                    val firestoreService = FirestoreService()
+                    val songRepository = SongRepository(firestoreService)
 
-                    App()
-                    //AppNavHost()
+                    AppNavHost(songRepository = songRepository)
                 }
             }
         }
