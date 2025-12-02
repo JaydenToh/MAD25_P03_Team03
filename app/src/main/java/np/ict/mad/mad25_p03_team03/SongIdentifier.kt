@@ -118,7 +118,7 @@ class SongIdentifier : ComponentActivity() {
             statusText = "Listening…"
 
 
-            // Auto-stop after 8 seconds if no audio recorded
+            // Auto-stop after 8 seconds
             Handler(Looper.getMainLooper()).postDelayed({
                 if (isRecording) stopRecording()
             }, 8000)
@@ -319,7 +319,7 @@ fun SongIdentifierScreen(
                 lineHeight = 22.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 100.dp)
+                    .padding(bottom = 50.dp)
             )
         }
     }
