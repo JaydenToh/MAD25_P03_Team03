@@ -43,13 +43,14 @@ class SongIdentifier : ComponentActivity() {
 
     // Compose UI state
     private var isRecording by mutableStateOf(false)
-    private var statusText by mutableStateOf("Tap the button to start listening")
+    private var statusText by mutableStateOf("Tap the music note to start")
     private var songText by mutableStateOf("")
 
     // Recording state
     private var mediaRecorder: MediaRecorder? = null
     private var audioFile: File? = null
 
+    // Request for microphone permission
     private val requestMicPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -61,6 +62,7 @@ class SongIdentifier : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         setContent {
             MaterialTheme {
@@ -82,7 +84,7 @@ class SongIdentifier : ComponentActivity() {
     }
 
 
-
+    // Check microphone permission before starting to record
     private fun checkPermissionAndStart() {
         val hasPermission = ContextCompat.checkSelfPermission(
             this,
@@ -92,15 +94,16 @@ class SongIdentifier : ComponentActivity() {
         if (hasPermission) {
             startRecording()
         } else {
-            requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) // Ask the user for microphone access
         }
     }
 
+    // Configure it to start Recording and capturing audio
     private fun startRecording() {
         try {
+            // Use of LLM to get the code to store the audio recording in a external file directory
             audioFile = File(getExternalFilesDir(null), "temp_audio.m4a")
-
-            mediaRecorder = MediaRecorder().apply {
+            mediaRecorder = MediaRecorder(this).apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -115,7 +118,7 @@ class SongIdentifier : ComponentActivity() {
             statusText = "Listening…"
 
 
-            // Auto-stop after 8 seconds
+            // Auto-stop after 8 seconds if no audio recorded
             Handler(Looper.getMainLooper()).postDelayed({
                 if (isRecording) stopRecording()
             }, 8000)
@@ -143,24 +146,24 @@ class SongIdentifier : ComponentActivity() {
 
         val file = audioFile
         if (file == null || !file.exists() || file.length() <= 1000) {
-            statusText = "Tap the button to start listening"
+            statusText = "Tap the music note to start"
             songText = "Recording failed or was too short."
             return
         }
-
+        // Send audio file to AudD API for song recognition
         uploadToAudD(file)
     }
 
 
-//////////////////////////////// - Need API KEY - /////////////////////////////////////////////////////////////
     private fun uploadToAudD(file: File) {
-        val apiKeyRequest = "MY API KEY"
+        val apiKeyRequest = "MY API KEY"     // API Key to access AudD API
+
             .toRequestBody("text/plain".toMediaTypeOrNull())
 
         val audioRequest = file.asRequestBody("audio/*".toMediaTypeOrNull())
         val audioPart = MultipartBody.Part.createFormData("file", file.name, audioRequest)
 
-        RetrofitClient.apiService.identifySong(apiKeyRequest, audioPart)
+        RetrofitClient.apiService.identifySong(apiKeyRequest, audioPart)         // Call AudD identify endpoint via Retrofit
             .enqueue(object : Callback<SongResponse> {
 
                 override fun onResponse(
@@ -168,23 +171,23 @@ class SongIdentifier : ComponentActivity() {
                     response: Response<SongResponse>
                 ) {
                     if (!response.isSuccessful) {
-                        statusText = "Tap the button to start listening"
+                        statusText = "Tap the music note to start"
                         songText = "API error: ${response.code()}"
                         return
                     }
 
                     val result = response.body()?.result
                     if (result != null) {
-                        statusText = "Tap the button to identify another song"
+                        statusText = "Tap the music note to identify another song" // If Success: show song title and artist
                         songText = "Song: ${result.title}\nArtist: ${result.artist}"
                     } else {
-                        statusText = "No match found please try again"
+                        statusText = "No match found please try again" // API responded but could not recognize the song
 
                     }
                 }
-
+                // Will be called when network request itself fails or timeout
                 override fun onFailure(call: Call<SongResponse>, t: Throwable) {
-                    statusText = "Tap the button to try again"
+                    statusText = "Tap the music note to try again"
                     songText = "Network failure: ${t.message}"
                 }
             })
