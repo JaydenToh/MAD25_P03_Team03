@@ -319,7 +319,7 @@ fun SongIdentifierScreen(
                 lineHeight = 22.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 100.dp)
+                    .padding(bottom = 50.dp)
             )
         }
     }
