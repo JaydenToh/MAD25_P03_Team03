@@ -91,7 +91,174 @@ This document outlines the end-to-end user paths within the application, focusin
 | Logout | User taps Logout | Confirm → Back to Login |
 | Delete Account | User taps Delete | Severe warning + password confirmation |
 
+---
 
+### **Flow 4: Song Identifier**
+=======================
+
+### **4.1 Identify Song**
+------------------------------
+
+| Step | Action                                     | Expected Outcome                                                                     | Screen/State            |
+|------|--------------------------------------------|--------------------------------------------------------------------------------------|-------------------------|
+| 1    | User opens **Song Identifier**             | Screen shows a gradient background and a big circular button with a music note icon | Song Identifier Screen  |
+| 2    | User taps the **music note** button        | App asks for microphone permission if needed, or starts getting ready to listen     | Permission Dialog / Song Identifier |
+| 3    | Permission is granted                      | Button text changes to **“STOP SEARCHING”** and status shows that the app is listening | Listening State         |
+| 4    | User lets a song play near the phone       | App records a short sample and then starts processing the audio                     | Processing State        |
+| 5    | AudD API finds a matching song             | Screen displays the song title and artist (e.g. `Song: … / Artist: …`)              | Result Shown            |
+| 6    | User taps the button again                 | App gets ready to listen for another song and repeats the process                   | Listening State         |
+
+---
+
+Edge Cases and Alternatives
+---------------------------
+
+| Scenario                     | Trigger / Condition                                   | Resolution / Alternative Path                                                                 |
+|------------------------------|-------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| Microphone Permission Denied | User taps **Deny** on the permission popup           | Show a short message: “Microphone permission required”, and keep status as “Tap the music note to start” |
+| Recording Too Short / Invalid| Recording stops too early or file is empty/damaged   | Show message “Recording failed or was too short.” and ask user to tap the music note to try again       |
+| No Match Found               | AudD cannot recognise the song                       | Show status “No match found please try again” so user knows to try with clearer or louder audio         |
+| Network Error                | No internet connection or request fails              | Show simple error message such as “Network failure: …” and ask the user to try again later              |
+| API Error (4xx / 5xx)        | AudD returns an error instead of a normal result     | Show `API error: <code>` at the bottom and reset status to “Tap the music note to start”                |
+| User Stops Recording Early   | User taps the button while the app is listening      | App stops recording immediately and still tries to identify the song using the recorded audio           |
+
+
+
+
+
+# User Problems and Opportunities
+
+### Problem 1: Onboarding and progression feel confusing or frustrating
+Many music apps force users through long sign-up flows, confusing menus, and unclear levels or rewards. New users can feel lost and give up before even playing a round.
+
+**Opportunity for our app:**  
+Keep the flow simple and direct – let users start playing or identifying songs quickly, with a clean layout and clear labels (e.g. “Play”, “Song Library”, “Song Identifier”). Progression (scores, levels, achievements) is shown in one place, not hidden behind multiple screens.
+
+---
+
+### Problem 2: Hard to track which songs were guessed correctly and what achievements were earned
+In most quiz apps, once a round ends, the information disappears. Users can’t easily see:
+- Which songs they got right
+- Which ones they missed
+- What achievements or rewards they have already earned
+
+**Opportunity for our app:**  
+Provide a **History / Profile / Stats** section that clearly shows:
+- List of songs guessed correctly
+- Rounds played and high scores
+- Badges or achievements unlocked  
+This helps users feel progress over time and motivates them to keep playing.
+
+---
+
+### Problem 3: Song libraries feel limited, repetitive, or inaccurate
+Users often complain that song guessing games:
+- Repeat the same tracks too often  
+- Have poorly organised categories (wrong decade/genre)  
+- Don’t cover enough variety for different ages or music tastes
+
+**Opportunity for our app:**  
+Design a **flexible, expandable song library**, with:
+- Categories like genre, decade, language, and difficulty
+- The ability to add more songs over time
+- Cleaner organisation so users know what type of music they are playing with
+
+---
+
+### Problem 4: No single app that both identifies a song and lets you interact with it in the same place
+Typical user flow today:
+1. Use a song ID app (e.g. Shazam-style) to identify the song  
+2. Switch to another app (Spotify/YouTube) to listen  
+3. Use a separate game app if they want quizzes or challenges  
+
+This means users keep jumping between apps just to enjoy or test themselves on one song.
+
+**Opportunity for our app:**  
+Combine **song identification + song library + guessing game** in one app:
+- User can identify a song using the **Song Identifier**
+- Immediately see it inside the app’s library
+- Use it in a quiz/guessing mode or save it as a favourite  
+This gives a smoother, all-in-one music experience.
+
+---
+
+### Problem 5: Song recognition isn’t always reliable
+Song recognition tools sometimes:
+- Fail to detect songs due to noise or low volume
+- Struggle with certain audio setups
+- Show generic error messages with no guidance
+
+Users are left unsure what to do next.
+
+**Opportunity for our app:**  
+Handle recognition failures more gracefully by:
+- Showing clear states: “Listening…”, “Processing…”, “No match found, please try again”
+- Allowing users to retry easily
+- Still letting users play the **song guessing game** even when identification fails  
+This makes the app feel more reliable and less frustrating, even when the external API cannot find a match.
+
+
+
+
+# Competitor Analysis
+
+### Competitor 1: SongPop
+**What it does:**  
+SongPop is a multiplayer music trivia game where players guess songs from short clips and themed playlists.
+
+**Relevance to our app:**  
+Shows how music quizzes use categories (genre, decade, theme) and fast rounds to keep users engaged.
+
+**Opportunity for our app:**  
+Apply a similar idea of playlists and difficulty, but keep the experience simpler and combine it with our song identifier feature.
+
+---
+
+### Competitor 2: Guess The Song – Music Quiz
+**What it does:**  
+A mobile game where users listen to a short audio clip and choose the correct song or artist from multiple-choice options.
+
+**Relevance to our app:**  
+Demonstrates that “listen then pick an answer” is easy to understand and works well for casual music games.
+
+**Opportunity for our app:**  
+Include proper tracking of correct guesses, scores, and basic achievements, not just instant “right/wrong” feedback.
+
+---
+
+### Competitor 3: Heardle
+**What it does:**  
+A daily music puzzle where users guess a song from very short snippets, with more of the song revealed after each wrong guess.
+
+**Relevance to our app:**  
+Shows the appeal of a simple daily challenge that brings users back regularly.
+
+**Opportunity for our app:**  
+Offer a challenge-style mode inspired by Heardle, but also provide free-play rounds and a music library so users can play more than once per day.
+
+---
+
+### Competitor 4: Shazam
+**What it does:**  
+A song identification app that listens to audio and shows the song title, artist, and links to play it.
+
+**Relevance to our app:**  
+Inspires our **Song Identifier** feature, where the app listens to real-world audio and tries to recognise the track.
+
+**Opportunity for our app:**  
+Instead of only showing details, allow users to interact with identified songs inside our app (e.g. add to library, use in guessing rounds).
+
+---
+
+### Competitor 5: Spotiguess
+**What it does:**  
+Spotiguess is a music quiz that connects to a user’s Spotify account and creates quizzes from their playlists and listening history.
+
+**Relevance to our app:**  
+Shows the value of quizzes built from curated or personalised song lists.
+
+**Opportunity for our app:**  
+Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
 
 
 
