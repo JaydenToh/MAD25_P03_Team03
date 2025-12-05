@@ -94,7 +94,6 @@ This document outlines the end-to-end user paths within the application, focusin
 ---
 
 ### **Flow 4: Song Identifier**
-=======================
 
 ### **4.1 Identify Song**
 ------------------------------
@@ -192,7 +191,7 @@ Users are left unsure what to do next.
 
 **Opportunity for our app:**  
 Handle recognition failures more gracefully by:
-- Showing clear states: “Listening…”, “Processing…”, “No match found, please try again”
+- Showing clear states: “Listening…”, “Processing…”, “No match found, please try again.”
 - Allowing users to retry easily
 - Still letting users play the **song guessing game** even when identification fails  
 This makes the app feel more reliable and less frustrating, even when the external API cannot find a match.
