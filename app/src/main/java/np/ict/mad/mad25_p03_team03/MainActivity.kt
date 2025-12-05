@@ -32,8 +32,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import np.ict.mad.mad25_p03_team03.data.FirestoreService
-import np.ict.mad.mad25_p03_team03.navigation.AppNavHost
-import SongRepository
+import np.ict.mad.mad25_p03_team03.navigation.AppNavGraph
+import np.ict.mad.mad25_p03_team03.data.SongRepository
 
 
 class MainActivity : ComponentActivity() {
@@ -45,10 +45,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    val firestoreService = FirestoreService()
-                    val songRepository = SongRepository(firestoreService)
-
-                    AppNavHost(songRepository = songRepository)
+                    val songRepository = SongRepository()
+                    AppNavGraph(songRepository = songRepository)
                 }
             }
         }

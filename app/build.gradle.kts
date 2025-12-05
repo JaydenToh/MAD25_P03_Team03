@@ -83,6 +83,14 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
 
+    // ✅ 新增：Supabase Kotlin SDK (Jan's official community SDK)
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.0.0")   // Auth
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.0") // Database
+    implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")   // Storage
+    implementation("io.ktor:ktor-client-android:3.0.0") // Ktor client is required
+
+
+
 
 
 
