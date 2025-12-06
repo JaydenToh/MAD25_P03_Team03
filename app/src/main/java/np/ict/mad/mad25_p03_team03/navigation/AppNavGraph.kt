@@ -8,7 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import np.ict.mad.mad25_p03_team03.SongIdentifier
-import np.ict.mad.mad25_p03_team03.data.SongRepository // 👈 新增导入
+import np.ict.mad.mad25_p03_team03.SongLibrary
+import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
@@ -29,10 +30,10 @@ fun AppNavGraph(songRepository: SongRepository) {
         composable("home") {
             HomeScreen(
                 onStartGame = { navController.navigate("rules") },
-                onOpenLibrary = { navController.navigate("library") },
-                onSearchSongs = { navController.navigate("search") },
+                onOpenLibrary = {
+                    context.startActivity(Intent(context, SongLibrary::class.java))
+                },
                 onIdentifySong = {
-                    // ✅ 跳转到 Activity
                     val intent = Intent(context, SongIdentifier::class.java)
                     context.startActivity(intent)
                 }

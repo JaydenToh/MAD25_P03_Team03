@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 fun HomeScreen(
     onStartGame: () -> Unit,
     onOpenLibrary: () -> Unit,
-    onSearchSongs: () -> Unit,
     onIdentifySong: () -> Unit
 ) {
     Scaffold(
