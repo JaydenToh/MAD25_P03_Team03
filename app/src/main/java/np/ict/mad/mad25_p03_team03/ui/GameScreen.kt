@@ -31,13 +31,12 @@ fun GameScreen(
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
     var message by remember { mutableStateOf("") }
-    var timeLeft by remember { mutableStateOf(40) } // ✅ 默认 15 秒
+    var timeLeft by remember { mutableStateOf(40) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
-    var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) } // ✅ 管理定时器
+    var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
 
     val currentQuestion = questions.getOrNull(currentIndex)
 
-    // ✅ 稳健的播放函数
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
@@ -89,13 +88,10 @@ fun GameScreen(
         isLoading = false
     }
 
-    // ✅ 核心修复：每换一题，重置 15 秒倒计时
+    // 每换一题，重置 40 秒倒计时
     LaunchedEffect(currentIndex, isLoading) {
         if (!isLoading && currentIndex < questions.size) {
-            // 取消上一题定时器（防泄漏）
             currentTimer?.cancel()
-
-            // 重置时间 & 启动新定时器
             timeLeft = 40
             playAudio(questions[currentIndex].audioUrl)
 
@@ -119,10 +115,8 @@ fun GameScreen(
         }
     }
 
-    // ✅ 提前取消定时器（用户手动答题时）
     fun advanceToNextQuestion(isCorrect: Boolean) {
-        currentTimer?.cancel() // ⏹️ 立即停止倒计时
-
+        currentTimer?.cancel()
         if (isCorrect) {
             score += 10
             message = "✅ Correct!"
@@ -130,13 +124,11 @@ fun GameScreen(
             lives -= 1
             message = "❌ Wrong!"
         }
-
         if (lives > 0 && currentIndex < questions.lastIndex) {
             currentIndex += 1
         }
     }
 
-    // 清理资源
     DisposableEffect(Unit) {
         onDispose {
             currentTimer?.cancel()
@@ -145,7 +137,7 @@ fun GameScreen(
         }
     }
 
-    // UI
+    // ✅ UI with emoji prompt
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -163,13 +155,14 @@ fun GameScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (isLoading) {
                     CircularProgressIndicator()
                     Text("Loading songs...")
                 } else if (currentQuestion != null) {
+                    // 状态栏
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -179,30 +172,63 @@ fun GameScreen(
                         Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
                     }
 
-                    Button(onClick = { playAudio(currentQuestion.audioUrl) }) {
-                        Text("▶️ Play Song Clip")
+                    // ✅ 优化后的提示语：更大、更醒目
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "🎵 What is this song? 🎶",
+                            style = MaterialTheme.typography.headlineSmall, // 👈 从 titleLarge → headlineSmall（更大）
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "🎧 Select your correct answer below ⬇️",
+                            style = MaterialTheme.typography.titleMedium, // 👈 从 bodyMedium → titleMedium
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
 
+                    // ✅ 播放按钮：更小 + 柔和色（secondaryContainer）
+                    Button(
+                        onClick = { playAudio(currentQuestion.audioUrl) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp), // 👈 从 56dp → 48dp
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Text("▶️ Replay Song Clip", fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                    }
+
+                    // 选项按钮：保持高度 56dp，用默认 primaryContainer 色（或可显式指定）
                     currentQuestion.options.forEach { option ->
                         Button(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
                             onClick = {
                                 advanceToNextQuestion(option == currentQuestion.correctTitle)
                             }
                         ) {
-                            Text(option)
+                            Text(option, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                         }
                     }
 
+                    // 提示消息（保持不变）
                     if (message.isNotEmpty()) {
                         Text(
                             message,
                             color = if (message.contains("Correct")) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Medium
                         )
                     }
 
-                    // ✅ 结局判断（更精准）
+                    // 结局（保持不变）
                     val isAllDone = currentIndex >= questions.size
                     val isSuccess = isAllDone && lives > 0
 
@@ -220,13 +246,16 @@ fun GameScreen(
 
                             if (lives <= 0) {
                                 Spacer(Modifier.height(24.dp))
-                                Button(onClick = {
-                                    currentIndex = 0
-                                    score = 0
-                                    lives = 3
-                                    message = ""
-                                }) {
-                                    Text("↺ Restart")
+                                Button(
+                                    onClick = {
+                                        currentIndex = 0
+                                        score = 0
+                                        lives = 3
+                                        message = ""
+                                    },
+                                    modifier = Modifier.height(56.dp)
+                                ) {
+                                    Text("↺ Restart", fontSize = 16.sp)
                                 }
                             }
                         }
