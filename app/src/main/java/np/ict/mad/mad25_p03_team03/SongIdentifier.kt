@@ -260,7 +260,7 @@ fun SongIdentifierScreen(
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    modifier = Modifier.padding(top = 150.dp)
+                    modifier = Modifier.padding(top = 60.dp)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
