@@ -2,18 +2,6 @@
 ##Disclaimer
 This is a student assignment project for the Kotlin App Development module at Ngee Ann Polytechnic. Developed for educational purposes.
 
-## Introduction
-
-<img width="215" height="292" alt="image" src="https://github.com/user-attachments/assets/0ad60587-d0ef-45cd-aef3-6b97e7206178" />
-
-This project is a Kotlin-based mobile application designed to provide an interactive and engaging music experience. The app combines elements of a quiz game, song discovery, and user account management to create a complete and user-friendly platform.
-
-At its core, the Music Quiz App challenges users to identify songs through a multiple-choice guessing game, complete with a timer and a heart/life system to increase difficulty. Beyond the game, users can browse a structured song library, search for tracks, and even identify songs through an external API.
-
-The application also includes a full login and signup system, ensuring personalized access for users. After logging in, users are greeted with a dedicated Home Page that serves as the central hub to navigate the game, song library, and other features.
-
-Overall, this project showcases the integration of UI design, Kotlin development, API usage, and user authentication to deliver a fun and functional music-based mobile app.
-
 ---------------------------
 
 ## 🌟 Motivation / Objective
@@ -335,7 +323,10 @@ Shows the value of quizzes built from curated or personalised song lists.
 
 **Opportunity for our app:**  
 Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
+Declaration of LLM Used
+
+Tasks & Featured for Each Member for Stage 1
 
 
-
+Planned Tasks & Featured for Each Member for Stage 2
 
