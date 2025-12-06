@@ -28,8 +28,11 @@ fun AppNavGraph(songRepository: SongRepository) { // ✅ 加参数
         }
 
         composable("game") {
-            GameScreen(songRepository = songRepository) // ✅ 传给 GameScreen
+            GameScreen(songRepository = songRepository, onNavigateBack = { navController.popBackStack() } )
+        // ✅ 传给 GameScreen
         }
+
+
 
 
 

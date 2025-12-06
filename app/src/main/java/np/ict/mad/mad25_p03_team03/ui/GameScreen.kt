@@ -1,10 +1,12 @@
-// np/ict/mad/mad25_p03_team03/ui/GameScreen.kt
+// np/ict.mad.mad25_p03_team03/ui/GameScreen.kt
 
 package np.ict.mad.mad25_p03_team03.ui
 
 import android.media.MediaPlayer
 import android.os.CountDownTimer
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,13 +16,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import np.ict.mad.mad25_p03_team03.data.SongRepository
-import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameScreen(songRepository: SongRepository) {
-
+fun GameScreen(
+    songRepository: SongRepository,
+    onNavigateBack: () -> Unit  // 👈 新增回调：返回上一页
+) {
     val context = LocalContext.current
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -34,12 +37,11 @@ fun GameScreen(songRepository: SongRepository) {
 
     val currentQuestion = questions.getOrNull(currentIndex)
 
-    // ✅ 1. 将 playAudio 移到这里 (LaunchedEffect 之前)，以便它们可以调用它
+    // ✅ 播放函数（同前）
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
 
-        // 先清理旧的播放器
         mediaPlayer?.apply {
             if (isPlaying) stop()
             release()
@@ -49,37 +51,29 @@ fun GameScreen(songRepository: SongRepository) {
             val mp = MediaPlayer().apply {
                 setAudioStreamType(android.media.AudioManager.STREAM_MUSIC)
                 setDataSource(cleanUrl)
-                // 准备好后自动播放
-                setOnPreparedListener {
-                    it.start()
-                    println("🎵 Auto-playing: $cleanUrl")
-                }
+                setOnPreparedListener { it.start() }
                 setOnCompletionListener { release(); mediaPlayer = null }
-                setOnErrorListener { _, _, _ ->
-                    release(); mediaPlayer = null; true
-                }
-                prepareAsync() // 异步准备，不卡顿 UI
+                setOnErrorListener { _, _, _ -> release(); mediaPlayer = null; true }
+                prepareAsync()
             }
             mediaPlayer = mp
         } catch (e: Exception) {
             e.printStackTrace()
-            // message = "Audio error" // 可以选择不显示错误以免打扰用户
             mediaPlayer = null
         }
     }
 
-    // 加载数据的 Effect
+    // 加载数据
     LaunchedEffect(Unit) {
         isLoading = true
         val remoteSongs = songRepository.fetchSongsFromSupabase()
-        if (remoteSongs.isNotEmpty()) {
-            questions = remoteSongs.map { songDto ->
+        questions = if (remoteSongs.isNotEmpty()) {
+            remoteSongs.map { songDto ->
                 val options = (listOf(songDto.title) + songDto.fakeOptions).shuffled().take(4)
                 SongQuestion(songDto.title, options, songDto.audioUrl)
             }
         } else {
-            // Fallback data
-            questions = listOf(
+            listOf(
                 SongQuestion("Blinding Lights", listOf("Blinding Lights", "Save Your Tears", "Levitating", "Peaches"), "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
                 SongQuestion("Bohemian Rhapsody", listOf("Bohemian Rhapsody", "Stairway to Heaven", "Hotel California", "Imagine"), "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3")
             )
@@ -87,27 +81,23 @@ fun GameScreen(songRepository: SongRepository) {
         isLoading = false
     }
 
-    // ✅ 2. 核心修改：当 currentIndex 改变（换题）或 isLoading 结束时，自动播放
+    // 换题时自动播放 + 计时
     LaunchedEffect(currentIndex, isLoading) {
-        if (!isLoading && questions.isNotEmpty() && currentIndex < questions.size) {
-            // 每次换题，重置时间
+        if (!isLoading && currentIndex < questions.size) {
             timeLeft = 10
+            playAudio(questions[currentIndex].audioUrl)
 
-            // 自动播放当前歌曲
-            val urlToPlay = questions[currentIndex].audioUrl
-            playAudio(urlToPlay)
-
-            // 启动倒计时
             object : CountDownTimer(10000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    timeLeft = (millisUntilFinished / 1000).toInt()
+                    if (lives > 0 && currentIndex < questions.size) {
+                        timeLeft = (millisUntilFinished / 1000).toInt()
+                    }
                 }
                 override fun onFinish() {
-                    // 只有在还是当前题目时才扣分（防止用户已经点下一题了倒计时才结束）
                     if (lives > 0 && currentIndex < questions.size) {
                         lives -= 1
                         message = "⏰ Time's up!"
-                        if (lives > 0 && currentIndex < questions.size - 1) {
+                        if (lives > 0 && currentIndex < questions.lastIndex) {
                             currentIndex += 1
                         }
                     }
@@ -116,7 +106,7 @@ fun GameScreen(songRepository: SongRepository) {
         }
     }
 
-    // 清理资源的 Effect (当组件销毁时)
+    // 清理资源
     DisposableEffect(Unit) {
         onDispose {
             mediaPlayer?.release()
@@ -124,78 +114,113 @@ fun GameScreen(songRepository: SongRepository) {
         }
     }
 
-    // ✅ UI 部分
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("🎵 Song Guesser", style = MaterialTheme.typography.headlineMedium)
-
-        if (isLoading) {
-            CircularProgressIndicator()
-            Text("Loading...")
-        } else if (currentQuestion != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+    // 👇 关键：用 Scaffold 包裹，自动避开状态栏
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text("🎵 Song Guesser", fontWeight = FontWeight.Bold)
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to Rules"
+                        )
+                    }
+                }
+            )
+        },
+        content = { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Score: $score")
-                Text("Lives: $lives")
-                Text("Time: $timeLeft")
-            }
+                if (isLoading) {
+                    CircularProgressIndicator()
+                    Text("Loading songs...")
+                } else if (currentQuestion != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Score: $score", style = MaterialTheme.typography.bodyLarge)
+                        Text("Lives: $lives", style = MaterialTheme.typography.bodyLarge)
+                        Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
+                    }
 
-            // 这里的按钮不动，用户想重听时可以手动点
-            Button(onClick = { playAudio(currentQuestion.audioUrl) }) {
-                Text("▶️ Play Song Clip")
-            }
+                    Button(onClick = { playAudio(currentQuestion.audioUrl) }) {
+                        Text("▶️ Play Song Clip")
+                    }
 
-            currentQuestion.options.forEach { option ->
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        if (option == currentQuestion.correctTitle) {
-                            score += 10
-                            message = "✅ Correct!"
-                        } else {
-                            lives -= 1
-                            message = "❌ Wrong!"
-                        }
-                        if (lives > 0 && currentIndex < questions.size - 1) {
-                            currentIndex += 1
+                    currentQuestion.options.forEach { option ->
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                if (option == currentQuestion.correctTitle) {
+                                    score += 10
+                                    message = "✅ Correct!"
+                                } else {
+                                    lives -= 1
+                                    message = "❌ Wrong!"
+                                }
+                                if (lives > 0 && currentIndex < questions.lastIndex) {
+                                    currentIndex += 1
+                                }
+                            }
+                        ) {
+                            Text(option)
                         }
                     }
-                ) {
-                    Text(option)
-                }
-            }
 
-            if (message.isNotEmpty()) {
-                Text(message, color = if (message.contains("Correct")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
-            }
+                    if (message.isNotEmpty()) {
+                        Text(
+                            message,
+                            color = if (message.contains("Correct")) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.error
+                        )
+                    }
 
-            // 游戏结束/通关逻辑
-            if (lives <= 0 || currentIndex >= questions.size - 1 && lives > 0 && message.contains("Correct")) {
-                // 注意：这里的逻辑可能需要根据你具体想要何时显示“结束画面”微调
-                // 比如你是想答完最后一题马上结束，还是等最后一题判定完
-            }
+                    // ✅ 游戏结局页面（成功 or 失败）
+                    val isGameOver = lives <= 0
+                    val isSuccess = !isGameOver && currentIndex >= questions.lastIndex && message.isNotBlank()
 
-            // 为了简单演示，如果 lives 没了，显示 Reset
-            if (lives <= 0) {
-                Button(onClick = {
-                    currentIndex = 0
-                    score = 0
-                    lives = 3
-                    message = ""
-                    // 重置会自动触发 LaunchedEffect 里的 playAudio
-                }) {
-                    Text("Game Over - Restart")
+                    if (isGameOver || isSuccess) {
+                        Spacer(Modifier.weight(1f))
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = if (isSuccess) "🎉 Success!" else "😢 Game Over",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSuccess) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.error
+                            )
+                            Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
+
+                            if (isGameOver) {
+                                Spacer(Modifier.height(24.dp))
+                                Button(onClick = {
+                                    currentIndex = 0
+                                    score = 0
+                                    lives = 3
+                                    message = ""
+                                }) {
+                                    Text("↺ Restart")
+                                }
+                            }
+                        }
+                        Spacer(Modifier.weight(1f))
+                    }
                 }
             }
         }
-    }
+    )
 }
 
 data class SongQuestion(
