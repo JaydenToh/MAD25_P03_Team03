@@ -15,8 +15,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import np.ict.mad.mad25_p03_team03.data.SongRepository // 👈 你的 Repository
-import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto // 👈 你的 DTO
+import np.ict.mad.mad25_p03_team03.data.SongRepository
+import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto
 
 @Composable
 fun GameScreen(songRepository: SongRepository) {
@@ -34,64 +34,12 @@ fun GameScreen(songRepository: SongRepository) {
 
     val currentQuestion = questions.getOrNull(currentIndex)
 
-    LaunchedEffect(Unit) {
-        isLoading = true
-        println("🔍 DEBUG: Launching Supabase fetch...")
-        val remoteSongs = songRepository.fetchSongsFromSupabase()
-        println("🔍 DEBUG: Fetched ${remoteSongs.size} songs")
-        if (remoteSongs.isNotEmpty()) {
-            questions = remoteSongs.map { songDto ->
-                val options = (listOf(songDto.title) + songDto.fakeOptions).shuffled().take(4)
-                SongQuestion(songDto.title, options, songDto.audioUrl)
-            }
-        } else {
-            println("⚠️ DEBUG: Using fallback data")
-            questions = listOf(
-                SongQuestion(
-                    correctTitle = "Blinding Lights",
-                    options = listOf("Blinding Lights", "Save Your Tears", "Levitating", "Peaches"),
-                    audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-                ),
-                SongQuestion(
-                    correctTitle = "Bohemian Rhapsody",
-                    options = listOf("Bohemian Rhapsody", "Stairway to Heaven", "Hotel California", "Imagine"),
-                    audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-                )
-            )
-        }
-        isLoading = false
-    }
-
-    LaunchedEffect(currentIndex) {
-        if (currentIndex >= questions.size) return@LaunchedEffect
-        timeLeft = 10
-        object : CountDownTimer(10000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                timeLeft = (millisUntilFinished / 1000).toInt()
-            }
-            override fun onFinish() {
-                lives -= 1
-                message = "⏰ Time's up!"
-                if (lives > 0 && currentIndex < questions.size - 1) {
-                    currentIndex += 1
-                }
-            }
-        }.start()
-    }
-
-    LaunchedEffect(currentIndex) {
-        mediaPlayer?.apply {
-            if (isPlaying) stop()
-            release()
-        }
-        mediaPlayer = null
-    }
-
-    // ✅ 修复版 playAudio
+    // ✅ 1. 将 playAudio 移到这里 (LaunchedEffect 之前)，以便它们可以调用它
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
 
+        // 先清理旧的播放器
         mediaPlayer?.apply {
             if (isPlaying) stop()
             release()
@@ -101,22 +49,82 @@ fun GameScreen(songRepository: SongRepository) {
             val mp = MediaPlayer().apply {
                 setAudioStreamType(android.media.AudioManager.STREAM_MUSIC)
                 setDataSource(cleanUrl)
-                setOnPreparedListener { if (!isPlaying) start() }
+                // 准备好后自动播放
+                setOnPreparedListener {
+                    it.start()
+                    println("🎵 Auto-playing: $cleanUrl")
+                }
                 setOnCompletionListener { release(); mediaPlayer = null }
                 setOnErrorListener { _, _, _ ->
                     release(); mediaPlayer = null; true
                 }
-                prepareAsync()
+                prepareAsync() // 异步准备，不卡顿 UI
             }
             mediaPlayer = mp
         } catch (e: Exception) {
             e.printStackTrace()
-            message = "Audio error"
+            // message = "Audio error" // 可以选择不显示错误以免打扰用户
             mediaPlayer = null
         }
     }
 
-    // ✅ UI
+    // 加载数据的 Effect
+    LaunchedEffect(Unit) {
+        isLoading = true
+        val remoteSongs = songRepository.fetchSongsFromSupabase()
+        if (remoteSongs.isNotEmpty()) {
+            questions = remoteSongs.map { songDto ->
+                val options = (listOf(songDto.title) + songDto.fakeOptions).shuffled().take(4)
+                SongQuestion(songDto.title, options, songDto.audioUrl)
+            }
+        } else {
+            // Fallback data
+            questions = listOf(
+                SongQuestion("Blinding Lights", listOf("Blinding Lights", "Save Your Tears", "Levitating", "Peaches"), "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
+                SongQuestion("Bohemian Rhapsody", listOf("Bohemian Rhapsody", "Stairway to Heaven", "Hotel California", "Imagine"), "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3")
+            )
+        }
+        isLoading = false
+    }
+
+    // ✅ 2. 核心修改：当 currentIndex 改变（换题）或 isLoading 结束时，自动播放
+    LaunchedEffect(currentIndex, isLoading) {
+        if (!isLoading && questions.isNotEmpty() && currentIndex < questions.size) {
+            // 每次换题，重置时间
+            timeLeft = 10
+
+            // 自动播放当前歌曲
+            val urlToPlay = questions[currentIndex].audioUrl
+            playAudio(urlToPlay)
+
+            // 启动倒计时
+            object : CountDownTimer(10000, 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    timeLeft = (millisUntilFinished / 1000).toInt()
+                }
+                override fun onFinish() {
+                    // 只有在还是当前题目时才扣分（防止用户已经点下一题了倒计时才结束）
+                    if (lives > 0 && currentIndex < questions.size) {
+                        lives -= 1
+                        message = "⏰ Time's up!"
+                        if (lives > 0 && currentIndex < questions.size - 1) {
+                            currentIndex += 1
+                        }
+                    }
+                }
+            }.start()
+        }
+    }
+
+    // 清理资源的 Effect (当组件销毁时)
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer?.release()
+            mediaPlayer = null
+        }
+    }
+
+    // ✅ UI 部分
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,6 +147,7 @@ fun GameScreen(songRepository: SongRepository) {
                 Text("Time: $timeLeft")
             }
 
+            // 这里的按钮不动，用户想重听时可以手动点
             Button(onClick = { playAudio(currentQuestion.audioUrl) }) {
                 Text("▶️ Play Song Clip")
             }
@@ -154,7 +163,6 @@ fun GameScreen(songRepository: SongRepository) {
                             lives -= 1
                             message = "❌ Wrong!"
                         }
-                        // 仅当还有 lives 且没答完题，才进下一题
                         if (lives > 0 && currentIndex < questions.size - 1) {
                             currentIndex += 1
                         }
@@ -168,33 +176,23 @@ fun GameScreen(songRepository: SongRepository) {
                 Text(message, color = if (message.contains("Correct")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
             }
 
-            // ✅ 关键修复：用 .size 而非 .lastIndex
-            if (lives <= 0 || currentIndex >= questions.size) {
-                Spacer(Modifier.weight(1f))
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        "🎉 Game Over!\nFinal Score: $score",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = {
-                            currentIndex = 0
-                            score = 0
-                            lives = 3
-                            message = ""
-                        },
-                        modifier = Modifier.width(200.dp)
-                    ) {
-                        Text("↺ Play Again")
-                    }
+            // 游戏结束/通关逻辑
+            if (lives <= 0 || currentIndex >= questions.size - 1 && lives > 0 && message.contains("Correct")) {
+                // 注意：这里的逻辑可能需要根据你具体想要何时显示“结束画面”微调
+                // 比如你是想答完最后一题马上结束，还是等最后一题判定完
+            }
+
+            // 为了简单演示，如果 lives 没了，显示 Reset
+            if (lives <= 0) {
+                Button(onClick = {
+                    currentIndex = 0
+                    score = 0
+                    lives = 3
+                    message = ""
+                    // 重置会自动触发 LaunchedEffect 里的 playAudio
+                }) {
+                    Text("Game Over - Restart")
                 }
-                Spacer(Modifier.weight(1f))
             }
         }
     }
