@@ -62,7 +62,7 @@ fun GameScreen(
         }
     }
 
-    // 加载数据
+    // load questions from Supabase
     LaunchedEffect(Unit) {
         isLoading = true
         val remoteSongs = songRepository.fetchSongsFromSupabase()
@@ -88,7 +88,7 @@ fun GameScreen(
         isLoading = false
     }
 
-    // 每换一题，重置 40 秒倒计时
+    // Timer logic
     LaunchedEffect(currentIndex, isLoading) {
         if (!isLoading && currentIndex < questions.size) {
             currentTimer?.cancel()
@@ -162,7 +162,7 @@ fun GameScreen(
                     CircularProgressIndicator()
                     Text("Loading songs...")
                 } else if (currentQuestion != null) {
-                    // 状态栏
+                    // status row: score, lives, time
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -172,25 +172,25 @@ fun GameScreen(
                         Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
                     }
 
-                    // ✅ 优化后的提示语：更大、更醒目
+                    // improved title with emoji
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = "🎵 What is this song? 🎶",
-                            style = MaterialTheme.typography.headlineSmall, // 👈 从 titleLarge → headlineSmall（更大）
+                            style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = "🎧 Select your correct answer below ⬇️",
-                            style = MaterialTheme.typography.titleMedium, // 👈 从 bodyMedium → titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
-                    // ✅ 播放按钮：更小 + 柔和色（secondaryContainer）
+                    // Replay button: height reduced to 48dp for better spacing
                     Button(
                         onClick = { playAudio(currentQuestion.audioUrl) },
                         modifier = Modifier
@@ -204,7 +204,7 @@ fun GameScreen(
                         Text("▶️ Replay Song Clip", fontSize = 15.sp, fontWeight = FontWeight.Medium)
                     }
 
-                    // 选项按钮：保持高度 56dp，用默认 primaryContainer 色（或可显式指定）
+                    // options buttons
                     currentQuestion.options.forEach { option ->
                         Button(
                             modifier = Modifier
@@ -218,7 +218,7 @@ fun GameScreen(
                         }
                     }
 
-                    // 提示消息（保持不变）
+                    // prompt message
                     if (message.isNotEmpty()) {
                         Text(
                             message,
@@ -228,7 +228,7 @@ fun GameScreen(
                         )
                     }
 
-                    // 结局（保持不变）
+                    // game over / success message
                     val isAllDone = currentIndex >= questions.size
                     val isSuccess = isAllDone && lives > 0
 

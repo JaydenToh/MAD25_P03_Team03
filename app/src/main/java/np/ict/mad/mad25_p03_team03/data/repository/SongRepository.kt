@@ -12,7 +12,7 @@ import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto
 
 class SongRepository {
 
-    // 1. Fix: Add the builder block { install(Postgrest) }
+    // Initialize Supabase client
     private val supabase = createSupabaseClient(
         supabaseUrl = "https://qxttrbahplhiqdxxirbb.supabase.co",
         supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4dHRyYmFocGxoaXFkeHhpcmJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5MTQ3OTAsImV4cCI6MjA4MDQ5MDc5MH0.QIhpVaO4XC-m_fz-2LCu4tZ2UPi1aJDcajYcSNvsrOc" // Keep your key here
@@ -24,10 +24,10 @@ class SongRepository {
         return try {
             Log.d("SongRepo", "Fetching songs...")
 
-            // ✅ 核心修复：直接解码为 List<SongDto>
+
             val songs = supabase.from("songs")
                 .select(columns = Columns.list("id, title, artist, audio_url, fake_options"))
-                .decodeList<SongDto>() // ✨ 魔法发生在这里，自动解析 JSON
+                .decodeList<SongDto>() // Decode directly to a list of SongDto
 
             Log.d("SongRepo", "Fetched ${songs.size} songs")
             songs

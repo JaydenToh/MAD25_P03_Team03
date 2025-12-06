@@ -11,7 +11,7 @@ import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 
 
 @Composable
-fun AppNavGraph(songRepository: SongRepository) { // ✅ 加参数
+fun AppNavGraph(songRepository: SongRepository) {
 
     val navController = rememberNavController()
 
@@ -29,7 +29,7 @@ fun AppNavGraph(songRepository: SongRepository) { // ✅ 加参数
 
         composable("game") {
             GameScreen(songRepository = songRepository, onNavigateBack = { navController.popBackStack() } )
-        // ✅ 传给 GameScreen
+        // try to pass songRepository to GameScreen
         }
 
 
