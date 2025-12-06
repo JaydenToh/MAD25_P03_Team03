@@ -26,7 +26,8 @@ import androidx.compose.ui.unit.sp
 fun HomeScreen(
     onStartGame: () -> Unit,
     onOpenLibrary: () -> Unit,
-    onSearchSongs: () -> Unit
+    onSearchSongs: () -> Unit,
+    onIdentifySong: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -87,9 +88,9 @@ fun HomeScreen(
 
             HomeCard(
                 icon = "🔍",
-                title = "Song Identifier",
+                title = "Song Guessing Game",
                 description = "Recognize songs by listening",
-                onClick = onSearchSongs
+                onClick = onIdentifySong
             )
 
             HomeCard(
