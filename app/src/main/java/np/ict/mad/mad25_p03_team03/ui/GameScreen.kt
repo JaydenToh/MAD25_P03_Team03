@@ -41,7 +41,10 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
     // ✅ 加载 Supabase 数据（首次进入时）
     LaunchedEffect(Unit) {
         isLoading = true
+        println("🔍 DEBUG: Launching Supabase fetch...") // Debug log
+
         val remoteSongs = songRepository.fetchSongsFromSupabase()
+        println("🔍 DEBUG: Fetched ${remoteSongs.size} songs") // Debug log
         if (remoteSongs.isNotEmpty()) {
             questions = remoteSongs.map { songDto ->
                 val options = listOf(songDto.title) + songDto.fakeOptions
@@ -52,6 +55,7 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
                 )
             }
         } else {
+            println("⚠️ DEBUG: Supabase returned empty — using fallback")
             // ✅ fallback：Supabase 无数据时用本地测试（避免白屏）
             questions = listOf(
                 SongQuestion(

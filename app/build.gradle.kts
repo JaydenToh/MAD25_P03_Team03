@@ -87,8 +87,6 @@ dependencies {
     // ✅ 新增：Supabase Kotlin SDK (Jan's official community SDK)
     implementation(platform("io.github.jan-tennert.supabase:bom:3.0.0"))
     implementation("io.github.jan-tennert.supabase:postgrest-kt")// Database
-    implementation("io.github.jan-tennert.supabase:gotrue-kt:2.0.0")   // Auth // Database
-    implementation("io.github.jan-tennert.supabase:storage-kt:2.0.0")   // Storage
     implementation("io.ktor:ktor-client-android:3.0.0") // Ktor client is required
     implementation("io.ktor:ktor-client-logging:3.1.0")// Logging for Ktor client
     implementation("io.ktor:ktor-client-core:3.0.0") // Ktor core

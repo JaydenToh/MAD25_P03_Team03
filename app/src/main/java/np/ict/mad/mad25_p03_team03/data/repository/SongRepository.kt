@@ -1,8 +1,11 @@
 package np.ict.mad.mad25_p03_team03.data
 
+import android.util.Log
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto
@@ -17,16 +20,19 @@ class SongRepository {
         install(Postgrest)
     }
 
-    suspend fun fetchSongsFromSupabase(): List<SongDto> = withContext(Dispatchers.IO) {
-        try {
-            // 2. Fix: Use decodeList<SongDto>() for type safety
-            val songs = supabase.postgrest["songs"]
-                .select(columns = io.github.jan.supabase.postgrest.query.Columns.list("id, title, artist, audio_url, fake_options"))
-                .decodeList<SongDto>()
+    suspend fun fetchSongsFromSupabase(): List<SongDto> {
+        return try {
+            Log.d("SongRepo", "Fetching songs...")
 
+            // ✅ 核心修复：直接解码为 List<SongDto>
+            val songs = supabase.from("songs")
+                .select(columns = Columns.list("id, title, artist, audio_url, fake_options"))
+                .decodeList<SongDto>() // ✨ 魔法发生在这里，自动解析 JSON
+
+            Log.d("SongRepo", "Fetched ${songs.size} songs")
             songs
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SongRepo", "Error fetching songs", e)
             emptyList()
         }
     }
