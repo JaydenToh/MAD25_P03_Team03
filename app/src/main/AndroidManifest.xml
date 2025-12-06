@@ -19,7 +19,8 @@
             android:name=".SongLibrary"
             android:exported="false"
             android:label="@string/title_activity_song_library"
-            android:theme="@style/Theme.MAD25_P03_Team03" /> <!-- Main Activity -->
+            android:theme="@style/Theme.MAD25_P03_Team03" />
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,7 +31,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- SongIdentifier Activity -->
+        </activity>
+        <!-- SongIdentifier Activity -->
         <activity
             android:name=".SongIdentifier"
             android:exported="false"
