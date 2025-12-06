@@ -246,16 +246,33 @@ fun GameScreen(
 
                             if (lives <= 0) {
                                 Spacer(Modifier.height(24.dp))
-                                Button(
-                                    onClick = {
-                                        currentIndex = 0
-                                        score = 0
-                                        lives = 3
-                                        message = ""
-                                    },
-                                    modifier = Modifier.height(56.dp)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Text("↺ Restart", fontSize = 16.sp)
+                                    Button(
+                                        onClick = {
+                                            currentIndex = 0
+                                            score = 0
+                                            lives = 3
+                                            message = ""
+                                        },
+                                        modifier = Modifier.height(56.dp)
+                                    ) {
+                                        Text("↺ Restart", fontSize = 16.sp)
+                                    }
+
+                                    // back to rules button
+                                    Button(
+                                        onClick = onNavigateBack,
+                                        modifier = Modifier.height(56.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    ) {
+                                        Text("← Back to Rules", fontSize = 16.sp)
+                                    }
                                 }
                             }
                         }
