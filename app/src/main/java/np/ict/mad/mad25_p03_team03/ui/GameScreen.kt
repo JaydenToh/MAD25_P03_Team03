@@ -30,6 +30,7 @@ fun GameScreen(
     var currentIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
+    var isGameOver by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var timeLeft by remember { mutableStateOf(40) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
@@ -97,14 +98,19 @@ fun GameScreen(
 
             val timer = object : CountDownTimer(40_000, 1_000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    timeLeft = (millisUntilFinished / 1000).toInt()
+                    if (!isGameOver) { // extra check
+                        timeLeft = (millisUntilFinished / 1000).toInt()
+                    }
                 }
                 override fun onFinish() {
+                    if (isGameOver) return
                     timeLeft = 0
                     if (lives > 0 && currentIndex < questions.size) {
                         lives -= 1
                         message = "⏰ Time's up!"
-                        if (lives > 0 && currentIndex < questions.lastIndex) {
+                        if (lives <= 0) {
+                            isGameOver = true // mark game over
+                        } else if (currentIndex < questions.lastIndex) {
                             currentIndex += 1
                         }
                     }
@@ -116,6 +122,8 @@ fun GameScreen(
     }
 
     fun advanceToNextQuestion(isCorrect: Boolean) {
+        if (isGameOver) return
+
         currentTimer?.cancel()
         if (isCorrect) {
             score += 10
@@ -123,8 +131,12 @@ fun GameScreen(
         } else {
             lives -= 1
             message = "❌ Wrong!"
+            if (lives <= 0) {               // case lives run out
+                isGameOver = true           // mark game over
+            }
         }
-        if (lives > 0 && currentIndex < questions.lastIndex) {
+
+        if (!isGameOver && currentIndex < questions.lastIndex) {
             currentIndex += 1
         }
     }
@@ -212,7 +224,8 @@ fun GameScreen(
                                 .height(56.dp),
                             onClick = {
                                 advanceToNextQuestion(option == currentQuestion.correctTitle)
-                            }
+                            },
+                            enabled = !isGameOver // Disable if game over
                         ) {
                             Text(option, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                         }
