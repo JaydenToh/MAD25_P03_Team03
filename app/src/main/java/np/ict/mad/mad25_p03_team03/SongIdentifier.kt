@@ -40,7 +40,7 @@ import java.io.File
 
 // Compose UI state
 @Composable
-fun SongIdentifierContainer() {
+fun SongIdentifier() {
     val context = LocalContext.current
 
     var isRecording by remember { mutableStateOf(false) }
