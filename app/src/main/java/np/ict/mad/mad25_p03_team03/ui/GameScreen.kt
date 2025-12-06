@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import np.ict.mad.mad25_p03_team03.data.SongRepository
@@ -30,13 +31,20 @@ fun GameScreen(
     var currentIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
-    var isGameOver by remember { mutableStateOf(false) }
+    var isGameOver by remember { mutableStateOf(false) } // This tracks "Lost all lives"
     var message by remember { mutableStateOf("") }
     var timeLeft by remember { mutableStateOf(40) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
 
-    val currentQuestion = questions.getOrNull(currentIndex)
+    // state to track if all questions have been answered
+    // even if the player still has lives left
+    val isAllQuestionsAnswered = !isLoading && questions.isNotEmpty() && currentIndex >= questions.size
+    // real game finished state
+    val isGameFinished = isGameOver || isAllQuestionsAnswered
+
+    // only get current question if game is not finished
+    val currentQuestion = if (!isGameFinished) questions.getOrNull(currentIndex) else null
 
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
@@ -63,7 +71,6 @@ fun GameScreen(
         }
     }
 
-    // load questions from Supabase
     LaunchedEffect(Unit) {
         isLoading = true
         val remoteSongs = songRepository.fetchSongsFromSupabase()
@@ -77,12 +84,12 @@ fun GameScreen(
                 SongQuestion(
                     "Blinding Lights",
                     listOf("Blinding Lights", "Save Your Tears", "Levitating", "Peaches"),
-                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // ✅ 无空格
+                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
                 ),
                 SongQuestion(
                     "Bohemian Rhapsody",
                     listOf("Bohemian Rhapsody", "Stairway to Heaven", "Hotel California", "Imagine"),
-                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" // ✅ 无空格
+                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
                 )
             )
         }
@@ -90,27 +97,29 @@ fun GameScreen(
     }
 
     // Timer logic
-    LaunchedEffect(currentIndex, isLoading) {
-        if (!isLoading && currentIndex < questions.size) {
+    LaunchedEffect(currentIndex, isLoading, isGameFinished) {
+        // only start timer if game is ongoing
+        if (!isLoading && !isGameFinished && currentIndex < questions.size) {
             currentTimer?.cancel()
             timeLeft = 40
             playAudio(questions[currentIndex].audioUrl)
 
             val timer = object : CountDownTimer(40_000, 1_000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    if (!isGameOver) { // extra check
+                    if (!isGameOver) {
                         timeLeft = (millisUntilFinished / 1000).toInt()
                     }
                 }
                 override fun onFinish() {
                     if (isGameOver) return
                     timeLeft = 0
-                    if (lives > 0 && currentIndex < questions.size) {
+                    if (lives > 0) {
                         lives -= 1
                         message = "⏰ Time's up!"
                         if (lives <= 0) {
-                            isGameOver = true // mark game over
-                        } else if (currentIndex < questions.lastIndex) {
+                            isGameOver = true
+                        } else {
+                            // even on timeout, we advance to next question
                             currentIndex += 1
                         }
                     }
@@ -122,7 +131,7 @@ fun GameScreen(
     }
 
     fun advanceToNextQuestion(isCorrect: Boolean) {
-        if (isGameOver) return
+        if (isGameFinished) return
 
         currentTimer?.cancel()
         if (isCorrect) {
@@ -131,14 +140,14 @@ fun GameScreen(
         } else {
             lives -= 1
             message = "❌ Wrong!"
-            if (lives <= 0) {               // case lives run out
-                isGameOver = true           // mark game over
+            if (lives <= 0) {
+                isGameOver = true
+                return // game over, don't advance further
             }
         }
 
-        if (!isGameOver && currentIndex < questions.lastIndex) {
-            currentIndex += 1
-        }
+
+        currentIndex += 1
     }
 
     DisposableEffect(Unit) {
@@ -149,7 +158,6 @@ fun GameScreen(
         }
     }
 
-    // ✅ UI with emoji prompt
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -173,8 +181,10 @@ fun GameScreen(
                 if (isLoading) {
                     CircularProgressIndicator()
                     Text("Loading songs...")
-                } else if (currentQuestion != null) {
-                    // status row: score, lives, time
+                }
+
+                else if (!isGameFinished && currentQuestion != null) {
+                    // --- game ongoing UI ---
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -184,7 +194,6 @@ fun GameScreen(
                         Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
                     }
 
-                    // improved title with emoji
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -202,12 +211,9 @@ fun GameScreen(
                         )
                     }
 
-                    // Replay button: height reduced to 48dp for better spacing
                     Button(
                         onClick = { playAudio(currentQuestion.audioUrl) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp), // 👈 从 56dp → 48dp
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -216,22 +222,15 @@ fun GameScreen(
                         Text("▶️ Replay Song Clip", fontSize = 15.sp, fontWeight = FontWeight.Medium)
                     }
 
-                    // options buttons
                     currentQuestion.options.forEach { option ->
                         Button(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            onClick = {
-                                advanceToNextQuestion(option == currentQuestion.correctTitle)
-                            },
-                            enabled = !isGameOver // Disable if game over
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            onClick = { advanceToNextQuestion(option == currentQuestion.correctTitle) }
                         ) {
                             Text(option, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                         }
                     }
 
-                    // prompt message
                     if (message.isNotEmpty()) {
                         Text(
                             message,
@@ -240,57 +239,75 @@ fun GameScreen(
                             fontWeight = FontWeight.Medium
                         )
                     }
+                }
+                // --- game finished UI ---
+                else if (isGameFinished) {
+                    Spacer(Modifier.weight(1f))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        val isSuccess = lives > 0 // if player still has lives, they succeeded
 
-                    // game over / success message
-                    val isAllDone = currentIndex >= questions.size
-                    val isSuccess = isAllDone && lives > 0
+                        // main title
+                        Text(
+                            text = if (isSuccess) "🎉 Success! 🎉" else "😢 Game Over",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                        )
 
-                    if (lives <= 0 || isAllDone) {
-                        Spacer(Modifier.weight(1f))
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        // greet word (Success Only)
+                        if (isSuccess) {
                             Text(
-                                text = if (isSuccess) "🎉 Success!" else "😢 Game Over",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSuccess) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.error
+                                text = "Thank you for playing!",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.secondary
                             )
-                            Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
+                        }
 
-                            if (lives <= 0) {
-                                Spacer(Modifier.height(24.dp))
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            currentIndex = 0
-                                            score = 0
-                                            lives = 3
-                                            message = ""
-                                        },
-                                        modifier = Modifier.height(56.dp)
-                                    ) {
-                                        Text("↺ Restart", fontSize = 16.sp)
-                                    }
+                        // main score display
+                        Text(
+                            text = "Final Score: $score",
+                            style = MaterialTheme.typography.titleLarge
+                        )
 
-                                    // back to rules button
-                                    Button(
-                                        onClick = onNavigateBack,
-                                        modifier = Modifier.height(56.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    ) {
-                                        Text("← Back to Rules", fontSize = 16.sp)
-                                    }
-                                }
+                        Spacer(Modifier.height(24.dp))
+
+                        // buttons
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // reloads
+                            Button(
+                                onClick = {
+                                    currentIndex = 0
+                                    score = 0
+                                    lives = 3
+                                    message = ""
+                                    isGameOver = false
+                                    timeLeft = 40
+                                },
+                                modifier = Modifier.fillMaxWidth(0.7f).height(56.dp)
+                            ) {
+                                Text("↺ Play Again", fontSize = 18.sp)
+                            }
+
+                            // back to rules
+                            OutlinedButton(
+                                onClick = onNavigateBack,
+                                modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                Text("← Back to Rules", fontSize = 16.sp)
                             }
                         }
-                        Spacer(Modifier.weight(1f))
                     }
+                    Spacer(Modifier.weight(1f))
                 }
             }
         }
