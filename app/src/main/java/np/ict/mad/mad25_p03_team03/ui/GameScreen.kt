@@ -31,7 +31,7 @@ fun GameScreen(
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
     var message by remember { mutableStateOf("") }
-    var timeLeft by remember { mutableStateOf(15) } // ✅ 默认 15 秒
+    var timeLeft by remember { mutableStateOf(40) } // ✅ 默认 15 秒
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) } // ✅ 管理定时器
 
@@ -96,10 +96,10 @@ fun GameScreen(
             currentTimer?.cancel()
 
             // 重置时间 & 启动新定时器
-            timeLeft = 15
+            timeLeft = 40
             playAudio(questions[currentIndex].audioUrl)
 
-            val timer = object : CountDownTimer(15_000, 1_000) {
+            val timer = object : CountDownTimer(40_000, 1_000) {
                 override fun onTick(millisUntilFinished: Long) {
                     timeLeft = (millisUntilFinished / 1000).toInt()
                 }
