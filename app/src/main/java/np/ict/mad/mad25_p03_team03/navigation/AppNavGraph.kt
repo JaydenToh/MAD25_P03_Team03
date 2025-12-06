@@ -33,10 +33,8 @@ fun AppNavGraph(songRepository: SongRepository) {
                 onOpenLibrary = {
                     context.startActivity(Intent(context, SongLibrary::class.java))
                 },
-                onIdentifySong = {
-                    val intent = Intent(context, SongIdentifier::class.java)
-                    context.startActivity(intent)
-                }
+                onIdentifySong = { navController.navigate("identifier") }
+
             )
         }
 
@@ -50,6 +48,10 @@ fun AppNavGraph(songRepository: SongRepository) {
         composable("game") {
             GameScreen(songRepository = songRepository, onNavigateBack = { navController.popBackStack() } )
         // try to pass songRepository to GameScreen
+        }
+
+        composable("identifier") {
+            SongIdentifier()
         }
 
 
