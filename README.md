@@ -2,6 +2,68 @@
 ##Disclaimer
 This is a student assignment project for the Kotlin App Development module at Ngee Ann Polytechnic. Developed for educational purposes.
 
+## Introduction
+
+<img width="215" height="292" alt="image" src="https://github.com/user-attachments/assets/0ad60587-d0ef-45cd-aef3-6b97e7206178" />
+
+This project is a Kotlin-based mobile application designed to provide an interactive and engaging music experience. The app combines elements of a quiz game, song discovery, and user account management to create a complete and user-friendly platform.
+
+At its core, the Music Quiz App challenges users to identify songs through a multiple-choice guessing game, complete with a timer and a heart/life system to increase difficulty. Beyond the game, users can browse a structured song library, search for tracks, and even identify songs through an external API.
+
+The application also includes a full login and signup system, ensuring personalized access for users. After logging in, users are greeted with a dedicated Home Page that serves as the central hub to navigate the game, song library, and other features.
+
+Overall, this project showcases the integration of UI design, Kotlin development, API usage, and user authentication to deliver a fun and functional music-based mobile app.
+
+---------------------------
+
+## 🌟 Motivation / Objective
+
+In today’s digital environment, music applications are widely available, but most focus solely on streaming or playlist creation. Users who want to test their music knowledge, identify unknown songs, or casually learn new tracks often need to use multiple separate apps.
+
+This results in several pain points:
+
+Fragmented user experience — Quiz apps, song identification apps, and music browsing apps exist separately, forcing users to switch between platforms.
+
+Lack of casual learning tools — Many music apps do not provide features that help users learn song titles, artists, or genres in an interactive way.
+
+Limited engagement — Streaming apps prioritize passive listening, but do not offer game-like elements that increase user retention and enjoyment.
+
+From a project perspective, this gap presents an opportunity to create a single, integrated platform that addresses these shortcomings. By combining quiz mechanics, a searchable song library, and external API–based song identification, the app delivers both entertainment and practical value.
+
+This project also provides business value by targeting a segment of users who enjoy music-based games, trivia, and discovery tools — features proven to greatly increase engagement and session duration in entertainment apps.
+
+---------------------------
+
+## 📚 App Category of the App
+
+Primary Category: Music & Audio & Entertainment
+
+This application falls under the Music & Entertainment category, as it focuses on providing an interactive experience involving song quizzes, music discovery, and song identification. The app combines fun gameplay with practical tools that allow users to explore and learn about music.
+
+---------------------------
+
+## Declaration of LLM Used
+
+- chatgpt
+- copilot
+
+
+## Tasks & Featured for Each Member for Stage 1
+
+| Name| Feature| Description | 
+|------------------|------------------|------------------|
+| Liew Zhan Yang | Song Guessing Game | .... |
+
+
+
+### Planned Tasks & Featured for Each Member for Stage 2
+
+| Name| Feature| Description | 
+|------------------|------------------|------------------|
+| Liew Zhan Yang | Song Guessing Game | .... |
+
+
+
 ## 🎶 Song Guessing Game Wireframes (part 1 - version)
 
 ### Overview
