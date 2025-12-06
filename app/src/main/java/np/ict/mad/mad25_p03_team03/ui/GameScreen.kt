@@ -1,4 +1,4 @@
-// np/ict.mad.mad25_p03_team03/ui/GameScreen.kt
+// np/ict/mad/mad25_p03_team03/ui/GameScreen.kt
 
 package np.ict.mad.mad25_p03_team03.ui
 
@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import np.ict.mad.mad25_p03_team03.data.SongRepository
@@ -22,7 +21,7 @@ import np.ict.mad.mad25_p03_team03.data.SongRepository
 @Composable
 fun GameScreen(
     songRepository: SongRepository,
-    onNavigateBack: () -> Unit  // 👈 新增回调：返回上一页
+    onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
@@ -32,12 +31,13 @@ fun GameScreen(
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
     var message by remember { mutableStateOf("") }
-    var timeLeft by remember { mutableStateOf(10) }
+    var timeLeft by remember { mutableStateOf(15) } // ✅ 默认 15 秒
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+    var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) } // ✅ 管理定时器
 
     val currentQuestion = questions.getOrNull(currentIndex)
 
-    // ✅ 播放函数（同前）
+    // ✅ 稳健的播放函数
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
@@ -74,26 +74,37 @@ fun GameScreen(
             }
         } else {
             listOf(
-                SongQuestion("Blinding Lights", listOf("Blinding Lights", "Save Your Tears", "Levitating", "Peaches"), "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
-                SongQuestion("Bohemian Rhapsody", listOf("Bohemian Rhapsody", "Stairway to Heaven", "Hotel California", "Imagine"), "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3")
+                SongQuestion(
+                    "Blinding Lights",
+                    listOf("Blinding Lights", "Save Your Tears", "Levitating", "Peaches"),
+                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" // ✅ 无空格
+                ),
+                SongQuestion(
+                    "Bohemian Rhapsody",
+                    listOf("Bohemian Rhapsody", "Stairway to Heaven", "Hotel California", "Imagine"),
+                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" // ✅ 无空格
+                )
             )
         }
         isLoading = false
     }
 
-    // 换题时自动播放 + 计时
+    // ✅ 核心修复：每换一题，重置 15 秒倒计时
     LaunchedEffect(currentIndex, isLoading) {
         if (!isLoading && currentIndex < questions.size) {
-            timeLeft = 10
+            // 取消上一题定时器（防泄漏）
+            currentTimer?.cancel()
+
+            // 重置时间 & 启动新定时器
+            timeLeft = 15
             playAudio(questions[currentIndex].audioUrl)
 
-            object : CountDownTimer(10000, 1000) {
+            val timer = object : CountDownTimer(15_000, 1_000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    if (lives > 0 && currentIndex < questions.size) {
-                        timeLeft = (millisUntilFinished / 1000).toInt()
-                    }
+                    timeLeft = (millisUntilFinished / 1000).toInt()
                 }
                 override fun onFinish() {
+                    timeLeft = 0
                     if (lives > 0 && currentIndex < questions.size) {
                         lives -= 1
                         message = "⏰ Time's up!"
@@ -102,31 +113,46 @@ fun GameScreen(
                         }
                     }
                 }
-            }.start()
+            }
+            timer.start()
+            currentTimer = timer
+        }
+    }
+
+    // ✅ 提前取消定时器（用户手动答题时）
+    fun advanceToNextQuestion(isCorrect: Boolean) {
+        currentTimer?.cancel() // ⏹️ 立即停止倒计时
+
+        if (isCorrect) {
+            score += 10
+            message = "✅ Correct!"
+        } else {
+            lives -= 1
+            message = "❌ Wrong!"
+        }
+
+        if (lives > 0 && currentIndex < questions.lastIndex) {
+            currentIndex += 1
         }
     }
 
     // 清理资源
     DisposableEffect(Unit) {
         onDispose {
+            currentTimer?.cancel()
             mediaPlayer?.release()
             mediaPlayer = null
         }
     }
 
-    // 👇 关键：用 Scaffold 包裹，自动避开状态栏
+    // UI
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    Text("🎵 Song Guesser", fontWeight = FontWeight.Bold)
-                },
+                title = { Text("🎵 Song Guesser", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to Rules"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 }
             )
@@ -136,7 +162,7 @@ fun GameScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -161,16 +187,7 @@ fun GameScreen(
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                if (option == currentQuestion.correctTitle) {
-                                    score += 10
-                                    message = "✅ Correct!"
-                                } else {
-                                    lives -= 1
-                                    message = "❌ Wrong!"
-                                }
-                                if (lives > 0 && currentIndex < questions.lastIndex) {
-                                    currentIndex += 1
-                                }
+                                advanceToNextQuestion(option == currentQuestion.correctTitle)
                             }
                         ) {
                             Text(option)
@@ -185,15 +202,13 @@ fun GameScreen(
                         )
                     }
 
-                    // ✅ 游戏结局页面（成功 or 失败）
-                    val isGameOver = lives <= 0
-                    val isSuccess = !isGameOver && currentIndex >= questions.lastIndex && message.isNotBlank()
+                    // ✅ 结局判断（更精准）
+                    val isAllDone = currentIndex >= questions.size
+                    val isSuccess = isAllDone && lives > 0
 
-                    if (isGameOver || isSuccess) {
+                    if (lives <= 0 || isAllDone) {
                         Spacer(Modifier.weight(1f))
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = if (isSuccess) "🎉 Success!" else "😢 Game Over",
                                 style = MaterialTheme.typography.headlineMedium,
@@ -203,7 +218,7 @@ fun GameScreen(
                             )
                             Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
 
-                            if (isGameOver) {
+                            if (lives <= 0) {
                                 Spacer(Modifier.height(24.dp))
                                 Button(onClick = {
                                     currentIndex = 0
