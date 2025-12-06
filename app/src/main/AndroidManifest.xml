@@ -10,8 +10,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="MAD25_P03_Team03"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="Music App"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD25_P03_Team03"
          >
@@ -33,11 +33,7 @@
             </intent-filter>
         </activity>
         <!-- SongIdentifier Activity -->
-        <activity
-            android:name=".SongIdentifier"
-            android:exported="false"
-            android:label="SongIdentifier"
-            android:theme="@style/Theme.MAD25_P03_Team03" />
+
     </application>
 
 </manifest>
