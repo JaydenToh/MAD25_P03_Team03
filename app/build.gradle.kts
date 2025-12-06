@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
     id("kotlin-kapt")
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
 }
 
 android {
@@ -79,9 +80,21 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    implementation("androidx.compose.material:material-icons-extended") // Material Icons
+
     // Hilt
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
+
+    // ✅ 新增：Supabase Kotlin SDK (Jan's official community SDK)
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.0"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")// Database
+    implementation("io.ktor:ktor-client-android:3.0.0") // Ktor client is required
+    implementation("io.ktor:ktor-client-logging:3.1.0")// Logging for Ktor client
+    implementation("io.ktor:ktor-client-core:3.0.0") // Ktor core
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.0") // Kotlinx JSON serialization
+
+
 
 
 
