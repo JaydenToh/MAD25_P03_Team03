@@ -52,15 +52,30 @@ This application falls under the Music & Entertainment category, as it focuses o
 
 | Name| Feature| Description | 
 |------------------|------------------|------------------|
-| Liew Zhan Yang | Song Guessing Game | .... |
+| Liew Zhan Yang | Song Guessing Game | Users listen to a short clip of a song and must guess its title; Points are awarded for correct guesses |
+| Liew Zhan Yang | Home navigation | Link all pages together |
+| Garence | Song Identifier | ... |
+| Jayden | Song Library and search | ... |
+| Leeuwin | Login/SignUp | ... |
+
 
 
 
 ### Planned Tasks & Featured for Each Member for Stage 2
 
-| Name| Feature| Description | 
-|------------------|------------------|------------------|
-| Liew Zhan Yang | Song Guessing Game | .... |
+|Feature| Description | 
+|------------------|------------------|
+| Difficulty Levels (Easy / Medium / Hard) | Easy = longer clips, fewer options; Hard = short clips, more options | 
+| Different style music mode | KPop , Jazz , JPop  ,Rock,.....| 
+|  Background Playback Service | A continuous “radio” that plays random songs from packs when app is in background. | 
+|  Sleep Timer Activity | Let user set a timer to stop all music after N minutes (for sleeping) | 
+|  Album | Let the user can store the songs in album  | 
+| Leaderboard | Save best scores with player name and show ranked list (top 10)  | 
+| Error Handling & Retry UI | Friendly screens when audio fails to load, with retry buttons.  |
+| Skip song | User can skip the song when they encounter a difficult song   |
+| Song Profile | User can    |
+| Song Lyrics | User can    |
+| Setting | User can    |
 
 
 
