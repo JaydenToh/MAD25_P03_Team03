@@ -67,10 +67,12 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
     implementation("androidx.navigation:navigation-compose:2.8.3")
 
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
-    //implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
+
+    implementation("androidx.media3:media3-exoplayer:1.2.0")
+    implementation("androidx.media3:media3-ui:1.2.0")
+    implementation("androidx.media3:media3-common:1.2.0")
 }
