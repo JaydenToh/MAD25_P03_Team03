@@ -19,16 +19,12 @@ import np.ict.mad.mad25_p03_team03.data.SongRepository // 👈 你的 Repository
 import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto // 👈 你的 DTO
 
 @Composable
-fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
+fun GameScreen(songRepository: SongRepository) {
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    // ✅ 可变 questions：初始为空，加载后更新
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // 保留你原有的游戏状态
     var currentIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
@@ -38,25 +34,18 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
 
     val currentQuestion = questions.getOrNull(currentIndex)
 
-    // ✅ 加载 Supabase 数据（首次进入时）
     LaunchedEffect(Unit) {
         isLoading = true
-        println("🔍 DEBUG: Launching Supabase fetch...") // Debug log
-
+        println("🔍 DEBUG: Launching Supabase fetch...")
         val remoteSongs = songRepository.fetchSongsFromSupabase()
-        println("🔍 DEBUG: Fetched ${remoteSongs.size} songs") // Debug log
+        println("🔍 DEBUG: Fetched ${remoteSongs.size} songs")
         if (remoteSongs.isNotEmpty()) {
             questions = remoteSongs.map { songDto ->
-                val options = listOf(songDto.title) + songDto.fakeOptions
-                SongQuestion(
-                    correctTitle = songDto.title,
-                    options = options.shuffled().take(4),
-                    audioUrl = songDto.audioUrl
-                )
+                val options = (listOf(songDto.title) + songDto.fakeOptions).shuffled().take(4)
+                SongQuestion(songDto.title, options, songDto.audioUrl)
             }
         } else {
-            println("⚠️ DEBUG: Supabase returned empty — using fallback")
-            // ✅ fallback：Supabase 无数据时用本地测试（避免白屏）
+            println("⚠️ DEBUG: Using fallback data")
             questions = listOf(
                 SongQuestion(
                     correctTitle = "Blinding Lights",
@@ -73,7 +62,6 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
         isLoading = false
     }
 
-    // ✅ 计时器 + 下一题逻辑（你原有的，完全保留）
     LaunchedEffect(currentIndex) {
         if (currentIndex >= questions.size) return@LaunchedEffect
         timeLeft = 10
@@ -81,51 +69,54 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
             override fun onTick(millisUntilFinished: Long) {
                 timeLeft = (millisUntilFinished / 1000).toInt()
             }
-
             override fun onFinish() {
                 lives -= 1
-                message = "Time's up!"
-                if (lives > 0 && currentIndex < questions.lastIndex) {
+                message = "⏰ Time's up!"
+                if (lives > 0 && currentIndex < questions.size - 1) {
                     currentIndex += 1
                 }
             }
         }.start()
     }
 
-    // ✅ 释放 MediaPlayer（你原有的）
     LaunchedEffect(currentIndex) {
         mediaPlayer?.apply {
-            stop()
+            if (isPlaying) stop()
             release()
         }
         mediaPlayer = null
     }
 
-    // ✅ 播放网络音频
+    // ✅ 修复版 playAudio
     fun playAudio(url: String?) {
-        if (url == null) return
+        val cleanUrl = url?.trim() ?: return
+        if (cleanUrl.isEmpty()) return
 
         mediaPlayer?.apply {
-            stop()
+            if (isPlaying) stop()
             release()
         }
 
         try {
             val mp = MediaPlayer().apply {
                 setAudioStreamType(android.media.AudioManager.STREAM_MUSIC)
-                setDataSource(url)
-                setOnPreparedListener { start() }
-                setOnCompletionListener { release() }
-                prepareAsync() // 异步准备，避免 ANR
+                setDataSource(cleanUrl)
+                setOnPreparedListener { if (!isPlaying) start() }
+                setOnCompletionListener { release(); mediaPlayer = null }
+                setOnErrorListener { _, _, _ ->
+                    release(); mediaPlayer = null; true
+                }
+                prepareAsync()
             }
             mediaPlayer = mp
         } catch (e: Exception) {
             e.printStackTrace()
-            message = "Audio load failed"
+            message = "Audio error"
+            mediaPlayer = null
         }
     }
 
-    // ✅ UI 主体
+    // ✅ UI
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -137,27 +128,21 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
 
         if (isLoading) {
             CircularProgressIndicator()
-            Text("Loading songs from Supabase...")
+            Text("Loading...")
         } else if (currentQuestion != null) {
-            // 状态栏
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Score: $score", style = MaterialTheme.typography.bodyLarge)
-                Text("Lives: $lives", style = MaterialTheme.typography.bodyLarge)
-                Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
+                Text("Score: $score")
+                Text("Lives: $lives")
+                Text("Time: $timeLeft")
             }
 
-            // 播放按钮
-            Button(
-                onClick = { playAudio(currentQuestion.audioUrl) },
-                enabled = currentQuestion.audioUrl != null
-            ) {
+            Button(onClick = { playAudio(currentQuestion.audioUrl) }) {
                 Text("▶️ Play Song Clip")
             }
 
-            // 选项按钮
             currentQuestion.options.forEach { option ->
                 Button(
                     modifier = Modifier.fillMaxWidth(),
@@ -169,8 +154,8 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
                             lives -= 1
                             message = "❌ Wrong!"
                         }
-
-                        if (lives > 0 && currentIndex < questions.lastIndex) {
+                        // 仅当还有 lives 且没答完题，才进下一题
+                        if (lives > 0 && currentIndex < questions.size - 1) {
                             currentIndex += 1
                         }
                     }
@@ -179,45 +164,44 @@ fun GameScreen(songRepository: SongRepository) { // ✅ 接收 Repository
                 }
             }
 
-            // 提示消息
             if (message.isNotEmpty()) {
-                Text(
-                    text = message,
-                    color = if (message.contains("Correct")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(message, color = if (message.contains("Correct")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
             }
 
-            // 游戏结束
-            if (lives <= 0 || currentIndex >= questions.lastIndex) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "🎉 Game Over!\nFinal Score: $score",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    // 重置游戏（可选）
-                    currentIndex = 0
-                    score = 0
-                    lives = 3
-                    message = ""
-                }) {
-                    Text("↺ Play Again")
+            // ✅ 关键修复：用 .size 而非 .lastIndex
+            if (lives <= 0 || currentIndex >= questions.size) {
+                Spacer(Modifier.weight(1f))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "🎉 Game Over!\nFinal Score: $score",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            currentIndex = 0
+                            score = 0
+                            lives = 3
+                            message = ""
+                        },
+                        modifier = Modifier.width(200.dp)
+                    ) {
+                        Text("↺ Play Again")
+                    }
                 }
+                Spacer(Modifier.weight(1f))
             }
-        } else {
-            Text("No songs available. Check your Supabase table.")
         }
     }
 }
 
-// ✅ SongQuestion data class（支持网络 URL）
 data class SongQuestion(
     val correctTitle: String,
     val options: List<String>,
-    val audioUrl: String? = null
+    val audioUrl: String?
 )
