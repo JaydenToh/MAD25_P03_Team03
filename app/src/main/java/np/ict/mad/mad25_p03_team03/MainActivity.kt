@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import np.ict.mad.mad25_p03_team03.navigation.AppNavGraph
 import np.ict.mad.mad25_p03_team03.data.SongRepository
+import np.ict.mad.mad25_p03_team03.navigation.AppRoot
 
 
 class MainActivity : ComponentActivity() {
@@ -20,8 +21,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    val songRepository = SongRepository()
-                    AppNavGraph(songRepository = songRepository)
+
+                    AppRoot()
                 }
             }
         }
