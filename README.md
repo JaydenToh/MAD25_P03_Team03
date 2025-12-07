@@ -3,6 +3,16 @@
 This is a student assignment project for the Kotlin App Development module at Ngee Ann Polytechnic. Developed for educational purposes.
 
 ---------------------------
+## Student Name and ID
+
+Zhan Yang - s10259432
+
+Garence - S10262458
+
+Jayden - S10241868
+
+Leeuwin - S10256929
+
 
 ## 🌟 Motivation / Objective
 
@@ -32,9 +42,73 @@ This application falls under the Music & Entertainment category, as it focuses o
 
 ## Declaration of LLM Used
 
-- chatgpt
-- copilot
+- Chatgpt
+- Gemini
+- Copilot
 
+## Generate Creatives Ideas using Ideation Techniques
+
+# Brainstorming
+
+# SCAMPER
+
+# Mindmapping
+
+## 1. **Music Streaming and Library Management**
+
+- **Use Case**: Allow users to stream music from a local or cloud library, manage playlists, and organize tracks by genres, albums, or artists.
+- **Features**:
+    - Playlists creation and management
+    - Sorting and searching music by title, artist, genre, or album
+    - Support for various audio formats (MP3, FLAC, etc.)
+    - Integration with third-party streaming services (Spotify, YouTube, etc.)
+- **Framework Potential**: A **media player framework** that can handle audio playback, playlists, and track management. This can be extended for both offline and online music streaming.
+
+## 2. **Personalized Music Recommendations**
+
+- **Use Case**: Suggest personalized playlists, albums, or songs based on listening habits, preferences, and mood.
+- **Features**:
+    - Machine learning-based recommendation engine
+    - User data tracking for preferences and listening history
+    - Integration with social media or external APIs for additional insights (e.g., last.fm)
+- **Framework Potential**: A **recommendation system module** that can suggest music based on user behavior. It can also be extended with additional features like mood-based playlists.
+
+## 3. **Music Discovery and Social Sharing**
+
+- **Use Case**: Let users discover new music, share their favorite tracks with friends, and interact with others in the music community.
+- **Features**:
+    - Social sharing of tracks, playlists, and albums to social networks or within the app
+    - Music discovery features (e.g., trending songs, new releases)
+    - Social listening features (e.g., group sessions, shared playlists)
+- **Framework Potential**: A **social music discovery framework** that integrates with social media APIs and allows users to share and discover content both within and outside the app.
+
+## 4. **Offline Playback and Music Caching**
+
+- **Use Case**: Enable offline music playback by allowing users to download tracks, albums, or playlists.
+- **Features**:
+    - Download music for offline listening (requires local storage management)
+    - Manage offline content (delete, reorganize)
+    - Background playback when the app is minimized
+- **Framework Potential**: A **music caching and offline playback module** to manage storage and ensure smooth offline experience. It could also include an intelligent system for managing space.
+
+## 5. **Sleep and Focus Mode with Music**
+
+- **Use Case**: Design features that help users relax or focus using music, such as sleep-inducing soundscapes or concentration playlists.
+- **Features**:
+    - Customizable soundscapes (e.g., rain, white noise, nature sounds)
+    - Focus and productivity music playlists (e.g., lo-fi, ambient)
+    - Sleep timer functionality that fades out music after a set time
+- **Framework Potential**: A **sound-based relaxation framework** designed to be integrated into wellness or productivity apps, offering customized sound experiences for specific user needs.
+
+## 6. **Collaborative Playlists and Group Listening**
+
+- **Use Case**: Enable users to create shared playlists and listen to music together, either in real-time or asynchronously.
+- **Features**:
+    - Collaborative playlist creation and management
+    - Real-time group listening with synchronized playback
+    - Integration with social features (invite friends, share music)
+- **Framework Potential**: A **group listening framework** that allows synchronized music sessions across multiple devices and supports shared playlists.
+  
 
 ## Tasks & Featured for Each Member for Stage 1
 
@@ -43,9 +117,9 @@ This application falls under the Music & Entertainment category, as it focuses o
 | Liew Zhan Yang | Song Guessing Game | Users listen to a short clip of a song and must guess its title; Points are awarded for correct guesses |
 | Liew Zhan Yang | Home navigation | Link all pages together |
 | Garence | Song Identifier | Users tap a button to let the app listen to nearby music, then it identifies the song and shows the title and artist. |
-| Jayden | Song Library and search | ... |
-| Leeuwin | Login/SignUp | Users create accounts with a username and email, securely authenticate, and verify identity using a generated OTP before accessing the app’s main features |
-
+| Jayden | Song Library | Displays all songs within the firebase. Showing title, artist, album, and song. You can play the song if you click the play button. |
+| Jayden | Search | The search button filters the firebase so you can look for the song you want. |
+| Leeuwin | Login/SignUp | Users create accounts with a username and email, securely authenticate, and verify identity using a generated OTP before accessing the app’s main features, |
 
 
 
@@ -64,6 +138,14 @@ This application falls under the Music & Entertainment category, as it focuses o
 | Song Profile | User can view the song more detail information like "publish year" and "music intrument using"   |
 | Song Lyrics | User can view the lyrics of the song while listening to the song    |
 | Setting | User can change the setting of the app with setting feature    |
+
+
+
+## User Interview
+
+| **Persona 1 — Sarah Tan**                                                                                                                                                                                                                                                                                                                                                                                                         | **Persona 2 — Mark Lee**                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ** Marketing Manager · Age 38** <br> **Tech Comfort:** High <br><br> **Goal:**<br>• Complete tasks as quickly as possible. <br><br> **Frustration:**<br>• Multi-step processes <br>• Complex information input <br><br> **Quote:**<br> *"I only have 5 minutes of quiet time. If I can't finish it then, I forget about it."* <br><br> **Design Insight:**<br>• Clear CTAs <br>• Pre-filled forms <br>• Strong mobile experience | ** University Student · Age 21** <br> **Tech Comfort:** Medium <br><br> **Goal:**<br>• Find the lowest price or best value for any purchase/service. <br><br> **Frustration:**<br>• Hidden fees <br>• Lack of transparency <br>• Complex discount codes <br><br> **Quote:**<br> *"I'll spend an extra 10 minutes checking three sites if it saves me $5."* <br><br> **Design Insight:**<br>• Clear pricing comparisons <br>• Visible savings <br>• Simple expense tracking |
 
 
 
@@ -300,5 +382,9 @@ Shows the value of quizzes built from curated or personalised song lists.
 **Opportunity for our app:**  
 Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
 
+---
+User Testing
 
+<img src="https://github.com/user-attachments/assets/df526530-58dd-497c-9e03-8adcffacb4fe" alt="usertesting1" width="250" />
+<img src="https://github.com/user-attachments/assets/1aa6e653-ba00-47c0-bc16-311215e711e0" alt="usertesting2" width="250" />
 
