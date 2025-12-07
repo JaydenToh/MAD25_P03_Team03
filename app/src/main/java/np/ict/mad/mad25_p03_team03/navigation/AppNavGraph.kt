@@ -34,14 +34,13 @@ fun AppNavGraph(songRepository: SongRepository) {
 
     Scaffold(
         bottomBar = {
-            // ✅ 只需这一行引入你的导航栏！
             BottomNavBar(navController = navController, currentDestination = currentDestination)
         }
     ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = "home",
-            modifier = Modifier.padding(paddingValues) // 👈 关键：内容避开底部栏
+            modifier = Modifier.padding(paddingValues) // handle scaffold padding
         ) {
             composable("home") {
                 HomeScreen(
@@ -77,12 +76,12 @@ fun AppNavGraph(songRepository: SongRepository) {
                 ProfileScreen()
             }
 
-            // library 仍可跳 Activity
+            // library still opens a new activity
             composable("library") {
                 val context = LocalContext.current
                 LaunchedEffect(Unit) {
                     context.startActivity(android.content.Intent(context, SongLibrary::class.java))
-                    navController.popBackStack() // 立即返回，避免白屏
+                    navController.popBackStack() // immediately go back after launching to avoid stacking
                 }
             }
 

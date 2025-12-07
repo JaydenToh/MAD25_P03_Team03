@@ -30,10 +30,11 @@ fun BottomNavBar(
                 label = { Text(item.label) },
                 selected = selected,
                 onClick = {
-                    // 避免重复点击当前页
+                    // avoid multiple copies of the same destination
                     if (!selected) {
                         navController.navigate(item.route) {
-                            // 清除目标页之上的栈（保持底部导航一致性）
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -47,7 +48,7 @@ fun BottomNavBar(
     }
 }
 
-// 数据模型
+// data model for bottom navigation items
 sealed class BottomNavItem(
     val route: String,
     val label: String,
@@ -60,6 +61,6 @@ sealed class BottomNavItem(
     object Profile : BottomNavItem("profile", "Profile", Icons.Default.Person)
 }
 
-// 工具扩展
+// tools extension function to check if the current destination is in the hierarchy
 private fun NavDestination?.isInHierarchy(route: String): Boolean =
     this?.hierarchy?.any { it.route == route } == true
