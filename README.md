@@ -38,13 +38,13 @@ This application falls under the Music & Entertainment category, as it focuses o
 
 ## Tasks & Featured for Each Member for Stage 1
 
-| Name| Feature| Description | 
-|------------------|------------------|------------------|
-| Liew Zhan Yang | Song Guessing Game | Users listen to a short clip of a song and must guess its title; Points are awarded for correct guesses |
-| Liew Zhan Yang | Home navigation | Link all pages together |
-| Garence | Song Identifier | ... |
-| Jayden | Song Library and search | ... |
-| Leeuwin | Login/SignUp | ... |
+| Name| Feature                 | Description                                                                                                                                                | 
+|------------------|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Liew Zhan Yang | Song Guessing Game      | Users listen to a short clip of a song and must guess its title; Points are awarded for correct guesses                                                    |
+| Liew Zhan Yang | Home navigation         | Link all pages together                                                                                                                                    |
+| Garence | Song Identifier         | ...                                                                                                                                                        |
+| Jayden | Song Library and search | ...                                                                                                                                                        |
+| Leeuwin | Login/SignUp/OTP        | Users create accounts with a username and email, securely authenticate, and verify identity using a generated OTP before accessing the app’s main features |
 
 
 
@@ -93,22 +93,26 @@ This document outlines the end-to-end user paths within the application, focusin
 
 #### **1.1 Sign-Up (Happy Path)**
 
-| Step | Action | Expected Outcome | Screen/State |
-|------|--------|------------------|--------------|
-| 1 | User taps **“Sign Up”** | Display registration form | Sign-Up Screen |
-| 2 | User enters valid Email, Username, and matching Passwords | **Sign Up** button becomes active | Sign-Up Screen |
-| 3 | User taps **“Sign Up”** | Account created successfully | Profile Screen |
+| Step | Action                                                   | Expected Outcome                               | Screen/State   |
+|------|----------------------------------------------------------|------------------------------------------------|----------------|
+| 1    | User taps **“Sign Up”**                                  | Display registration form                      | Sign-up Screen |
+| 2    | User enters valid Email, Username, and matching Passwords | User clicks Sign Up button and creates account | Sign-Up Screen |
+| 3    | User taps **“Sign Up”**                                  | Account created successfully                   | Login Screen   |
+| 4    | User enters valid Username and Password                  | Login Success                                  | Song Library   |
+
 
 ---
 
 #### **Edge Cases and Alternatives**
 
-| Scenario | Trigger | Resolution / Alternative Path |
-|----------|---------|-------------------------------|
-| Login Failure | Incorrect email or password | Show error **“Incorrect email or password.”** |
-| Registration Exists | Email/username already used | Show **“This email or username is already taken.”** |
-| Invalid Input | Invalid email/password format | Inline validation; sign-up disabled |
-| Forgot Password | User taps link | Trigger email recovery |
+| Scenario                 | Trigger                       | Resolution / Alternative Path                       |
+|--------------------------|-------------------------------|-----------------------------------------------------|
+| Login Failure            | Incorrect email or password   | Show error **“Incorrect email or password.”**       |
+| Not All Fields Filled Up | One or more fields missing    | Show error **“All Fields Required.”**               |
+| Passwords Not Matching   | Not Matching Passwords        | Show error **“Passwords Do Not Match.”**            |
+| Registration Exists      | Email/username already used   | Show **“This email or username is already taken.”** |
+| Invalid Input            | Invalid email/password format | Inline validation; sign-up disabled                 |
+
 
 ---
 
