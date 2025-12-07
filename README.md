@@ -36,7 +36,7 @@ This project also provides business value by targeting a segment of users who en
 
 Primary Category: Music & Audio & Entertainment
 
-This application falls under the Music & Entertainment category, as it focuses on providing an interactive experience involving song quizzes, music discovery, and song identification. The app combines fun gameplay with practical tools that allow users to explore and learn about music.
+This application falls under the Music & Audio category, as it focuses on providing an interactive experience involving song quizzes, music discovery, and song identification. The app combines fun gameplay with practical tools that allow users to explore and learn about music.
 
 ---------------------------
 
@@ -45,6 +45,18 @@ This application falls under the Music & Entertainment category, as it focuses o
 - Chatgpt
 - Gemini
 - Copilot
+
+---------------------------
+
+## TechStakes
+
+- Kotlin
+- Kotlin Jetpack Compose 
+- Firebase
+- Supabase
+  
+
+---------------------------
 
 ## Generate Creatives Ideas using Ideation Techniques
 
