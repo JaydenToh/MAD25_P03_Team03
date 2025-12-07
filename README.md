@@ -42,7 +42,7 @@ This application falls under the Music & Entertainment category, as it focuses o
 |------------------|------------------|------------------|
 | Liew Zhan Yang | Song Guessing Game | Users listen to a short clip of a song and must guess its title; Points are awarded for correct guesses |
 | Liew Zhan Yang | Home navigation | Link all pages together |
-| Garence | Song Identifier | ... |
+| Garence | Song Identifier | Users tap a button to let the app listen to nearby music, then it identifies the song and shows the title and artist. |
 | Jayden | Song Library and search | ... |
 | Leeuwin | Login/SignUp | ... |
 
