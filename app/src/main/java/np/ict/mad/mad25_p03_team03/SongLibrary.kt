@@ -38,7 +38,7 @@ data class SongItem(
     val album: String = "",
     val audioUrl: String = "",
     @get:Exclude // Tells Firebase to ignore this field
-    var drawableId: Int = R.drawable.heavyiscrownpic
+    var drawableId: Int = R.drawable.arcanepic
 )
 
 class SongLibrary : ComponentActivity() {
@@ -89,17 +89,17 @@ fun SongLibraryScreen() {
             .collection("songs")
             .get()
             .addOnSuccessListener { result ->
-                // 1. Convert documents to SongItem objects
+                // Convert documents to SongItem objects
                 val songs = result.documents.mapNotNull { doc ->
                     doc.toObject(SongItem::class.java)
                 }
 
-                // 2. Assign the correct image drawable to each song
+                // Assign the correct image drawable to each song
                 songs.forEach { song ->
                     song.drawableId = getAlbumArtFromName(song.title)
                 }
 
-                // 3. Update the state with the list that now has images
+                // Update the state with the list that now has images
                 songList = songs
                 loading = false
             }
@@ -270,8 +270,6 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color(0xFF3A3A50),
             unfocusedContainerColor = Color(0xFF3A3A50),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
             focusedTextColor = Color.White,
             cursorColor = Color.White
         )
