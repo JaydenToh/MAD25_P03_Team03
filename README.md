@@ -3,15 +3,15 @@
 This is a student assignment project for the Kotlin App Development module at Ngee Ann Polytechnic. Developed for educational purposes.
 
 ---------------------------
-## Student Name and ID
+## Student Name and ID, Github Username
 
-Zhan Yang - s10259432
+Liew Zhan Yang - s10259432, Github Username: LiewZhanYang
 
-Garence - S10262458
+Garence Wong Kar Kang - S10262458, Github username: GarenceWong
 
-Jayden - S10241868
+Jayden Toh Xuan Ming - S10241868, Github username: JaydenToh
 
-Leeuwin - S10256929
+Lam Jun Yuan eeuwin - S10256929, Github username: sleeeeepyyyyy
 
 
 ## 🌟 Motivation / Objective
