@@ -31,21 +31,17 @@ fun GameScreen(
     var currentIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
-    var isGameOver by remember { mutableStateOf(false) } // This tracks "Lost all lives"
+    var isGameOver by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var timeLeft by remember { mutableStateOf(40) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
 
-    // state to track if all questions have been answered
-    // even if the player still has lives left
     val isAllQuestionsAnswered = !isLoading && questions.isNotEmpty() && currentIndex >= questions.size
-    // real game finished state
     val isGameFinished = isGameOver || isAllQuestionsAnswered
-
-    // only get current question if game is not finished
     val currentQuestion = if (!isGameFinished) questions.getOrNull(currentIndex) else null
 
+    // ✅ 1. 统一音频播放（网络 + raw）
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
@@ -71,6 +67,30 @@ fun GameScreen(
         }
     }
 
+    // ✅ 2. Game Over 音效（安全调用 + 资源检查）
+    fun playGameOverSound() {
+        // 确保先释放当前 MediaPlayer
+        mediaPlayer?.apply {
+            if (isPlaying) stop()
+            release()
+        }
+        mediaPlayer = null
+
+        try {
+            // ⚠️ 确保 res/raw/gameover.wav 存在（全小写！）
+            val mp = MediaPlayer.create(context, R.raw.gameover)
+            if (mp != null) {
+                mp.setOnCompletionListener { player -> player.release() }
+                mp.start()
+            } else {
+                // fallback: no sound
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // ✅ 3. 加载题目
     LaunchedEffect(Unit) {
         isLoading = true
         val remoteSongs = songRepository.fetchSongsFromSupabase()
@@ -96,9 +116,8 @@ fun GameScreen(
         isLoading = false
     }
 
-    // Timer logic
+    // ✅ 4. 计时器（每题 40 秒，Game Over 时触发音效）
     LaunchedEffect(currentIndex, isLoading, isGameFinished) {
-        // only start timer if game is ongoing
         if (!isLoading && !isGameFinished && currentIndex < questions.size) {
             currentTimer?.cancel()
             timeLeft = 40
@@ -110,6 +129,7 @@ fun GameScreen(
                         timeLeft = (millisUntilFinished / 1000).toInt()
                     }
                 }
+
                 override fun onFinish() {
                     if (isGameOver) return
                     timeLeft = 0
@@ -118,8 +138,8 @@ fun GameScreen(
                         message = "⏰ Time's up!"
                         if (lives <= 0) {
                             isGameOver = true
+                            playGameOverSound() // ✅ 关键：超时 Game Over 触发音效
                         } else {
-                            // even on timeout, we advance to next question
                             currentIndex += 1
                         }
                     }
@@ -130,6 +150,7 @@ fun GameScreen(
         }
     }
 
+    // ✅ 5. 答题逻辑（Game Over 时触发音效）
     fun advanceToNextQuestion(isCorrect: Boolean) {
         if (isGameFinished) return
 
@@ -142,14 +163,14 @@ fun GameScreen(
             message = "❌ Wrong!"
             if (lives <= 0) {
                 isGameOver = true
-                return // game over, don't advance further
+                playGameOverSound() // ✅ 关键：答错 Game Over 触发音效
+                return
             }
         }
-
-
         currentIndex += 1
     }
 
+    // ✅ 6. 资源清理
     DisposableEffect(Unit) {
         onDispose {
             currentTimer?.cancel()
@@ -158,6 +179,7 @@ fun GameScreen(
         }
     }
 
+    // ✅ 7. UI
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -181,10 +203,8 @@ fun GameScreen(
                 if (isLoading) {
                     CircularProgressIndicator()
                     Text("Loading songs...")
-                }
-
-                else if (!isGameFinished && currentQuestion != null) {
-                    // --- game ongoing UI ---
+                } else if (!isGameFinished && currentQuestion != null) {
+                    // --- 游戏中 ---
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -239,17 +259,15 @@ fun GameScreen(
                             fontWeight = FontWeight.Medium
                         )
                     }
-                }
-                // --- game finished UI ---
-                else if (isGameFinished) {
+                } else if (isGameFinished) {
+                    // --- 游戏结束 ---
                     Spacer(Modifier.weight(1f))
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        val isSuccess = lives > 0 // if player still has lives, they succeeded
+                        val isSuccess = lives > 0
 
-                        // main title
                         Text(
                             text = if (isSuccess) "🎉 Success! 🎉" else "😢 Game Over",
                             style = MaterialTheme.typography.headlineLarge,
@@ -257,7 +275,6 @@ fun GameScreen(
                             color = if (isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                         )
 
-                        // greet word (Success Only)
                         if (isSuccess) {
                             Text(
                                 text = "Thank you for playing!",
@@ -266,21 +283,15 @@ fun GameScreen(
                             )
                         }
 
-                        // main score display
-                        Text(
-                            text = "Final Score: $score",
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                        Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
 
                         Spacer(Modifier.height(24.dp))
 
-                        // buttons
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            // reloads
                             Button(
                                 onClick = {
                                     currentIndex = 0
@@ -295,7 +306,6 @@ fun GameScreen(
                                 Text("↺ Play Again", fontSize = 18.sp)
                             }
 
-                            // back to rules
                             OutlinedButton(
                                 onClick = onNavigateBack,
                                 modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
