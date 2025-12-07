@@ -14,6 +14,20 @@ Jayden Toh Xuan Ming - S10241868, Github username: JaydenToh
 Lam Jun Yuan eeuwin - S10256929, Github username: sleeeeepyyyyy
 
 
+---------------------------
+
+## Introduction - 🎵 MusicApp
+
+The MusicApp is a Kotlin-based mobile application created to deliver a fun and interactive music experience. The app combines music discovery with gameplay, allowing users to test their song knowledge while exploring a curated library of tracks.
+
+At the heart of the app is a song guessing quiz, where users identify songs through multiple–choice questions under timed conditions. A lives/heart system adds challenge and encourages replayability. Beyond the quiz, users can browse a structured Song Library, search for specific tracks, and even use a Song Identifier feature powered by an external API to look up songs.
+
+The app also includes a Login and Signup system, enabling personalized user access. After logging in, users land on a dedicated Home Page, which acts as the main navigation hub for all features.
+
+This project demonstrates core skills in Kotlin development, UI design, API integration, authentication handling, and mobile app architecture—resulting in a complete and engaging music-based application.
+
+---------------------------
+
 ## 🌟 Motivation / Objective
 
 In today’s digital environment, music applications are widely available, but most focus solely on streaming or playlist creation. Users who want to test their music knowledge, identify unknown songs, or casually learn new tracks often need to use multiple separate apps.
@@ -64,7 +78,7 @@ This application falls under the Music & Audio category, as it focuses on provid
 
 # SCAMPER
 
-# Mindmapping
+
 
 ## 1. **Music Streaming and Library Management**
 
