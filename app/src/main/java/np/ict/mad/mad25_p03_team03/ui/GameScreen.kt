@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import np.ict.mad.mad25_p03_team03.data.SongRepository
+import np.ict.mad.mad25_p03_team03.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
