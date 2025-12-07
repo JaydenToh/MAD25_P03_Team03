@@ -186,7 +186,7 @@ Edge Cases and Alternatives
 | API Error (4xx / 5xx)        | AudD returns an error instead of a normal result     | Show `API error: <code>` at the bottom and reset status to “Tap the music note to start”                |
 | User Stops Recording Early   | User taps the button while the app is listening      | App stops recording immediately and still tries to identify the song using the recorded audio           |
 
-
+---
 
 # User Persona
 <img src="https://drive.google.com/uc?export=view&id=1SOASHLTMJcAU9TjK8-XrCrajOJZEl2I5" alt="User Persona" width="800">
@@ -263,7 +263,7 @@ Handle recognition failures more gracefully by:
 This makes the app feel more reliable and less frustrating, even when the external API cannot find a match.
 
 
-
+---
 
 # Competitor Analysis
 
