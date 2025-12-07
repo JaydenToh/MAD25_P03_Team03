@@ -61,9 +61,9 @@ This application falls under the Music & Entertainment category, as it focuses o
 | Leaderboard | Save best scores with player name and show ranked list (top 10)  | 
 | Error Handling & Retry UI | Friendly screens when audio fails to load, with retry buttons.  |
 | Skip song | User can skip the song when they encounter a difficult song   |
-| Song Profile | User can    |
-| Song Lyrics | User can    |
-| Setting | User can    |
+| Song Profile | User can view the song more detail information like "publish year" and "music intrument using"   |
+| Song Lyrics | User can view the lyrics of the song while listening to the song    |
+| Setting | User can change the setting of the app with setting feature    |
 
 
 
@@ -122,10 +122,9 @@ This document outlines the end-to-end user paths within the application, focusin
 
 | Step | Action | Expected Outcome | Screen/State |
 |------|--------|------------------|--------------|
-| 1 | User selects a mode | Difficulty/Genre modal appears | Game Selection |
-| 2 | User confirms Genre + Difficulty | Audio + timer start | Gameplay |
-| 3 | User guesses correctly | Success screen; next song | Gameplay (Success) |
-| 4 | Repeats until N songs | Show score summary | Game Report |
+| 1 | User reads the rules and click o start button| The game screen page should come out | GameScreen |
+| 2 | User guesses correctly | next song, add score, show display is correctly  | GameScreen  |
+| 3 | User finish all songs | Show score and have button choose to replay game and another button to back to rules page | GameScreen |
 
 ---
 
@@ -133,38 +132,14 @@ This document outlines the end-to-end user paths within the application, focusin
 
 | Scenario | Trigger | Resolution |
 |----------|---------|------------|
-| Incorrect Guess | Wrong title chosen | Deduct points, show correct answer |
-| Time Out | Timer reaches zero | Miss; auto-continue |
-| Skip Song | User taps Skip | Miss; next song |
-| Game Interruption | App minimized / lost network | Save progress; show Resume option |
+| Incorrect Guess | Incorrect function | Show incorrectly with a "X" icon , continue to next question |
+| Time Out | Timer reaches zero | Show a time out display, continue to next question |
 
 ---
 
-### **Flow 3: Profile & Settings**
+### **Flow 3: Song Identifier**
 
-#### **3.1 Updating Profile (Happy Path)**
-
-| Step | Action | Expected Outcome | Screen |
-|------|--------|------------------|--------|
-| 1 | Open Profile/Settings | Show stats + settings | Profile/Settings |
-| 2 | Tap editable field | Show input modal | Settings |
-| 3 | Save new data | Success notification | Settings |
-
----
-
-#### **Edge Cases**
-
-| Scenario | Trigger | Resolution |
-|----------|---------|------------|
-| Invalid Settings Data | Malformed input | Inline error |
-| Logout | User taps Logout | Confirm → Back to Login |
-| Delete Account | User taps Delete | Severe warning + password confirmation |
-
----
-
-### **Flow 4: Song Identifier**
-
-### **4.1 Identify Song**
+### **3.1 Identify Song**
 ------------------------------
 
 | Step | Action                                     | Expected Outcome                                                                     | Screen/State            |
@@ -190,9 +165,10 @@ Edge Cases and Alternatives
 | API Error (4xx / 5xx)        | AudD returns an error instead of a normal result     | Show `API error: <code>` at the bottom and reset status to “Tap the music note to start”                |
 | User Stops Recording Early   | User taps the button while the app is listening      | App stops recording immediately and still tries to identify the song using the recorded audio           |
 
+---
 
-
-
+# User Persona
+<img src="https://drive.google.com/uc?export=view&id=1SOASHLTMJcAU9TjK8-XrCrajOJZEl2I5" alt="User Persona" width="800">
 
 # User Problems and Opportunities
 
@@ -266,7 +242,7 @@ Handle recognition failures more gracefully by:
 This makes the app feel more reliable and less frustrating, even when the external API cannot find a match.
 
 
-
+---
 
 # Competitor Analysis
 
@@ -329,8 +305,5 @@ Shows the value of quizzes built from curated or personalised song lists.
 Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
 Declaration of LLM Used
 
-Tasks & Featured for Each Member for Stage 1
 
-
-Planned Tasks & Featured for Each Member for Stage 2
 
