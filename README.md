@@ -109,6 +109,7 @@ This application falls under the Music & Entertainment category, as it focuses o
     - Integration with social features (invite friends, share music)
 - **Framework Potential**: A **group listening framework** that allows synchronized music sessions across multiple devices and supports shared playlists.
   
+---
 
 ## Tasks & Featured for Each Member for Stage 1
 
