@@ -301,8 +301,5 @@ Shows the value of quizzes built from curated or personalised song lists.
 Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
 Declaration of LLM Used
 
-Tasks & Featured for Each Member for Stage 1
 
-
-Planned Tasks & Featured for Each Member for Stage 2
 
