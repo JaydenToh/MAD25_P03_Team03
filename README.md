@@ -18,6 +18,10 @@ Lam Jun Yuan eeuwin - S10256929, Github username: sleeeeepyyyyy
 
 ## Introduction - 🎵 MusicApp
 
+<img width="400" height="429" alt="Google_AI_Studio_2025-12-06T18_00_38 828Z" src="https://github.com/user-attachments/assets/f91b87ad-f515-464e-8b78-31a66039fb07" />
+<img width="231" height="429" alt="image" src="https://github.com/user-attachments/assets/a014b9ae-e750-4caf-b9b3-4d44d5d0f2ca" />
+
+
 The MusicApp is a Kotlin-based mobile application created to deliver a fun and interactive music experience. The app combines music discovery with gameplay, allowing users to test their song knowledge while exploring a curated library of tracks.
 
 At the heart of the app is a song guessing quiz, where users identify songs through multiple–choice questions under timed conditions. A lives/heart system adds challenge and encourages replayability. Beyond the quiz, users can browse a structured Song Library, search for specific tracks, and even use a Song Identifier feature powered by an external API to look up songs.
