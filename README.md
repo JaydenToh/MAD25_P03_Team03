@@ -188,7 +188,8 @@ Edge Cases and Alternatives
 
 
 
-
+#User Persona
+<img src="https://drive.google.com/uc?export=view&id=1SOASHLTMJcAU9TjK8-XrCrajOJZEl2I5" alt="User Persona" width="800">
 
 # User Problems and Opportunities
 
