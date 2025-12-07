@@ -44,7 +44,7 @@ This application falls under the Music & Entertainment category, as it focuses o
 | Liew Zhan Yang | Home navigation | Link all pages together |
 | Garence | Song Identifier | Users tap a button to let the app listen to nearby music, then it identifies the song and shows the title and artist. |
 | Jayden | Song Library and search | ... |
-| Leeuwin | Login/SignUp | ... |
+| Leeuwin | Login/SignUp | Users create accounts with a username and email, securely authenticate, and verify identity using a generated OTP before accessing the app’s main features |
 
 
 
@@ -301,8 +301,5 @@ Shows the value of quizzes built from curated or personalised song lists.
 Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
 Declaration of LLM Used
 
-Tasks & Featured for Each Member for Stage 1
 
-
-Planned Tasks & Featured for Each Member for Stage 2
 
