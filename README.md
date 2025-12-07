@@ -299,7 +299,6 @@ Shows the value of quizzes built from curated or personalised song lists.
 
 **Opportunity for our app:**  
 Provide an in-app song library with categories and difficulty, without requiring external account linking, and combine this with our built-in song identifier in a single app.
-Declaration of LLM Used
 
 
 
