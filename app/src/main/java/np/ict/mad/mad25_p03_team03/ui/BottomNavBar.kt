@@ -18,9 +18,9 @@ fun BottomNavBar(
     NavigationBar {
         val items = listOf(
             BottomNavItem.Home,
-            BottomNavItem.Game,
-            BottomNavItem.Identifier,
-            BottomNavItem.Library
+            BottomNavItem.Library,
+            BottomNavItem.Leaderboard,
+            BottomNavItem.Profile
         )
 
         items.forEach { item ->
@@ -54,9 +54,10 @@ sealed class BottomNavItem(
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 ) {
     object Home : BottomNavItem("home", "Home", Icons.Default.Home)
-    object Game : BottomNavItem("rules", "Game", Icons.Default.MusicNote) // rules → game 流程入口
-    object Identifier : BottomNavItem("identifier", "Identifier", Icons.Default.Search)
     object Library : BottomNavItem("library", "Library", Icons.Default.LibraryBooks)
+
+    object Leaderboard : BottomNavItem("leaderboard", "Leaderboard", Icons.Default.SportsScore)
+    object Profile : BottomNavItem("profile", "Profile", Icons.Default.Person)
 }
 
 // 工具扩展

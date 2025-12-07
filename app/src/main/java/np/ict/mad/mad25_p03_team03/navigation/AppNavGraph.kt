@@ -19,6 +19,8 @@ import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
+import np.ict.mad.mad25_p03_team03.ui.LeaderboardScreen
+import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 
 
@@ -67,6 +69,14 @@ fun AppNavGraph(songRepository: SongRepository) {
                 SongIdentifier()
             }
 
+            composable("leaderboard") {
+                LeaderboardScreen()
+            }
+
+            composable("profile") {
+                ProfileScreen()
+            }
+
             // library 仍可跳 Activity
             composable("library") {
                 val context = LocalContext.current
@@ -75,6 +85,7 @@ fun AppNavGraph(songRepository: SongRepository) {
                     navController.popBackStack() // 立即返回，避免白屏
                 }
             }
+
         }
     }
 }
