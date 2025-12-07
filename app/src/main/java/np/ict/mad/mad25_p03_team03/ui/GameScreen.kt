@@ -42,7 +42,7 @@ fun GameScreen(
     val isGameFinished = isGameOver || isAllQuestionsAnswered
     val currentQuestion = if (!isGameFinished) questions.getOrNull(currentIndex) else null
 
-    // ✅ 1. 统一音频播放（网络 + raw）
+    // standadized audio playback function
     fun playAudio(url: String?) {
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
@@ -68,9 +68,9 @@ fun GameScreen(
         }
     }
 
-    // ✅ 2. Game Over 音效（安全调用 + 资源检查）
+    // game over sound effect
     fun playGameOverSound() {
-        // 确保先释放当前 MediaPlayer
+        // make sure release the current MediaPlayer
         mediaPlayer?.apply {
             if (isPlaying) stop()
             release()
@@ -78,7 +78,7 @@ fun GameScreen(
         mediaPlayer = null
 
         try {
-            // ⚠️ 确保 res/raw/gameover.wav 存在（全小写！）
+            // make sure you have res/raw/gameover.mp3 file
             val mp = MediaPlayer.create(context, R.raw.gameover)
             if (mp != null) {
                 mp.setOnCompletionListener { player -> player.release() }
@@ -91,7 +91,29 @@ fun GameScreen(
         }
     }
 
-    // ✅ 3. 加载题目
+    fun playSuccessSound() {
+        // stop and release any existing MediaPlayer
+        mediaPlayer?.apply {
+            if (isPlaying) stop()
+            release()
+        }
+        mediaPlayer = null
+
+        try {
+            // make sure you have res/raw/completegame.mp3 file
+            val resId = np.ict.mad.mad25_p03_team03.R.raw.completegame
+
+            val mp = MediaPlayer.create(context, resId)
+            if (mp != null) {
+                mp.setOnCompletionListener { player -> player.release() }
+                mp.start()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // load questions from repository
     LaunchedEffect(Unit) {
         isLoading = true
         val remoteSongs = songRepository.fetchSongsFromSupabase()
@@ -117,7 +139,7 @@ fun GameScreen(
         isLoading = false
     }
 
-    // ✅ 4. 计时器（每题 40 秒，Game Over 时触发音效）
+    // countdown timer for each question
     LaunchedEffect(currentIndex, isLoading, isGameFinished) {
         if (!isLoading && !isGameFinished && currentIndex < questions.size) {
             currentTimer?.cancel()
@@ -139,9 +161,13 @@ fun GameScreen(
                         message = "⏰ Time's up!"
                         if (lives <= 0) {
                             isGameOver = true
-                            playGameOverSound() // ✅ 关键：超时 Game Over 触发音效
+                            playGameOverSound() // game over sound
                         } else {
                             currentIndex += 1
+
+                            if (currentIndex >= questions.size) {
+                                playSuccessSound()
+                            }
                         }
                     }
                 }
@@ -151,7 +177,7 @@ fun GameScreen(
         }
     }
 
-    // ✅ 5. 答题逻辑（Game Over 时触发音效）
+    // logic to advance to next question
     fun advanceToNextQuestion(isCorrect: Boolean) {
         if (isGameFinished) return
 
@@ -164,14 +190,18 @@ fun GameScreen(
             message = "❌ Wrong!"
             if (lives <= 0) {
                 isGameOver = true
-                playGameOverSound() // ✅ 关键：答错 Game Over 触发音效
+                playGameOverSound() // play game over sound
                 return
             }
         }
         currentIndex += 1
+
+        if (lives > 0 && currentIndex >= questions.size) {
+            playSuccessSound()
+        }
     }
 
-    // ✅ 6. 资源清理
+    // cleanup on dispose
     DisposableEffect(Unit) {
         onDispose {
             currentTimer?.cancel()
@@ -180,7 +210,7 @@ fun GameScreen(
         }
     }
 
-    // ✅ 7. UI
+    // ui layout
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -205,7 +235,7 @@ fun GameScreen(
                     CircularProgressIndicator()
                     Text("Loading songs...")
                 } else if (!isGameFinished && currentQuestion != null) {
-                    // --- 游戏中 ---
+                    // game in progress
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -261,7 +291,7 @@ fun GameScreen(
                         )
                     }
                 } else if (isGameFinished) {
-                    // --- 游戏结束 ---
+                    // game over screen
                     Spacer(Modifier.weight(1f))
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
