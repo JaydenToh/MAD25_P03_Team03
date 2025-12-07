@@ -87,7 +87,7 @@ fun HomeScreen(
 
             HomeCard(
                 icon = "🔍",
-                title = "Song Guessing Game",
+                title = "Song Identifier",
                 description = "Recognize songs by listening",
                 onClick = onIdentifySong
             )
