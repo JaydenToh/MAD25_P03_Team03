@@ -61,7 +61,7 @@ fun HomeScreen(
                     modifier = Modifier.size(36.dp)
                 )
                 Text(
-                    text = "Mad Music Quiz",
+                    text = "Music App",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
