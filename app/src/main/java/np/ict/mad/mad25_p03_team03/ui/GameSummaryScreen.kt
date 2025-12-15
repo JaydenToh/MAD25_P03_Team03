@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun GameSummaryScreen(
     score: Int,
-    totalQuestions: Int, // 这里的 totalQuestions 应该是 currentIndex (已答题目数)
+    totalQuestions: Int,
     correctCount: Int,
     longestStreak: Int,
     avgTime: Float,
@@ -38,10 +38,10 @@ fun GameSummaryScreen(
     onPlayAgain: () -> Unit,
     onBack: () -> Unit
 ) {
-    // 计算准确率
+
     val accuracy = if (totalQuestions > 0) (correctCount.toFloat() / totalQuestions * 100).toInt() else 0
 
-    // 动态称号
+
     val rankTitle = when {
         accuracy == 100 -> "🎵 Music God 🎵"
         accuracy >= 80 -> "🎸 Rock Star"
@@ -49,7 +49,7 @@ fun GameSummaryScreen(
         else -> "👂 Need Practice"
     }
 
-    // 颜色主题
+
     val mainColor = if (isWin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
 
     Column(
@@ -59,7 +59,7 @@ fun GameSummaryScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // 1. 顶部图标 & 结果
+
         Icon(
             imageVector = if (isWin) Icons.Default.EmojiEvents else Icons.Default.SentimentVeryDissatisfied,
             contentDescription = null,
@@ -81,7 +81,7 @@ fun GameSummaryScreen(
 
         Spacer(Modifier.height(32.dp))
 
-        // 2. 分数大卡片
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -103,7 +103,7 @@ fun GameSummaryScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // 3. 详细数据 Grid (Row of Cards)
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -126,14 +126,14 @@ fun GameSummaryScreen(
             StatCard(
                 modifier = Modifier.weight(1f),
                 label = "Avg Speed",
-                value = String.format("%.1fs", avgTime), // 保留1位小数
+                value = String.format("%.1fs", avgTime), 
                 icon = "⚡"
             )
         }
 
         Spacer(Modifier.weight(1f))
 
-        // 4. 按钮区域
+
         Button(
             onClick = onPlayAgain,
             modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -155,7 +155,7 @@ fun GameSummaryScreen(
     }
 }
 
-// 小的数据卡片组件
+
 @Composable
 fun StatCard(modifier: Modifier = Modifier, label: String, value: String, icon: String) {
     Card(

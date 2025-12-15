@@ -213,7 +213,7 @@ fun GameScreen(
             message = "✅ Correct!"
         } else {
             lives -= 1
-            // [新增] 连胜中断
+
             currentStreak = 0
             message = "❌ Wrong!"
             if (lives <= 0) {
@@ -349,23 +349,22 @@ fun GameScreen(
                     val attempts = currentIndex
                     val avgTime = if (attempts > 0) totalTimeTaken.toFloat() / attempts else 0f
 
-                    // 调用我们新写的酷炫界面
+
                     GameSummaryScreen(
                         score = score,
                         totalQuestions = attempts,
                         correctCount = correctCount,
                         longestStreak = longestStreak,
                         avgTime = avgTime,
-                        isWin = lives > 0, // 如果还有命就是赢了（或者答完了）
+                        isWin = lives > 0,
                         onPlayAgain = {
-                            // 重置所有状态
                             currentIndex = 0
                             score = 0
                             lives = 3
-                            currentStreak = 0 // [重置]
-                            longestStreak = 0 // [重置]
-                            correctCount = 0  // [重置]
-                            totalTimeTaken = 0 // [重置]
+                            currentStreak = 0
+                            longestStreak = 0
+                            correctCount = 0
+                            totalTimeTaken = 0
                             message = ""
                             isGameOver = false
                             hasSavedScore = false
