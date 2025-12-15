@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun SignUpScreen(onBackToLoginClick: () -> Unit) {
@@ -77,19 +78,32 @@ fun SignUpScreen(onBackToLoginClick: () -> Unit) {
                                         if (task.isSuccessful) {
                                             val user = auth.currentUser
 
+                                            val userData = hashMapOf(
+                                                "email" to email,
+                                                "uid" to (user?.uid ?: ""),
+                                                "username" to email.substringBefore("@"),
+                                                "bio" to "New user",
+                                                "createdAt" to com.google.firebase.Timestamp.now()
+                                            )
 
-                                            user?.sendEmailVerification()
-                                                ?.addOnCompleteListener { verifyTask ->
-                                                    if (verifyTask.isSuccessful) {
-                                                        Toast.makeText(context, "Sign up success! Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
-                                                    } else {
+                                            val db = FirebaseFirestore.getInstance()
 
-                                                        Toast.makeText(context, "Sign up success, but failed to send verification email.", Toast.LENGTH_LONG).show()
+                                            user?.let {
+                                                db.collection("users").document(it.uid)
+                                                    .set(userData)
+                                                    .addOnSuccessListener {
+                                                        user.sendEmailVerification()
+                                                        Toast.makeText(context, "Account Created & Profile Saved!", Toast.LENGTH_SHORT).show()
+                                                        onBackToLoginClick()
                                                     }
-                                                }
-
-                                            onBackToLoginClick()
-                                        } else error = task.exception?.localizedMessage ?: "Error"
+                                                    .addOnFailureListener { e ->
+                                                        Toast.makeText(context, "Account created but failed to save profile: ${e.message}", Toast.LENGTH_LONG).show()
+                                                        onBackToLoginClick()
+                                                    }
+                                            }
+                                        } else {
+                                            error = task.exception?.localizedMessage ?: "Error"
+                                        }
                                     }
                             }
                         }
