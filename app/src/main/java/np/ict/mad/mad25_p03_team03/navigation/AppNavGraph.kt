@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import np.ict.mad.mad25_p03_team03.SongIdentifier
 import np.ict.mad.mad25_p03_team03.SongLibrary
+import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
@@ -64,30 +65,33 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
 
             composable("mode_selection") {
                 ModeSelectionScreen(
-                    onModeSelected = { mode ->
-                        navController.navigate("game/${mode.name}")
+                    onStartGame = { mode, difficulty ->
+                        // 跳转路由格式: game/ENGLISH/HARD
+                        navController.navigate("game/${mode.name}/${difficulty.name}")
                     },
                     onBack = { navController.popBackStack() }
                 )
             }
 
             composable(
-                route = "game/{mode}",
-                arguments = listOf(navArgument("mode") { type = NavType.StringType })
+                route = "game/{mode}/{difficulty}", // 两个参数
+                arguments = listOf(
+                    navArgument("mode") { type = NavType.StringType },
+                    navArgument("difficulty") { type = NavType.StringType } // 新增 difficulty 参数
+                )
             ) { backStackEntry ->
+                // 解析 Mode
+                val modeString = backStackEntry.arguments?.getString("mode") ?: GameMode.ENGLISH.name
+                val mode = try { GameMode.valueOf(modeString) } catch (e: Exception) { GameMode.ENGLISH }
 
-                val modeString =
-                    backStackEntry.arguments?.getString("mode") ?: GameMode.ENGLISH.name
-
-                val mode = try {
-                    GameMode.valueOf(modeString)
-                } catch (e: Exception) {
-                    GameMode.ENGLISH
-                }
+                // 解析 Difficulty
+                val diffString = backStackEntry.arguments?.getString("difficulty") ?: Difficulty.EASY.name
+                val difficulty = try { Difficulty.valueOf(diffString) } catch (e: Exception) { Difficulty.EASY }
 
                 GameScreen(
                     songRepository = songRepository,
                     gameMode = mode,
+                    difficulty = difficulty, // 传入参数
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

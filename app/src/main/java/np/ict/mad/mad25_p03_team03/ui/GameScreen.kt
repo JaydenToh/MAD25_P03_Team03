@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.R
+import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +28,7 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 fun GameScreen(
     songRepository: SongRepository,
     gameMode: GameMode,
+    difficulty: Difficulty,
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -40,7 +42,7 @@ fun GameScreen(
     var lives by remember { mutableStateOf(3) }
     var isGameOver by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
-    var timeLeft by remember { mutableStateOf(40) }
+    var timeLeft by remember { mutableStateOf(difficulty.timeLimitSeconds) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
     var hasSavedScore by remember { mutableStateOf(false) }
@@ -150,10 +152,13 @@ fun GameScreen(
     LaunchedEffect(currentIndex, isLoading, isGameFinished) {
         if (!isLoading && !isGameFinished && currentIndex < questions.size) {
             currentTimer?.cancel()
-            timeLeft = 40
+
+            val maxTime = difficulty.timeLimitSeconds
+            timeLeft = maxTime
+
             playAudio(questions[currentIndex].audioUrl)
 
-            val timer = object : CountDownTimer(40_000, 1_000) {
+            val timer = object : CountDownTimer(maxTime * 1000L, 1_000) {
                 override fun onTick(millisUntilFinished: Long) {
                     if (!isGameOver) {
                         timeLeft = (millisUntilFinished / 1000).toInt()
