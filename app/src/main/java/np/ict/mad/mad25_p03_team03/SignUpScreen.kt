@@ -75,7 +75,22 @@ fun SignUpScreen(onBackToLoginClick: () -> Unit) {
                                 auth.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener { task ->
                                         if (task.isSuccessful) {
-                                            Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
+                                            val user = auth.currentUser
+
+                                            // [新增] 注册成功后立刻发送验证邮件
+                                            user?.sendEmailVerification()
+                                                ?.addOnCompleteListener { verifyTask ->
+                                                    if (verifyTask.isSuccessful) {
+                                                        Toast.makeText(context, "Sign up success! Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
+                                                    } else {
+                                                        // 可选: 如果发送失败，也给用户一个提示
+                                                        Toast.makeText(context, "Sign up success, but failed to send verification email.", Toast.LENGTH_LONG).show()
+                                                    }
+                                                }
+
+                                            // 确保用户看到 Toast 提示后，再执行跳转
+                                            // 注意：由于 Firebase 的回调是异步的，Toast 可能会在跳转之后才显示。
+                                            // 在 Compose 中，直接调用 onBackToLoginClick() 通常是可行的。
                                             onBackToLoginClick()
                                         } else error = task.exception?.localizedMessage ?: "Error"
                                     }

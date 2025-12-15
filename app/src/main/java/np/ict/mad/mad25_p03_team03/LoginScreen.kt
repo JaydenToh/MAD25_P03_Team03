@@ -74,14 +74,38 @@ fun LoginScreen(
 
                 Button(
                     onClick = {
-                        auth.signInWithEmailAndPassword(username, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    loginError = ""
-                                    Toast.makeText(context, "Login Success", Toast.LENGTH_SHORT).show()
-                                    onLoginSuccess()
-                                } else loginError = "Invalid Username or password"
-                            }
+                        if (username.isNotEmpty() && password.isNotEmpty()) {
+                            auth.signInWithEmailAndPassword(username, password)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val user = auth.currentUser
+
+                                        // [新增] 检查邮箱是否验证
+                                        if (user != null && user.isEmailVerified) {
+                                            // 1. 已验证 -> 允许进入
+                                            loginError = ""
+                                            Toast.makeText(context, "Login Success", Toast.LENGTH_SHORT).show()
+                                            onLoginSuccess()
+                                        } else {
+                                            // 2. 未验证 -> 发送验证邮件并阻止进入
+                                            user?.sendEmailVerification()
+                                                ?.addOnSuccessListener {
+                                                    Toast.makeText(context, "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
+                                                }
+                                                ?.addOnFailureListener { e ->
+                                                    Toast.makeText(context, "Failed to send email: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
+
+                                            loginError = "Please verify your email first!"
+                                            auth.signOut() // 登出，不让用户停留在已登录状态
+                                        }
+                                    } else {
+                                        loginError = task.exception?.message ?: "Invalid Username or password"
+                                    }
+                                }
+                        } else {
+                            loginError = "Please enter email and password"
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
