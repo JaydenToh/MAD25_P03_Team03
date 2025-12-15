@@ -83,7 +83,8 @@ fun SignUpScreen(onBackToLoginClick: () -> Unit) {
                                                 "uid" to (user?.uid ?: ""),
                                                 "username" to email.substringBefore("@"),
                                                 "bio" to "New user",
-                                                "createdAt" to com.google.firebase.Timestamp.now()
+                                                "createdAt" to com.google.firebase.Timestamp.now(),
+                                                "highScore" to 0
                                             )
 
                                             val db = FirebaseFirestore.getInstance()
@@ -93,7 +94,7 @@ fun SignUpScreen(onBackToLoginClick: () -> Unit) {
                                                     .set(userData)
                                                     .addOnSuccessListener {
                                                         user.sendEmailVerification()
-                                                        Toast.makeText(context, "Account Created & Profile Saved!", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, "Account Created & Email verification was sent ,please click to verify", Toast.LENGTH_SHORT).show()
                                                         onBackToLoginClick()
                                                     }
                                                     .addOnFailureListener { e ->
