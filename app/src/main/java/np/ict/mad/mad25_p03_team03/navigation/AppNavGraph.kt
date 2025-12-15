@@ -9,17 +9,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import np.ict.mad.mad25_p03_team03.SongIdentifier
 import np.ict.mad.mad25_p03_team03.SongLibrary
+import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
 import np.ict.mad.mad25_p03_team03.ui.LeaderboardScreen
+import np.ict.mad.mad25_p03_team03.ui.ModeSelectionScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 
@@ -53,17 +57,41 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
 
             composable("rules") {
                 RulesScreen(
-                    onStartGame = { navController.navigate("game") },
+                    onStartGame = { navController.navigate("mode_selection") },
                     onBack = { navController.popBackStack() }
                 )
             }
 
-            composable("game") {
+            composable("mode_selection") {
+                ModeSelectionScreen(
+                    onModeSelected = { mode ->
+                        navController.navigate("game/${mode.name}")
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = "game/{mode}",
+                arguments = listOf(navArgument("mode") { type = NavType.StringType })
+            ) { backStackEntry ->
+
+                val modeString =
+                    backStackEntry.arguments?.getString("mode") ?: GameMode.ENGLISH.name
+
+                val mode = try {
+                    GameMode.valueOf(modeString)
+                } catch (e: Exception) {
+                    GameMode.ENGLISH
+                }
+
                 GameScreen(
                     songRepository = songRepository,
+                    gameMode = mode,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+
 
             composable("identifier") {
                 SongIdentifier()
