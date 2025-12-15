@@ -55,9 +55,9 @@ fun GameSummaryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
 
         Icon(
@@ -66,7 +66,7 @@ fun GameSummaryScreen(
             tint = mainColor,
             modifier = Modifier.size(80.dp)
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = if (isWin) "Victory!" else "Game Over",
             style = MaterialTheme.typography.displayMedium,
@@ -79,7 +79,7 @@ fun GameSummaryScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
 
 
         Card(
@@ -126,25 +126,43 @@ fun GameSummaryScreen(
             StatCard(
                 modifier = Modifier.weight(1f),
                 label = "Avg Speed",
-                value = String.format("%.1fs", avgTime), 
+                value = String.format("%.1fs", avgTime),
                 icon = "⚡"
             )
         }
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(1.5f))
 
-
-        Button(
-            onClick = onPlayAgain,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = mainColor)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp) // 按钮间的间距
         ) {
-            Icon(Icons.Default.Refresh, null)
-            Spacer(Modifier.width(8.dp))
-            Text("Play Again", fontSize = 18.sp)
+            // 1. Play Again Button
+            Button(
+                onClick = onPlayAgain,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = mainColor)
+            ) {
+                Icon(Icons.Default.Refresh, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Play Again", fontSize = 16.sp)
+            }
+
+            // 2. Back to Rules Button
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp)
+            ) {
+                // Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                Text("Back to Rules", fontSize = 16.sp)
+            }
         }
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(2.dp))
 
         OutlinedButton(
             onClick = onBack,
