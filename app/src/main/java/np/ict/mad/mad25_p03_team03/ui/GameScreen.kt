@@ -2,6 +2,7 @@
 
 package np.ict.mad.mad25_p03_team03.ui
 
+import GameSummaryScreen
 import android.media.MediaPlayer
 import android.os.CountDownTimer
 import androidx.compose.foundation.layout.*
@@ -39,6 +40,10 @@ fun GameScreen(
 
     var currentIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
+    var currentStreak by remember { mutableStateOf(0) }
+    var longestStreak by remember { mutableStateOf(0) }
+    var correctCount by remember { mutableStateOf(0) }
+    var totalTimeTaken by remember { mutableStateOf(0) }
     var lives by remember { mutableStateOf(3) }
     var isGameOver by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
@@ -194,11 +199,22 @@ fun GameScreen(
         if (isGameFinished) return
 
         currentTimer?.cancel()
+
+        val timeUsed = difficulty.timeLimitSeconds - timeLeft
+        totalTimeTaken += timeUsed
+
         if (isCorrect) {
             score += 10
+            currentStreak += 1
+            correctCount += 1
+            if (currentStreak > longestStreak) {
+                longestStreak = currentStreak
+            }
             message = "✅ Correct!"
         } else {
             lives -= 1
+            // [新增] 连胜中断
+            currentStreak = 0
             message = "❌ Wrong!"
             if (lives <= 0) {
                 isGameOver = true
@@ -330,67 +346,33 @@ fun GameScreen(
                         )
                     }
                 } else if (isGameFinished) {
-                    // game over screen
-                    Spacer(Modifier.weight(1f))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        val isSuccess = lives > 0
+                    val attempts = currentIndex
+                    val avgTime = if (attempts > 0) totalTimeTaken.toFloat() / attempts else 0f
 
-                        Text(
-                            text = if (isSuccess) "🎉 Success! 🎉" else "😢 Game Over",
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isSuccess) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                        )
-
-                        if (isSuccess) {
-                            Text(
-                                text = "Thank you for playing!",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-
-                        Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
-
-                        Text("(Score saved to leaderboard)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
-
-                        Spacer(Modifier.height(24.dp))
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Button(
-                                onClick = {
-                                    currentIndex = 0
-                                    score = 0
-                                    lives = 3
-                                    message = ""
-                                    isGameOver = false
-                                    timeLeft = 40
-                                    hasSavedScore = false
-                                },
-                                modifier = Modifier.fillMaxWidth(0.7f).height(56.dp)
-                            ) {
-                                Text("↺ Play Again", fontSize = 18.sp)
-                            }
-
-                            OutlinedButton(
-                                onClick = onNavigateBack,
-                                modifier = Modifier.fillMaxWidth(0.7f).height(56.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                Text("← Back to Rules", fontSize = 16.sp)
-                            }
-                        }
-                    }
-                    Spacer(Modifier.weight(1f))
+                    // 调用我们新写的酷炫界面
+                    GameSummaryScreen(
+                        score = score,
+                        totalQuestions = attempts,
+                        correctCount = correctCount,
+                        longestStreak = longestStreak,
+                        avgTime = avgTime,
+                        isWin = lives > 0, // 如果还有命就是赢了（或者答完了）
+                        onPlayAgain = {
+                            // 重置所有状态
+                            currentIndex = 0
+                            score = 0
+                            lives = 3
+                            currentStreak = 0 // [重置]
+                            longestStreak = 0 // [重置]
+                            correctCount = 0  // [重置]
+                            totalTimeTaken = 0 // [重置]
+                            message = ""
+                            isGameOver = false
+                            hasSavedScore = false
+                            timeLeft = difficulty.timeLimitSeconds
+                        },
+                        onBack = onNavigateBack
+                    )
                 }
             }
         }
