@@ -27,7 +27,7 @@ import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 
 // navigation/AppNavGraph.kt
 @Composable
-fun AppNavGraph(songRepository: SongRepository) {
+fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -46,7 +46,8 @@ fun AppNavGraph(songRepository: SongRepository) {
                 HomeScreen(
                     onStartGame = { navController.navigate("rules") },
                     onOpenLibrary = { navController.navigate("library") },
-                    onIdentifySong = { navController.navigate("identifier") }
+                    onIdentifySong = { navController.navigate("identifier") },
+                    onSignOut = onSignOut
                 )
             }
 

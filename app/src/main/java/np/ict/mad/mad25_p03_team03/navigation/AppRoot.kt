@@ -36,7 +36,10 @@ fun AppRoot() {
             onContinueToApp = { currentScreen = RootScreen.Music }
         )
 
-        is RootScreen.Music -> MusicHome()
+        is RootScreen.Music -> MusicHome(onSignOut = {
+            auth.signOut()
+            currentScreen = RootScreen.Login
+        })
     }
 }
 
