@@ -65,7 +65,6 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             composable("mode_selection") {
                 ModeSelectionScreen(
                     onModeSelected = { mode ->
-                        // 跳转到 game 并带上参数，例如: game/ENGLISH 或 game/MANDARIN
                         navController.navigate("game/${mode.name}")
                     },
                     onBack = { navController.popBackStack() }
@@ -73,17 +72,17 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             }
 
             composable(
-                route = "game/{mode}", // 定义路由包含参数
-                arguments = listOf(navArgument("mode") { type = NavType.StringType }) // 定义参数类型
+                route = "game/{mode}",
+                arguments = listOf(navArgument("mode") { type = NavType.StringType })
             ) { backStackEntry ->
-                // 从路由中解析出 mode 字符串
+
                 val modeString =
                     backStackEntry.arguments?.getString("mode") ?: GameMode.ENGLISH.name
-                // 转换回 Enum
+
                 val mode = try {
                     GameMode.valueOf(modeString)
                 } catch (e: Exception) {
-                    GameMode.ENGLISH // 如果出错，默认英文
+                    GameMode.ENGLISH
                 }
 
                 GameScreen(

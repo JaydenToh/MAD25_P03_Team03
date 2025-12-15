@@ -28,8 +28,8 @@ class SongRepository {
     suspend fun fetchSongsFromSupabase(mode: GameMode): List<SongDto> {
         return try {
             val tableName = when (mode) {
-                GameMode.ENGLISH -> "songs"            // 英文歌 Table
-                GameMode.MANDARIN -> "songs_mandarin"  // 华语歌 Table
+                GameMode.ENGLISH -> "songs"
+                GameMode.MANDARIN -> "songs_mandarin"
             }
             Log.d("SongRepo", "Fetching songs from table: $tableName")
 
