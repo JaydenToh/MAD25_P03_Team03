@@ -10,6 +10,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import np.ict.mad.mad25_p03_team03.data.remote.dto.SongDto
 
+enum class GameMode {
+    ENGLISH,
+    MANDARIN
+}
+
 class SongRepository {
 
     // Initialize Supabase client
@@ -20,16 +25,20 @@ class SongRepository {
         install(Postgrest)
     }
 
-    suspend fun fetchSongsFromSupabase(): List<SongDto> {
+    suspend fun fetchSongsFromSupabase(mode: GameMode): List<SongDto> {
         return try {
-            Log.d("SongRepo", "Fetching songs...")
+            val tableName = when (mode) {
+                GameMode.ENGLISH -> "songs"            // 英文歌 Table
+                GameMode.MANDARIN -> "songs_mandarin"  // 华语歌 Table
+            }
+            Log.d("SongRepo", "Fetching songs from table: $tableName")
 
 
-            val songs = supabase.from("songs")
+            val songs = supabase.from(tableName)
                 .select(columns = Columns.list("id, title, artist, audio_url, fake_options"))
                 .decodeList<SongDto>() // Decode directly to a list of SongDto
 
-            Log.d("SongRepo", "Fetched ${songs.size} songs")
+            Log.d("SongRepo", "Fetched ${songs.size} songs from $tableName")
             songs
         } catch (e: Exception) {
             Log.e("SongRepo", "Error fetching songs", e)

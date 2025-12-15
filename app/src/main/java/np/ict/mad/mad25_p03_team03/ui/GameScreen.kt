@@ -20,11 +20,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.R
+import np.ict.mad.mad25_p03_team03.data.GameMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(
     songRepository: SongRepository,
+    gameMode: GameMode,
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -121,7 +123,7 @@ fun GameScreen(
     // load questions from repository
     LaunchedEffect(Unit) {
         isLoading = true
-        val remoteSongs = songRepository.fetchSongsFromSupabase()
+        val remoteSongs = songRepository.fetchSongsFromSupabase(gameMode)
         questions = if (remoteSongs.isNotEmpty()) {
             remoteSongs.map { songDto ->
                 val options = (listOf(songDto.title) + songDto.fakeOptions).shuffled().take(4)
