@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun SignUpScreen(onBackToLoginClick: () -> Unit) {
@@ -77,19 +78,39 @@ fun SignUpScreen(onBackToLoginClick: () -> Unit) {
                                         if (task.isSuccessful) {
                                             val user = auth.currentUser
 
+                                            // 1. 准备要存入 Firestore 的数据
+                                            // 注意：不要存 password！
+                                            val userData = hashMapOf(
+                                                "email" to email,
+                                                "uid" to (user?.uid ?: ""),
+                                                // 如果你有让用户输入名字，这里可以放名字，现在先用 email 前缀代替
+                                                "username" to email.substringBefore("@"),
+                                                "bio" to "New user",
+                                                "createdAt" to com.google.firebase.Timestamp.now()
+                                            )
 
-                                            user?.sendEmailVerification()
-                                                ?.addOnCompleteListener { verifyTask ->
-                                                    if (verifyTask.isSuccessful) {
-                                                        Toast.makeText(context, "Sign up success! Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
-                                                    } else {
+                                            // 2. 获取 Firestore 实例
+                                            val db = FirebaseFirestore.getInstance()
 
-                                                        Toast.makeText(context, "Sign up success, but failed to send verification email.", Toast.LENGTH_LONG).show()
+                                            // 3. 写入 users 集合，使用 uid 作为文档 ID
+                                            user?.let {
+                                                db.collection("users").document(it.uid)
+                                                    .set(userData)
+                                                    .addOnSuccessListener {
+                                                        // 写入成功后再发送验证邮件或跳转
+                                                        user.sendEmailVerification()
+                                                        Toast.makeText(context, "Account Created & Profile Saved!", Toast.LENGTH_SHORT).show()
+                                                        onBackToLoginClick()
                                                     }
-                                                }
-
-                                            onBackToLoginClick()
-                                        } else error = task.exception?.localizedMessage ?: "Error"
+                                                    .addOnFailureListener { e ->
+                                                        // 即使写入资料失败，账号其实已经注册了，这里可以做错误处理
+                                                        Toast.makeText(context, "Account created but failed to save profile: ${e.message}", Toast.LENGTH_LONG).show()
+                                                        onBackToLoginClick()
+                                                    }
+                                            }
+                                        } else {
+                                            error = task.exception?.localizedMessage ?: "Error"
+                                        }
                                     }
                             }
                         }
