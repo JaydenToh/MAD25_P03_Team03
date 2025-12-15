@@ -25,23 +25,19 @@ fun ProfileScreen() {
     val db = FirebaseFirestore.getInstance()
     val context = LocalContext.current
 
-    // 定义状态来保存从 Firestore 拿到的数据
     var username by remember { mutableStateOf("Loading...") }
     var email by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("Loading...") }
 
-    // 当页面加载时，去 Firestore 抓取数据
+
     LaunchedEffect(key1 = currentUser) {
         if (currentUser != null) {
-            // 1. 优先显示 Auth 里的 Email（这是最准确的）
             email = currentUser.email ?: "No Email"
 
-            // 2. 根据 UID 去 Firestore 找详细资料
             db.collection("users").document(currentUser.uid)
                 .get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
-                        // 读取字段
                         username = document.getString("username") ?: "No Name"
                         bio = document.getString("bio") ?: "No Bio available"
                     } else {
@@ -63,7 +59,6 @@ fun ProfileScreen() {
     ) {
         Spacer(Modifier.height(40.dp))
 
-        // 头像部分
         Surface(
             modifier = Modifier.size(100.dp),
             shape = CircleShape,
@@ -81,7 +76,6 @@ fun ProfileScreen() {
 
         Spacer(Modifier.height(24.dp))
 
-        // 显示名字
         Text(
             text = username,
             style = MaterialTheme.typography.headlineMedium,
@@ -90,7 +84,7 @@ fun ProfileScreen() {
 
         Spacer(Modifier.height(8.dp))
 
-        // 显示 Email (带图标)
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.Email,
@@ -106,7 +100,7 @@ fun ProfileScreen() {
             )
         }
 
-        // 显示是否已验证邮箱
+
         if (currentUser?.isEmailVerified == true) {
             Text("✅ Verified Account", color = Color(0xFF00AA00), style = MaterialTheme.typography.bodySmall)
         } else {
@@ -115,7 +109,7 @@ fun ProfileScreen() {
 
         Spacer(Modifier.height(32.dp))
 
-        // 信息卡片 (Bio)
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -136,7 +130,7 @@ fun ProfileScreen() {
 
         Spacer(Modifier.height(16.dp))
 
-        // 如果你想让用户改密码，可以在这里加按钮，而不是显示密码
+    
         Button(
             onClick = {
                 auth.sendPasswordResetEmail(email)
