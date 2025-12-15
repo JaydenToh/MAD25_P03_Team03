@@ -74,14 +74,35 @@ fun LoginScreen(
 
                 Button(
                     onClick = {
-                        auth.signInWithEmailAndPassword(username, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    loginError = ""
-                                    Toast.makeText(context, "Login Success", Toast.LENGTH_SHORT).show()
-                                    onLoginSuccess()
-                                } else loginError = "Invalid Username or password"
-                            }
+                        if (username.isNotEmpty() && password.isNotEmpty()) {
+                            auth.signInWithEmailAndPassword(username, password)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val user = auth.currentUser
+
+                                        if (user != null && user.isEmailVerified) {
+                                            loginError = ""
+                                            Toast.makeText(context, "Login Success", Toast.LENGTH_SHORT).show()
+                                            onLoginSuccess()
+                                        } else {
+                                            user?.sendEmailVerification()
+                                                ?.addOnSuccessListener {
+                                                    Toast.makeText(context, "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
+                                                }
+                                                ?.addOnFailureListener { e ->
+                                                    Toast.makeText(context, "Failed to send email: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
+
+                                            loginError = "Please verify your email first!"
+                                            auth.signOut() 
+                                        }
+                                    } else {
+                                        loginError = task.exception?.message ?: "Invalid Username or password"
+                                    }
+                                }
+                        } else {
+                            loginError = "Please enter email and password"
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black)

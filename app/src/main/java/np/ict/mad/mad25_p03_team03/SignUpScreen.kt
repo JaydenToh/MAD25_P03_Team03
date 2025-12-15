@@ -75,7 +75,19 @@ fun SignUpScreen(onBackToLoginClick: () -> Unit) {
                                 auth.createUserWithEmailAndPassword(email, password)
                                     .addOnCompleteListener { task ->
                                         if (task.isSuccessful) {
-                                            Toast.makeText(context, "Account Created!", Toast.LENGTH_SHORT).show()
+                                            val user = auth.currentUser
+
+
+                                            user?.sendEmailVerification()
+                                                ?.addOnCompleteListener { verifyTask ->
+                                                    if (verifyTask.isSuccessful) {
+                                                        Toast.makeText(context, "Sign up success! Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
+                                                    } else {
+
+                                                        Toast.makeText(context, "Sign up success, but failed to send verification email.", Toast.LENGTH_LONG).show()
+                                                    }
+                                                }
+
                                             onBackToLoginClick()
                                         } else error = task.exception?.localizedMessage ?: "Error"
                                     }
