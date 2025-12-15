@@ -1,9 +1,10 @@
 package np.ict.mad.mad25_p03_team03.ui
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen() {
     val auth = FirebaseAuth.getInstance()
@@ -26,121 +28,178 @@ fun ProfileScreen() {
     val context = LocalContext.current
 
     var username by remember { mutableStateOf("Loading...") }
-    var email by remember { mutableStateOf("") }
+    val email by remember { mutableStateOf(currentUser?.email ?: "N/A") } // Email 是只读的
     var bio by remember { mutableStateOf("Loading...") }
+    var isLoading by remember { mutableStateOf(false) }
 
-
-    LaunchedEffect(key1 = currentUser) {
-        if (currentUser != null) {
-            email = currentUser.email ?: "No Email"
-
-            db.collection("users").document(currentUser.uid)
+    val fetchData: () -> Unit = {
+        isLoading = true
+        currentUser?.uid?.let { uid ->
+            db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        username = document.getString("username") ?: "No Name"
-                        bio = document.getString("bio") ?: "No Bio available"
+                    if (document.exists()) {
+                        username = document.getString("username") ?: "Set Username"
+                        bio = document.getString("bio") ?: "Set your bio here"
                     } else {
-                        username = "User"
-                        bio = "Profile not set up."
+                        username = currentUser.email?.substringBefore("@") ?: "User"
+                        bio = "Welcome! Set your bio."
                     }
+                    isLoading = false
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "Failed to fetch profile", Toast.LENGTH_SHORT).show()
+                    isLoading = false
+                }
+        } ?: run {
+            isLoading = false
+            Toast.makeText(context, "User not logged in.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val saveProfile: () -> Unit = {
+        if (currentUser?.uid == null) {
+            Toast.makeText(context, "Error: User not logged in.", Toast.LENGTH_SHORT).show()
+        } else if (username.isBlank()) {
+            Toast.makeText(context, "Username cannot be empty.", Toast.LENGTH_SHORT).show()
+        } else {
+            isLoading = true
+            val updatedData = mapOf(
+                "username" to username,
+                "bio" to bio
+            )
+
+            db.collection("users").document(currentUser.uid)
+                .update(updatedData)
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                    isLoading = false
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(context, "Update failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    isLoading = false
                 }
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(40.dp))
 
-        Surface(
-            modifier = Modifier.size(100.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(50.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
+    LaunchedEffect(key1 = currentUser) {
+        fetchData()
+    }
 
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = username,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = Color.Gray
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = email,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Gray
-            )
-        }
-
-
-        if (currentUser?.isEmailVerified == true) {
-            Text("✅ Verified Account", color = Color(0xFF00AA00), style = MaterialTheme.typography.bodySmall)
-        } else {
-            Text("⚠️ Email not verified", color = Color.Red, style = MaterialTheme.typography.bodySmall)
-        }
-
-        Spacer(Modifier.height(32.dp))
-
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Bio",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = bio,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-    
-        Button(
-            onClick = {
-                auth.sendPasswordResetEmail(email)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Reset password email sent!", Toast.LENGTH_SHORT).show()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("My Profile") },
+                actions = {
+                    // 【保存按钮】
+                    if (isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp).padding(end = 16.dp))
+                    } else {
+                        Button(
+                            onClick = saveProfile,
+                            enabled = currentUser != null && !isLoading,
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Save")
+                        }
                     }
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 24.dp)
+
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Change Password")
+            Spacer(Modifier.height(40.dp))
+
+
+            Surface(
+                modifier = Modifier.size(100.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        modifier = Modifier.size(50.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(32.dp))
+
+
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
+                singleLine = true,
+                leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username") },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            )
+
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { /* Email read-only */ },
+                label = { Text("Email (Cannot be changed here)") },
+                readOnly = true,
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            )
+
+
+            val isVerified = currentUser?.isEmailVerified == true
+            Text(
+                if (isVerified) "✅ Verified Account" else "⚠️ Email not verified (Check Login Page)",
+                color = if (isVerified) Color(0xFF00AA00) else Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(Alignment.Start).padding(start = 16.dp)
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+
+            OutlinedTextField(
+                value = bio,
+                onValueChange = { bio = it },
+                label = { Text("Bio / About Me") },
+                minLines = 3,
+                maxLines = 5,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp).padding(bottom = 32.dp)
+            )
+
+            
+            Button(
+                onClick = {
+                    if (email.isNotEmpty() && email != "N/A") {
+                        auth.sendPasswordResetEmail(email)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Password reset email sent to $email!", Toast.LENGTH_LONG).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(context, "Failed to send reset email. Make sure your email is correct.", Toast.LENGTH_LONG).show()
+                            }
+                    } else {
+                        Toast.makeText(context, "Cannot send reset link. Email is not available.", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            ) {
+                Text("Send Password Reset Link")
+            }
+
+            Spacer(Modifier.height(40.dp))
         }
     }
 }
