@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
-// 数据模型
+
 data class LeaderboardEntry(
     val userId: String,
     val username: String,
@@ -34,11 +34,11 @@ fun LeaderboardScreen() {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
 
-    // 获取数据
+
     LaunchedEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
 
-        // 查询：按 highScore 降序排列，取前 20 名
+
         db.collection("users")
             .orderBy("highScore", Query.Direction.DESCENDING)
             .limit(20)
@@ -46,7 +46,7 @@ fun LeaderboardScreen() {
             .addOnSuccessListener { result ->
                 val entries = result.documents.mapNotNull { doc ->
                     val score = doc.getLong("highScore")?.toInt()
-                    // 只有当有分数时才显示
+
                     if (score != null) {
                         LeaderboardEntry(
                             userId = doc.id,

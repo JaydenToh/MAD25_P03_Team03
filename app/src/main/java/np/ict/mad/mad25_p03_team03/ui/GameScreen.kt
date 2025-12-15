@@ -206,7 +206,7 @@ fun GameScreen(
         }
     }
 
-    // 【新增】保存分数的逻辑
+    // save score to Firestore when game is finished
     LaunchedEffect(isGameFinished) {
         if (isGameFinished && !hasSavedScore) {
             hasSavedScore = true
@@ -214,20 +214,20 @@ fun GameScreen(
             if (user != null) {
                 val userRef = db.collection("users").document(user.uid)
 
-                // 1. 获取当前最高分
+
                 db.runTransaction { transaction ->
                     val snapshot = transaction.get(userRef)
                     val currentHigh = snapshot.getLong("highScore") ?: 0
 
-                    // 2. 如果当前分数更高，则更新
+
                     if (score > currentHigh) {
                         transaction.update(userRef, "highScore", score)
-                        // 可选：你也可以更新 "lastScore" 或者 "gamesPlayed"
+
                     }
                 }.addOnSuccessListener {
-                    // 成功静默保存，不需要打扰用户，或者显示 New High Score
+
                 }.addOnFailureListener {
-                    // 保存失败处理
+
                 }
             }
         }
