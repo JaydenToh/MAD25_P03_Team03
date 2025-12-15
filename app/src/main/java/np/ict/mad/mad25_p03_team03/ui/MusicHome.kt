@@ -7,9 +7,9 @@ import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.navigation.AppNavGraph
 
 @Composable
-fun MusicHome() {
+fun MusicHome(onSignOut: () -> Unit) {
     val songRepository = SongRepository() // Repository（Supabase + local fallback）
 
     // render the main navigation graph
-    AppNavGraph(songRepository = songRepository)
+    AppNavGraph(songRepository = songRepository,onSignOut = onSignOut)
 }

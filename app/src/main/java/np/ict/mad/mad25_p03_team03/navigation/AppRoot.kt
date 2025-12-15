@@ -36,7 +36,11 @@ fun AppRoot() {
             onContinueToApp = { currentScreen = RootScreen.Music }
         )
 
-        is RootScreen.Music -> MusicHome()
+        is RootScreen.Music -> MusicHome(onSignOut = {
+            // [新增] 这里是真正的登出逻辑
+            auth.signOut() // 1. 清除 Firebase 登录状态
+            currentScreen = RootScreen.Login // 2. 切换回登录界面
+        })
     }
 }
 

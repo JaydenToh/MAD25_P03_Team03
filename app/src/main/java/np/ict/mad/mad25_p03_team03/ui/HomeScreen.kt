@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,7 +27,8 @@ import androidx.compose.ui.unit.sp
 fun HomeScreen(
     onStartGame: () -> Unit,
     onOpenLibrary: () -> Unit,
-    onIdentifySong: () -> Unit
+    onIdentifySong: () -> Unit,
+    onSignOut:  () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -97,6 +99,14 @@ fun HomeScreen(
                 title = "Song Library",
                 description = "Browse and explore songs",
                 onClick = onOpenLibrary
+            )
+
+            // Sign Out Card - Added after Song Library
+            HomeCard(
+                icon = "🔒",
+                title = "Log Out",
+                description = "Log out of your account",
+                onClick = onSignOut
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -178,3 +188,4 @@ private fun HomeCard(
         }
     }
 }
+
