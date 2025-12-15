@@ -72,6 +72,41 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+
+                // 【新增：忘记密码按钮】
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = {
+                            if (username.isNotEmpty()) {
+                                // 发送密码重置邮件的逻辑
+                                auth.sendPasswordResetEmail(username)
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            Toast.makeText(
+                                                context,
+                                                "Password reset email sent to $username. Please check your inbox.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            loginError = "" // 清除可能的旧错误
+                                        } else {
+                                            // 邮件发送失败，通常是因为邮箱不存在或格式错误
+                                            loginError = task.exception?.localizedMessage ?: "Failed to send reset email."
+                                        }
+                                    }
+                            } else {
+                                loginError = "Please enter your email to reset the password."
+                            }
+                        }
+                    ) {
+                        Text("Forgot Password?")
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
                 Button(
                     onClick = {
                         if (username.isNotEmpty() && password.isNotEmpty()) {
