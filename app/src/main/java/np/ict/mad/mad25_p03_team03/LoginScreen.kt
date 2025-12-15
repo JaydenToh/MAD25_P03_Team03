@@ -80,14 +80,11 @@ fun LoginScreen(
                                     if (task.isSuccessful) {
                                         val user = auth.currentUser
 
-                                        // [新增] 检查邮箱是否验证
                                         if (user != null && user.isEmailVerified) {
-                                            // 1. 已验证 -> 允许进入
                                             loginError = ""
                                             Toast.makeText(context, "Login Success", Toast.LENGTH_SHORT).show()
                                             onLoginSuccess()
                                         } else {
-                                            // 2. 未验证 -> 发送验证邮件并阻止进入
                                             user?.sendEmailVerification()
                                                 ?.addOnSuccessListener {
                                                     Toast.makeText(context, "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show()
@@ -97,7 +94,7 @@ fun LoginScreen(
                                                 }
 
                                             loginError = "Please verify your email first!"
-                                            auth.signOut() // 登出，不让用户停留在已登录状态
+                                            auth.signOut() 
                                         }
                                     } else {
                                         loginError = task.exception?.message ?: "Invalid Username or password"
