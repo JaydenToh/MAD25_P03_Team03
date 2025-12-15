@@ -16,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.R
 
@@ -26,6 +28,8 @@ fun GameScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -37,6 +41,7 @@ fun GameScreen(
     var timeLeft by remember { mutableStateOf(40) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
+    var hasSavedScore by remember { mutableStateOf(false) }
 
     val isAllQuestionsAnswered = !isLoading && questions.isNotEmpty() && currentIndex >= questions.size
     val isGameFinished = isGameOver || isAllQuestionsAnswered
@@ -201,6 +206,33 @@ fun GameScreen(
         }
     }
 
+    // 【新增】保存分数的逻辑
+    LaunchedEffect(isGameFinished) {
+        if (isGameFinished && !hasSavedScore) {
+            hasSavedScore = true
+            val user = auth.currentUser
+            if (user != null) {
+                val userRef = db.collection("users").document(user.uid)
+
+                // 1. 获取当前最高分
+                db.runTransaction { transaction ->
+                    val snapshot = transaction.get(userRef)
+                    val currentHigh = snapshot.getLong("highScore") ?: 0
+
+                    // 2. 如果当前分数更高，则更新
+                    if (score > currentHigh) {
+                        transaction.update(userRef, "highScore", score)
+                        // 可选：你也可以更新 "lastScore" 或者 "gamesPlayed"
+                    }
+                }.addOnSuccessListener {
+                    // 成功静默保存，不需要打扰用户，或者显示 New High Score
+                }.addOnFailureListener {
+                    // 保存失败处理
+                }
+            }
+        }
+    }
+
     // cleanup on dispose
     DisposableEffect(Unit) {
         onDispose {
@@ -316,6 +348,8 @@ fun GameScreen(
 
                         Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
 
+                        Text("(Score saved to leaderboard)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+
                         Spacer(Modifier.height(24.dp))
 
                         Column(
@@ -331,6 +365,7 @@ fun GameScreen(
                                     message = ""
                                     isGameOver = false
                                     timeLeft = 40
+                                    hasSavedScore = false
                                 },
                                 modifier = Modifier.fillMaxWidth(0.7f).height(56.dp)
                             ) {
