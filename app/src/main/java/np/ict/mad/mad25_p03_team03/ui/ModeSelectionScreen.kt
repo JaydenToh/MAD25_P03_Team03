@@ -16,10 +16,10 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModeSelectionScreen(
-    onStartGame: (GameMode, Difficulty) -> Unit, // 修改回调，回传两个参数
+    onStartGame: (GameMode, Difficulty) -> Unit, 
     onBack: () -> Unit
 ) {
-    // 保存用户的选择状态，默认 英文 + 简单
+
     var selectedMode by remember { mutableStateOf(GameMode.ENGLISH) }
     var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
 
@@ -42,7 +42,7 @@ fun ModeSelectionScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- 1. 语言选择区域 ---
+
             Text(
                 text = "Select Language",
                 style = MaterialTheme.typography.titleLarge,
@@ -51,7 +51,7 @@ fun ModeSelectionScreen(
             )
             Spacer(Modifier.height(8.dp))
 
-            // 使用 Segmented Button 或简单的 RadioButton 列表
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 FilterChip(
                     selected = selectedMode == GameMode.ENGLISH,
@@ -68,7 +68,7 @@ fun ModeSelectionScreen(
 
             Spacer(Modifier.height(32.dp))
 
-            // --- 2. 难度选择区域 (在下面) ---
+
             Text(
                 text = "Select Difficulty",
                 style = MaterialTheme.typography.titleLarge,
@@ -77,7 +77,7 @@ fun ModeSelectionScreen(
             )
             Spacer(Modifier.height(16.dp))
 
-            // 难度选项卡片
+
             Column(modifier = Modifier.selectableGroup()) {
                 DifficultyOption(
                     difficulty = Difficulty.EASY,
@@ -98,7 +98,7 @@ fun ModeSelectionScreen(
 
             Spacer(Modifier.weight(1f))
 
-            // --- 3. 开始游戏按钮 ---
+
             Button(
                 onClick = { onStartGame(selectedMode, selectedDifficulty) },
                 modifier = Modifier
@@ -113,7 +113,7 @@ fun ModeSelectionScreen(
     }
 }
 
-// 辅助组件：显示单个难度选项
+
 @Composable
 fun DifficultyOption(
     difficulty: Difficulty,
@@ -139,7 +139,7 @@ fun DifficultyOption(
             Spacer(Modifier.width(8.dp))
             Column {
                 Text(
-                    text = difficulty.name, // 显示 EASY, MEDIUM, HARD
+                    text = difficulty.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )

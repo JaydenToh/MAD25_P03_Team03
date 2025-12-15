@@ -66,7 +66,7 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             composable("mode_selection") {
                 ModeSelectionScreen(
                     onStartGame = { mode, difficulty ->
-                        // 跳转路由格式: game/ENGLISH/HARD
+
                         navController.navigate("game/${mode.name}/${difficulty.name}")
                     },
                     onBack = { navController.popBackStack() }
@@ -74,24 +74,24 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             }
 
             composable(
-                route = "game/{mode}/{difficulty}", // 两个参数
+                route = "game/{mode}/{difficulty}",
                 arguments = listOf(
                     navArgument("mode") { type = NavType.StringType },
-                    navArgument("difficulty") { type = NavType.StringType } // 新增 difficulty 参数
+                    navArgument("difficulty") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                // 解析 Mode
+
                 val modeString = backStackEntry.arguments?.getString("mode") ?: GameMode.ENGLISH.name
                 val mode = try { GameMode.valueOf(modeString) } catch (e: Exception) { GameMode.ENGLISH }
 
-                // 解析 Difficulty
+
                 val diffString = backStackEntry.arguments?.getString("difficulty") ?: Difficulty.EASY.name
                 val difficulty = try { Difficulty.valueOf(diffString) } catch (e: Exception) { Difficulty.EASY }
 
                 GameScreen(
                     songRepository = songRepository,
                     gameMode = mode,
-                    difficulty = difficulty, // 传入参数
+                    difficulty = difficulty,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
