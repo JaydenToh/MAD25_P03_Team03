@@ -72,6 +72,39 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = {
+                            if (username.isNotEmpty()) {
+                                auth.sendPasswordResetEmail(username)
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            Toast.makeText(
+                                                context,
+                                                "Password reset email sent to $username. Please check your inbox.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            loginError = ""
+                                        } else {
+                                            loginError = task.exception?.localizedMessage ?: "Failed to send reset email."
+                                        }
+                                    }
+                            } else {
+                                loginError = "Please enter your email to reset the password."
+                            }
+                        }
+                    ) {
+                        Text("Forgot Password?")
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
                 Button(
                     onClick = {
                         if (username.isNotEmpty() && password.isNotEmpty()) {
