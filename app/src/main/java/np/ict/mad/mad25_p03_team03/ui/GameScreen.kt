@@ -16,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.R
 
@@ -26,6 +28,8 @@ fun GameScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
+    val db = FirebaseFirestore.getInstance()
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -37,6 +41,7 @@ fun GameScreen(
     var timeLeft by remember { mutableStateOf(40) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
+    var hasSavedScore by remember { mutableStateOf(false) }
 
     val isAllQuestionsAnswered = !isLoading && questions.isNotEmpty() && currentIndex >= questions.size
     val isGameFinished = isGameOver || isAllQuestionsAnswered
@@ -201,6 +206,33 @@ fun GameScreen(
         }
     }
 
+    // save score to Firestore when game is finished
+    LaunchedEffect(isGameFinished) {
+        if (isGameFinished && !hasSavedScore) {
+            hasSavedScore = true
+            val user = auth.currentUser
+            if (user != null) {
+                val userRef = db.collection("users").document(user.uid)
+
+
+                db.runTransaction { transaction ->
+                    val snapshot = transaction.get(userRef)
+                    val currentHigh = snapshot.getLong("highScore") ?: 0
+
+
+                    if (score > currentHigh) {
+                        transaction.update(userRef, "highScore", score)
+
+                    }
+                }.addOnSuccessListener {
+
+                }.addOnFailureListener {
+
+                }
+            }
+        }
+    }
+
     // cleanup on dispose
     DisposableEffect(Unit) {
         onDispose {
@@ -316,6 +348,8 @@ fun GameScreen(
 
                         Text("Final Score: $score", style = MaterialTheme.typography.titleLarge)
 
+                        Text("(Score saved to leaderboard)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+
                         Spacer(Modifier.height(24.dp))
 
                         Column(
@@ -331,6 +365,7 @@ fun GameScreen(
                                     message = ""
                                     isGameOver = false
                                     timeLeft = 40
+                                    hasSavedScore = false
                                 },
                                 modifier = Modifier.fillMaxWidth(0.7f).height(56.dp)
                             ) {
