@@ -82,6 +82,8 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended") // Material Icons
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services")
+
     // Hilt
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
