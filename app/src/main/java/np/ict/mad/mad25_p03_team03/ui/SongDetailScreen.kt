@@ -33,6 +33,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.segmentation.subject.Subject
 import kotlinx.coroutines.delay
 import np.ict.mad.mad25_p03_team03.SongItem
+import androidx.media3.common.MediaMetadata
+import np.ict.mad.mad25_p03_team03.rememberMediaController
 
 @Composable
 fun SongDetailScreen(
@@ -45,7 +47,7 @@ fun SongDetailScreen(
     var loading by remember { mutableStateOf(true) }
 
     // ExoPlayer State
-    val exoPlayer = remember { ExoPlayer.Builder(context).build() }
+    val controller = rememberMediaController()
     var isPlaying by remember { mutableStateOf(false) }
     var currentPosition by remember { mutableLongStateOf(0L) }
     var totalDuration by remember { mutableLongStateOf(0L) }
@@ -63,32 +65,48 @@ fun SongDetailScreen(
                 if (!result.isEmpty) {
                     val item = result.documents[0].toObject(SongItem::class.java)
                     song = item
-                    // Prepare Player
-                    item?.let {
-                        val mediaItem = MediaItem.fromUri(it.audioUrl)
-                        exoPlayer.setMediaItem(mediaItem)
-                        exoPlayer.prepare()
-                        exoPlayer.playWhenReady = true
-                        isPlaying = true
-                    }
                 }
                 loading = false
             }
     }
 
     // Update Slider Progress
-    LaunchedEffect(exoPlayer) {
-        while (true) {
-            currentPosition = exoPlayer.currentPosition
-            totalDuration = exoPlayer.duration.coerceAtLeast(0L)
-            isPlaying = exoPlayer.isPlaying
-            delay(1000) // Update every second
+    LaunchedEffect(song, controller) {
+        if (song != null && controller != null) {
+            val currentMediaId = controller.currentMediaItem?.mediaId
+
+            // 如果当前播放的不是这首歌，则开始播放这首歌
+            if (currentMediaId != song!!.audioUrl) {
+                val metadata = MediaMetadata.Builder()
+                    .setTitle(song!!.title)
+                    .setArtist(song!!.artist)
+                    .setAlbumTitle(song!!.album)
+                    .build()
+
+                val mediaItem = MediaItem.Builder()
+                    .setUri(song!!.audioUrl)
+                    .setMediaId(song!!.audioUrl)
+                    .setMediaMetadata(metadata)
+                    .build()
+
+                controller.setMediaItem(mediaItem)
+                controller.prepare()
+                controller.play()
+            }
+            // 如果已经在播放这首歌，UI 会自动同步，不需要额外操作
         }
     }
 
     // Cleanup
-    DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
+    LaunchedEffect(controller) {
+        while (true) {
+            controller?.let {
+                currentPosition = it.currentPosition
+                totalDuration = it.duration.coerceAtLeast(0L)
+                isPlaying = it.isPlaying
+            }
+            delay(500)
+        }
     }
 
     // Helper to format time (e.g., 1000ms -> 00:01)
@@ -164,7 +182,7 @@ fun SongDetailScreen(
                         value = if (totalDuration > 0) currentPosition.toFloat() / totalDuration else 0f,
                         onValueChange = { newPercent ->
                             val newTime = (newPercent * totalDuration).toLong()
-                            exoPlayer.seekTo(newTime)
+                            controller?.seekTo(newTime)
                             currentPosition = newTime
                         },
                         colors = SliderDefaults.colors(
@@ -187,8 +205,10 @@ fun SongDetailScreen(
                 // 5. Play Controls
                 IconButton(
                     onClick = {
-                        if (isPlaying) exoPlayer.pause() else exoPlayer.play()
-                        isPlaying = !isPlaying
+                        controller?.let {
+                            if (it.isPlaying) it.pause() else it.play()
+                            // isPlaying state will be updated by the LaunchedEffect loop
+                        }
                     },
                     modifier = Modifier.size(64.dp)
                 ) {

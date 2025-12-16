@@ -27,6 +27,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.media3.common.MediaMetadata
+import androidx.media3.session.MediaController
 
 
 data class SongItem(
@@ -49,15 +51,13 @@ fun SongLibraryScreen(
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var searchQuery by remember { mutableStateOf("") }
+    val controller = rememberMediaController()
 
-    val exoPlayer = remember { ExoPlayer.Builder(context).build() }
+
 
     var currentPlayingUrl by remember { mutableStateOf<String?>(null) }
     var isPlaying by remember { mutableStateOf(false) }
 
-    DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
-    }
 
     LaunchedEffect(collectionName) {
         loading = true
@@ -78,21 +78,35 @@ fun SongLibraryScreen(
     }
 
 
-    fun playAudio(url: String) {
-        if (currentPlayingUrl == url && isPlaying) {
-            exoPlayer.pause()
-            isPlaying = false
+    fun playAudio(song: SongItem) {
+        if (controller == null) return
+
+        val currentMediaId = controller.currentMediaItem?.mediaId
+        val isPlaying = controller.isPlaying
+
+        if (currentMediaId == song.audioUrl && isPlaying) {
+            controller.pause()
         } else {
-            exoPlayer.stop()
-            exoPlayer.clearMediaItems()
-            val mediaItem = MediaItem.fromUri(url)
-            exoPlayer.setMediaItem(mediaItem)
-            exoPlayer.prepare()
-            exoPlayer.play()
-            currentPlayingUrl = url
-            isPlaying = true
+            // 【重要】设置 MediaItem 时带上 Metadata，这样通知栏就有字了
+            val metadata = MediaMetadata.Builder()
+                .setTitle(song.title)
+                .setArtist(song.artist)
+                .setAlbumTitle(song.album)
+                .build()
+
+            val mediaItem = MediaItem.Builder()
+                .setUri(song.audioUrl)
+                .setMediaId(song.audioUrl)
+                .setMediaMetadata(metadata)
+                .build()
+
+            controller.setMediaItem(mediaItem)
+            controller.prepare()
+            controller.play()
         }
     }
+
+
 
     val filteredSongs by remember(songList, searchQuery) {
         mutableStateOf(
@@ -106,6 +120,16 @@ fun SongLibraryScreen(
                 }
             }
         )
+    }
+
+    LaunchedEffect(controller) {
+        while(true) {
+            controller?.let {
+                currentPlayingUrl = it.currentMediaItem?.mediaId
+                isPlaying = it.isPlaying
+            }
+            kotlinx.coroutines.delay(500) // 每 0.5 秒检查一次
+        }
     }
 
     Box(
@@ -148,7 +172,7 @@ fun SongLibraryScreen(
                     SongList(
                         songs = filteredSongs,
                         onSongRowClick = { title -> onSongClick(title) },
-                        onPlayClick = { url -> playAudio(url) },
+                        onPlayClick = { song -> playAudio(song) },
                         currentUrl = currentPlayingUrl,
                         isPlaying = isPlaying
                     )
@@ -160,19 +184,19 @@ fun SongLibraryScreen(
 
 // SongList, SongRow, SearchBar
 @Composable
-fun SongList(songs: List<SongItem>,onSongRowClick: (String) -> Unit, onPlayClick: (String) -> Unit, currentUrl: String?, isPlaying: Boolean) {
+fun SongList(songs: List<SongItem>, onSongRowClick: (String) -> Unit, onPlayClick: (SongItem) -> Unit, currentUrl: String?, isPlaying: Boolean) {
     LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         items(songs) { song ->
             SongRow(song = song,
                 onClick = { onSongRowClick(song.title) }, // Pass click
-                onPlayClick = onPlayClick,
+                onPlayClick = {onPlayClick(song) }, // Pass song
                 isThisSongPlaying = (currentUrl == song.audioUrl && isPlaying))
         }
     }
 }
 
 @Composable
-fun SongRow(song: SongItem,onClick: () -> Unit, onPlayClick: (String) -> Unit, isThisSongPlaying: Boolean) {
+fun SongRow(song: SongItem,onClick: () -> Unit, onPlayClick: () -> Unit, isThisSongPlaying: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2F2F45)),
@@ -189,7 +213,7 @@ fun SongRow(song: SongItem,onClick: () -> Unit, onPlayClick: (String) -> Unit, i
                 Text(text = song.album, fontSize = 12.sp, color = Color(0xFF9A9A9A))
             }
             IconButton(
-                onClick = { if (song.audioUrl.isNotEmpty()) onPlayClick(song.audioUrl) },
+                onClick = { if (song.audioUrl.isNotEmpty()) onPlayClick() },
                 modifier = Modifier.size(48.dp).background(Color(0xFF3A3A50), shape = RoundedCornerShape(50))
             ) {
                 Icon(
