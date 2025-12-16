@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Subject
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayCircle
@@ -24,10 +26,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.mlkit.vision.segmentation.subject.Subject
 import kotlinx.coroutines.delay
 import np.ict.mad.mad25_p03_team03.SongItem
 
@@ -47,11 +50,14 @@ fun SongDetailScreen(
     var currentPosition by remember { mutableLongStateOf(0L) }
     var totalDuration by remember { mutableLongStateOf(0L) }
 
+
+    var showLyricsDialog by remember { mutableStateOf(false) }
+
     // Fetch Song Details
     LaunchedEffect(collectionName, songTitle) {
         FirebaseFirestore.getInstance()
             .collection(collectionName)
-            .whereEqualTo("title", songTitle) // 假设 Title 是唯一的
+            .whereEqualTo("title", songTitle)
             .get()
             .addOnSuccessListener { result ->
                 if (!result.isEmpty) {
@@ -62,7 +68,7 @@ fun SongDetailScreen(
                         val mediaItem = MediaItem.fromUri(it.audioUrl)
                         exoPlayer.setMediaItem(mediaItem)
                         exoPlayer.prepare()
-                        exoPlayer.playWhenReady = true // 自动播放
+                        exoPlayer.playWhenReady = true
                         isPlaying = true
                     }
                 }
@@ -194,28 +200,83 @@ fun SongDetailScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.weight(1f))
 
                 // 6. Lyrics Section (Scrollable)
-                Text("Lyrics", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                OutlinedButton(
+                    onClick = { showLyricsDialog = true },
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF00BCD4)),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Subject, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("View Lyrics")
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+            if (showLyricsDialog) {
+                LyricsPopup(
+                    lyrics = currentSong.lyrics,
+                    onDismiss = { showLyricsDialog = false }
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun LyricsPopup(lyrics: String, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.7f),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF2F2F45))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Popup Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Lyrics",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color.LightGray)
+                    }
+                }
+
+                HorizontalDivider(color = Color.Gray.copy(alpha = 0.3f), thickness = 1.dp)
+
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // Scrollable Lyrics Content
                 Box(
                     modifier = Modifier
-                        .weight(1f) // Fill remaining space
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
-                        .padding(16.dp)
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        Text(
-                            text = currentSong.lyrics.replace("\\n", "\n"), // Handle newlines if saved as literal \n
-                            color = Color.White.copy(alpha = 0.8f),
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    Text(
+                        text = lyrics.replace("\\n", "\n"), 
+                        fontSize = 18.sp,
+                        lineHeight = 28.sp,
+                        color = Color.White.copy(alpha = 0.9f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                    )
                 }
             }
         }
