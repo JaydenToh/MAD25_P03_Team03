@@ -1,8 +1,6 @@
+// np/ict/mad/mad25_p03_team03/SongLibrary.kt
 package np.ict.mad.mad25_p03_team03
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -30,7 +28,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.FirebaseFirestore
-import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
+
 
 data class SongItem(
     val title: String = "",
@@ -41,16 +39,6 @@ data class SongItem(
     var drawableId: Int = R.drawable.arcanepic
 )
 
-class SongLibrary : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MAD25_P03_Team03Theme {
-                SongLibraryScreen()
-            }
-        }
-    }
-}
 
 @Composable
 fun SongLibraryScreen() {
