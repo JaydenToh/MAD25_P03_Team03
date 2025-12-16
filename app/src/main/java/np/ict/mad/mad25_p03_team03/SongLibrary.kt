@@ -2,6 +2,7 @@
 package np.ict.mad.mad25_p03_team03
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,14 +33,16 @@ data class SongItem(
     val title: String = "",
     val artist: String = "",
     val album: String = "",
-    val audioUrl: String = ""
+    val audioUrl: String = "",
+    val lyrics: String = "No lyrics available for this song.",
 )
 
 
 @Composable
 fun SongLibraryScreen(
     collectionName: String,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onSongClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     var songList by remember { mutableStateOf(listOf<SongItem>()) }
@@ -144,6 +147,7 @@ fun SongLibraryScreen(
 
                     SongList(
                         songs = filteredSongs,
+                        onSongRowClick = { title -> onSongClick(title) },
                         onPlayClick = { url -> playAudio(url) },
                         currentUrl = currentPlayingUrl,
                         isPlaying = isPlaying
@@ -156,18 +160,21 @@ fun SongLibraryScreen(
 
 // SongList, SongRow, SearchBar
 @Composable
-fun SongList(songs: List<SongItem>, onPlayClick: (String) -> Unit, currentUrl: String?, isPlaying: Boolean) {
+fun SongList(songs: List<SongItem>,onSongRowClick: (String) -> Unit, onPlayClick: (String) -> Unit, currentUrl: String?, isPlaying: Boolean) {
     LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         items(songs) { song ->
-            SongRow(song, onPlayClick, (currentUrl == song.audioUrl && isPlaying))
+            SongRow(song = song,
+                onClick = { onSongRowClick(song.title) }, // Pass click
+                onPlayClick = onPlayClick,
+                isThisSongPlaying = (currentUrl == song.audioUrl && isPlaying))
         }
     }
 }
 
 @Composable
-fun SongRow(song: SongItem, onPlayClick: (String) -> Unit, isThisSongPlaying: Boolean) {
+fun SongRow(song: SongItem,onClick: () -> Unit, onPlayClick: (String) -> Unit, isThisSongPlaying: Boolean) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2F2F45)),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(8.dp)
