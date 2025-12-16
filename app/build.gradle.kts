@@ -119,9 +119,10 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.0")
     implementation("com.google.firebase:firebase-auth-ktx:23.2.1")
 
-    val media3_version = "1.2.0" // 或者你当前使用的版本
+    // Media3 dependencies
+    val media3_version = "1.2.0"
     implementation("androidx.media3:media3-exoplayer:$media3_version")
     implementation("androidx.media3:media3-ui:$media3_version")
-    implementation("androidx.media3:media3-session:$media3_version") // 【新增】必须添加这个
+    implementation("androidx.media3:media3-session:$media3_version")
 
 }

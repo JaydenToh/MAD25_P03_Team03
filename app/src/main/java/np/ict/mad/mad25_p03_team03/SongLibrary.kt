@@ -87,7 +87,6 @@ fun SongLibraryScreen(
         if (currentMediaId == song.audioUrl && isPlaying) {
             controller.pause()
         } else {
-            // 【重要】设置 MediaItem 时带上 Metadata，这样通知栏就有字了
             val metadata = MediaMetadata.Builder()
                 .setTitle(song.title)
                 .setArtist(song.artist)
@@ -128,7 +127,7 @@ fun SongLibraryScreen(
                 currentPlayingUrl = it.currentMediaItem?.mediaId
                 isPlaying = it.isPlaying
             }
-            kotlinx.coroutines.delay(500) // 每 0.5 秒检查一次
+            kotlinx.coroutines.delay(500) // Update every 500ms
         }
     }
 

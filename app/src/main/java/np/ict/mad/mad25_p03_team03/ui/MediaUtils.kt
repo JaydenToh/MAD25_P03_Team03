@@ -33,10 +33,7 @@ fun rememberMediaController(): MediaController? {
                     it.cancel(true)
                 }
             }
-            // 注意：通常要在 ViewModel 或 Activity 销毁时才 release controller，
-            // 但在简单 Compose 导航中，可以在这里处理，或者为了保持连接不频繁断开，通常配合 ViewModel 使用。
-            // 这里为了简单，我们让它跟随 Compose 生命周期，但在跳转页面时可能会短暂断开。
-            // 更好的做法是将 controller 放在 MainActivity 或 ViewModel 中传递下来。
+
             controller?.release()
         }
     }

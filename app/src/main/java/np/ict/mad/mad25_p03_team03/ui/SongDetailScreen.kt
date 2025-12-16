@@ -74,8 +74,7 @@ fun SongDetailScreen(
     LaunchedEffect(song, controller) {
         if (song != null && controller != null) {
             val currentMediaId = controller.currentMediaItem?.mediaId
-
-            // 如果当前播放的不是这首歌，则开始播放这首歌
+            // Only set media item if it's different
             if (currentMediaId != song!!.audioUrl) {
                 val metadata = MediaMetadata.Builder()
                     .setTitle(song!!.title)
@@ -93,7 +92,7 @@ fun SongDetailScreen(
                 controller.prepare()
                 controller.play()
             }
-            // 如果已经在播放这首歌，UI 会自动同步，不需要额外操作
+            // isPlaying state will be updated by the LaunchedEffect loop below
         }
     }
 
