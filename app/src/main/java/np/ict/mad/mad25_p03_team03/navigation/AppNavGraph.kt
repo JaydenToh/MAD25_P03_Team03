@@ -25,6 +25,7 @@ import np.ict.mad.mad25_p03_team03.ui.ModeSelectionScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
+import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 
 
 // navigation/AppNavGraph.kt
@@ -127,7 +128,27 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
 
                 SongLibraryScreen(
                     collectionName = collectionName,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = { navController.popBackStack() },
+                    onSongClick = { songTitle ->
+                        navController.navigate("song_detail/$collectionName/$songTitle")
+                    }
+                )
+            }
+
+            composable(
+                route = "song_detail/{collectionName}/{songTitle}",
+                arguments = listOf(
+                    navArgument("collectionName") { type = NavType.StringType },
+                    navArgument("songTitle") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
+                val songTitle = backStackEntry.arguments?.getString("songTitle") ?: ""
+
+                SongDetailScreen(
+                    collectionName = collectionName,
+                    songTitle = songTitle,
+                    onBack = { navController.popBackStack() }
                 )
             }
 
