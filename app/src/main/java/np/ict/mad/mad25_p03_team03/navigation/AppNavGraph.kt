@@ -1,14 +1,11 @@
 // navigation/AppNavGraph.kt
 package np.ict.mad.mad25_p03_team03.navigation
 
-import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,7 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import np.ict.mad.mad25_p03_team03.SongIdentifier
-import np.ict.mad.mad25_p03_team03.SongLibrary
+import np.ict.mad.mad25_p03_team03.SongLibraryScreen
 import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
@@ -27,7 +24,7 @@ import np.ict.mad.mad25_p03_team03.ui.LeaderboardScreen
 import np.ict.mad.mad25_p03_team03.ui.ModeSelectionScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
-
+import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
 
 
 // navigation/AppNavGraph.kt
@@ -109,13 +106,29 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
                 ProfileScreen()
             }
 
-            // library still opens a new activity
+
             composable("library") {
-                val context = LocalContext.current
-                LaunchedEffect(Unit) {
-                    context.startActivity(android.content.Intent(context, SongLibrary::class.java))
-                    navController.popBackStack() // immediately go back after launching to avoid stacking
-                }
+                SongCategoryScreen(
+                    onCategorySelected = { collectionName ->
+
+                        navController.navigate("library_list/$collectionName")
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+
+            composable(
+                route = "library_list/{collectionName}",
+                arguments = listOf(navArgument("collectionName") { type = NavType.StringType })
+            ) { backStackEntry ->
+
+                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: "songs"
+
+                SongLibraryScreen(
+                    collectionName = collectionName,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
 
         }
