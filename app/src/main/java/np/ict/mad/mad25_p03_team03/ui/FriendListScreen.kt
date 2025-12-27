@@ -33,18 +33,11 @@ fun FriendListScreen(onBack: () -> Unit) {
 
     LaunchedEffect(Unit) {
         currentUser?.uid?.let { uid ->
-            // 1. 先获取当前用户的 friends 数组
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     val friendIds = document.get("friends") as? List<String> ?: emptyList()
 
                     if (friendIds.isNotEmpty()) {
-                        // 2. 如果有好友，用 whereIn 查询这些 ID 的用户详情
-                        // 注意：whereIn 一次最多查 10 个，如果好友很多需要分批处理。
-                        // 这里简单演示直接查询 (假设好友少于 10 个，或者手动循环查)
-
-                        // 更稳妥的方法是手动循环 fetch，或者使用 whereIn (受限 10 个)
-                        // 这里为了简单展示，我们循环获取 (对于小作业没问题)
                         val fetchedFriends = mutableListOf<Friend>()
                         var completedCount = 0
 

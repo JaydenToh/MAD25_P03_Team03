@@ -226,7 +226,7 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,onClick: () -> Unit, onAd
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // 加好友按钮 (如果是自己则不显示)
+            // Add Friend Button
             if (!isCurrentUser) {
                 IconButton(onClick = { onAddFriend() }) {
                     Icon(
@@ -236,7 +236,7 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,onClick: () -> Unit, onAd
                     )
                 }
             } else {
-                Spacer(modifier = Modifier.size(48.dp)) // 占位保持对齐
+                Spacer(modifier = Modifier.size(48.dp))
             }
         }
     }

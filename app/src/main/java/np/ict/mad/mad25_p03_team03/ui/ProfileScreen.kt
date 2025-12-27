@@ -29,7 +29,7 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
     val context = LocalContext.current
 
     var username by remember { mutableStateOf("Loading...") }
-    val email by remember { mutableStateOf(currentUser?.email ?: "N/A") } // Email 是只读的
+    val email by remember { mutableStateOf(currentUser?.email ?: "N/A") }
     var bio by remember { mutableStateOf("Loading...") }
     var isLoading by remember { mutableStateOf(false) }
     var friendsCount by remember { mutableStateOf(0) }
@@ -97,7 +97,6 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
             TopAppBar(
                 title = { Text("My Profile") },
                 actions = {
-                    // 【保存按钮】
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp).padding(end = 16.dp))
                     } else {
