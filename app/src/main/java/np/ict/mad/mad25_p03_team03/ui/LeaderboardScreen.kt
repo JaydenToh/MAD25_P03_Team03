@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
@@ -37,6 +38,7 @@ data class LeaderboardEntry(
 @Composable
 fun LeaderboardScreen(onPlayerClick: (String) -> Unit = {}) {
     var leaderboardData by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
+    var myFriendsList by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -72,22 +74,33 @@ fun LeaderboardScreen(onPlayerClick: (String) -> Unit = {}) {
                 errorMessage = "Failed to load leaderboard: ${e.message}"
                 isLoading = false
             }
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.uid)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null && snapshot.exists()) {
+                        myFriendsList = snapshot.get("friends") as? List<String> ?: emptyList()
+                    }
+                }
+        }
     }
 
-    fun addFriend(friendId: String) {
-        if (currentUser == null) {
-            Toast.makeText(context, "Please login first", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if (currentUser.uid == friendId) {
-            Toast.makeText(context, "You cannot add yourself!", Toast.LENGTH_SHORT).show()
-            return
-        }
+    fun addFriend(targetUserId: String) {
+        if (currentUser == null) return
+        if (currentUser.uid == targetUserId) return
 
-        db.collection("users").document(currentUser.uid)
-            .update("friends", FieldValue.arrayUnion(friendId))
+        val batch = db.batch()
+
+
+        val myRef = db.collection("users").document(currentUser.uid)
+        val targetRef = db.collection("users").document(targetUserId)
+
+        batch.update(myRef, "friends", FieldValue.arrayUnion(targetUserId))
+
+        batch.update(targetRef, "friends", FieldValue.arrayUnion(currentUser.uid))
+
+        batch.commit()
             .addOnSuccessListener {
-                Toast.makeText(context, "Friend Added!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "You are now friends!", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to add friend", Toast.LENGTH_SHORT).show()
@@ -158,9 +171,11 @@ fun LeaderboardScreen(onPlayerClick: (String) -> Unit = {}) {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 itemsIndexed(leaderboardData) { index, entry ->
-                    LeaderboardItem(rank = index + 1, entry = entry,onClick = {onPlayerClick(entry.userId)},onAddFriend = { addFriend(entry.userId) },
-                        isCurrentUser = entry.userId == currentUser?.uid
+                    val isFriend = myFriendsList.contains(entry.userId)
+                    val isMe = entry.userId == currentUser?.uid
 
+                    LeaderboardItem(rank = index + 1, entry = entry,isMe = isMe,
+                        isFriend = isFriend, onClick = {onPlayerClick(entry.userId)},onAddFriend = { addFriend(entry.userId) }
                     )
                 }
             }
@@ -169,7 +184,8 @@ fun LeaderboardScreen(onPlayerClick: (String) -> Unit = {}) {
 }
 
 @Composable
-fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,onClick: () -> Unit, onAddFriend: () -> Unit, isCurrentUser: Boolean) {
+fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,isMe: Boolean,
+                    isFriend: Boolean,onClick: () -> Unit, onAddFriend: () -> Unit) {
     val rankColor = when (rank) {
         1 -> Color(0xFFFFD700) // Gold
         2 -> Color(0xFFC0C0C0) // Silver
@@ -226,14 +242,25 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,onClick: () -> Unit, onAd
                 color = MaterialTheme.colorScheme.primary
             )
 
+            Spacer(modifier = Modifier.width(12.dp))
+
             // Add Friend Button
-            if (!isCurrentUser) {
-                IconButton(onClick = { onAddFriend() }) {
+            if (!isMe) {
+                if (isFriend) {
                     Icon(
-                        imageVector = Icons.Default.PersonAdd,
-                        contentDescription = "Add Friend",
-                        tint = MaterialTheme.colorScheme.secondary
+                        imageVector = Icons.Default.Favorite, 
+                        contentDescription = "Is Friend",
+                        tint = Color.Red.copy(alpha = 0.6f),
+                        modifier = Modifier.size(28.dp)
                     )
+                } else {
+                    IconButton(onClick = onAddFriend) {
+                        Icon(
+                            imageVector = Icons.Default.PersonAdd,
+                            contentDescription = "Add Friend",
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
             } else {
                 Spacer(modifier = Modifier.size(48.dp))
