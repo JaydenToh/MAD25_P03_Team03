@@ -18,6 +18,7 @@ import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
+import np.ict.mad.mad25_p03_team03.ui.FriendListScreen
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
 import np.ict.mad.mad25_p03_team03.ui.LeaderboardScreen
@@ -118,7 +119,13 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             }
 
             composable("profile") {
-                ProfileScreen()
+                ProfileScreen(onViewFriends = { navController.navigate("friend_list") })
+            }
+
+            composable("friend_list") {
+                FriendListScreen(
+                    onBack = { navController.popBackStack() }
+                )
             }
 
 
