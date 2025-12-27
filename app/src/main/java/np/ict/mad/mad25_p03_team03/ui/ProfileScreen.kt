@@ -1,6 +1,7 @@
 package np.ict.mad.mad25_p03_team03.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,16 +22,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(onViewFriends: () -> Unit = {}) {
     val auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     val db = FirebaseFirestore.getInstance()
     val context = LocalContext.current
 
     var username by remember { mutableStateOf("Loading...") }
-    val email by remember { mutableStateOf(currentUser?.email ?: "N/A") } // Email 是只读的
+    val email by remember { mutableStateOf(currentUser?.email ?: "N/A") }
     var bio by remember { mutableStateOf("Loading...") }
     var isLoading by remember { mutableStateOf(false) }
+    var friendsCount by remember { mutableStateOf(0) }
 
     val fetchData: () -> Unit = {
         isLoading = true
@@ -41,6 +43,9 @@ fun ProfileScreen() {
                     if (document.exists()) {
                         username = document.getString("username") ?: "Set Username"
                         bio = document.getString("bio") ?: "Set your bio here"
+
+                        val friends = document.get("friends") as? List<String> ?: emptyList()
+                        friendsCount = friends.size
                     } else {
                         username = currentUser.email?.substringBefore("@") ?: "User"
                         bio = "Welcome! Set your bio."
@@ -92,7 +97,6 @@ fun ProfileScreen() {
             TopAppBar(
                 title = { Text("My Profile") },
                 actions = {
-                    // 【保存按钮】
                     if (isLoading) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp).padding(end = 16.dp))
                     } else {
@@ -136,6 +140,32 @@ fun ProfileScreen() {
             }
 
             Spacer(Modifier.height(32.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+                    .clickable {
+                        onViewFriends()
+                    },
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Person, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "My Friends: $friendsCount",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text("View >", color = Color.Gray)
+                }
+            }
 
 
             OutlinedTextField(
