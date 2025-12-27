@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import np.ict.mad.mad25_p03_team03.data.Difficulty
@@ -16,7 +18,8 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModeSelectionScreen(
-    onStartGame: (GameMode, Difficulty) -> Unit, 
+    onStartGame: (GameMode, Difficulty) -> Unit,
+    onStartPvp: () -> Unit,
     onBack: () -> Unit
 ) {
 
@@ -99,6 +102,7 @@ fun ModeSelectionScreen(
             Spacer(Modifier.weight(1f))
 
 
+            // --- 单人模式开始按钮 ---
             Button(
                 onClick = { onStartGame(selectedMode, selectedDifficulty) },
                 modifier = Modifier
@@ -106,9 +110,33 @@ fun ModeSelectionScreen(
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("🚀 START GAME", style = MaterialTheme.typography.titleMedium)
+                Text("🚀 START SINGLE PLAYER", style = MaterialTheme.typography.titleMedium)
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // --- 分割线 ---
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Divider(modifier = Modifier.weight(1f))
+                Text(" OR ", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 8.dp))
+                Divider(modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(16.dp))
+
+            // --- PVP 模式按钮 ---
+            Button(
+                onClick = onStartPvp, // 调用匹配逻辑
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF9C27B0) // 使用紫色突出多人模式
+                )
+            ) {
+                Icon(Icons.Default.FlashOn, contentDescription = null) // 闪电图标表示快节奏
+                Spacer(Modifier.width(8.dp))
+                Text("⚡ PLAY PVP (1 VS 1)", style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }

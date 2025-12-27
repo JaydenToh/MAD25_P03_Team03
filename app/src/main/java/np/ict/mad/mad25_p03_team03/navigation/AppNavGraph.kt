@@ -1,17 +1,22 @@
 // navigation/AppNavGraph.kt
 package np.ict.mad.mad25_p03_team03.navigation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.SongIdentifier
 import np.ict.mad.mad25_p03_team03.SongLibraryScreen
 import np.ict.mad.mad25_p03_team03.data.Difficulty
@@ -23,12 +28,15 @@ import np.ict.mad.mad25_p03_team03.ui.FriendListScreen
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
 import np.ict.mad.mad25_p03_team03.ui.LeaderboardScreen
+import np.ict.mad.mad25_p03_team03.ui.LobbyScreen
 import np.ict.mad.mad25_p03_team03.ui.ModeSelectionScreen
 import np.ict.mad.mad25_p03_team03.ui.PlayerProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
+import np.ict.mad.mad25_p03_team03.ui.PvpGameScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
 import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
+import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 
 
 // navigation/AppNavGraph.kt
@@ -51,9 +59,20 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             composable("home") {
                 HomeScreen(
                     onStartGame = { navController.navigate("rules") },
-                    onOpenLibrary = { navController.navigate("library") },
+                    onOpenLobby = { navController.navigate("lobby") },
                     onIdentifySong = { navController.navigate("identifier") },
                     onSignOut = onSignOut
+                )
+            }
+
+            composable("lobby") {
+                LobbyScreen(
+                    songRepository = songRepository,
+                    onNavigateToGame = { roomId ->
+                        // 跳转到游戏页面，PvpGameScreen 会自动显示 "Waiting..."
+                        navController.navigate("pvp_game/$roomId")
+                    },
+                    onBack = { navController.popBackStack() }
                 )
             }
 
@@ -65,10 +84,38 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             }
 
             composable("mode_selection") {
+                val context = LocalContext.current
+                val db = FirebaseFirestore.getInstance()
+                val auth = FirebaseAuth.getInstance()
+                // 创建一个 Scope 来运行 suspend 函数
+                val scope = rememberCoroutineScope()
+
                 ModeSelectionScreen(
                     onStartGame = { mode, difficulty ->
-
                         navController.navigate("game/${mode.name}/${difficulty.name}")
+                    },
+                    onStartPvp = {
+                        // 点击 PVP 按钮时触发
+                        val user = auth.currentUser
+                        if (user != null) {
+                            // 显示 Loading...
+                            Toast.makeText(context, "Finding match...", Toast.LENGTH_SHORT).show()
+
+                            // 调用匹配逻辑 (Step 1 定义的函数)
+                            findOrCreateGame(
+                                db = db,
+                                currentUser = user,
+                                songRepository = songRepository,
+                                onGameFound = { roomId ->
+                                    navController.navigate("pvp_game/$roomId")
+                                },
+                                onFail = { error ->
+                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        } else {
+                            Toast.makeText(context, "Please login first", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     onBack = { navController.popBackStack() }
                 )
@@ -193,6 +240,24 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
                 )
             }
 
+            composable(
+                route = "pvp_game/{roomId}",
+                arguments = listOf(navArgument("roomId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
+
+                // 确保你传入了 SongRepository
+                PvpGameScreen(
+                    roomId = roomId,
+                    songRepository = songRepository,
+                    onNavigateBack = {
+                        // 游戏结束回主页
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
     }
 }

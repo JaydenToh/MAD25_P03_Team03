@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HomeScreen(
     onStartGame: () -> Unit,
-    onOpenLibrary: () -> Unit,
+    onOpenLobby: () -> Unit,
     onIdentifySong: () -> Unit,
     onSignOut:  () -> Unit
 ) {
@@ -95,10 +95,10 @@ fun HomeScreen(
             )
 
             HomeCard(
-                icon = "📚",
-                title = "Song Library",
-                description = "Browse and explore songs",
-                onClick = onOpenLibrary
+                icon = "🤝", // 换一个更适合多人对战的 icon
+                title = "Multiplayer Lobby",
+                description = "Challenge other players in PVP",
+                onClick = onOpenLobby // 使用传入的 Lobby 跳转逻辑
             )
 
             // Sign Out Card - Added after Song Library
