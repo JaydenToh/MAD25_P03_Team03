@@ -18,6 +18,7 @@ import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
+import np.ict.mad.mad25_p03_team03.ui.ChatScreen
 import np.ict.mad.mad25_p03_team03.ui.FriendListScreen
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
@@ -124,6 +125,26 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
 
             composable("friend_list") {
                 FriendListScreen(
+                    onBack = { navController.popBackStack() },onChatClick = { friendId, friendName ->
+                        // 导航到聊天页面
+                        navController.navigate("chat/$friendId/$friendName")
+                    }
+                )
+            }
+
+            composable(
+                route = "chat/{friendId}/{friendName}",
+                arguments = listOf(
+                    navArgument("friendId") { type = NavType.StringType },
+                    navArgument("friendName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val friendId = backStackEntry.arguments?.getString("friendId") ?: ""
+                val friendName = backStackEntry.arguments?.getString("friendName") ?: "Friend"
+
+                ChatScreen(
+                    friendId = friendId,
+                    friendName = friendName,
                     onBack = { navController.popBackStack() }
                 )
             }

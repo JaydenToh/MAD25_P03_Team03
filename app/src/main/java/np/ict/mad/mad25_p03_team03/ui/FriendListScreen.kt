@@ -1,5 +1,6 @@
 package np.ict.mad.mad25_p03_team03.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldPath
+import androidx.compose.material.icons.filled.Chat
 
 data class Friend(
     val id: String,
@@ -23,7 +25,7 @@ data class Friend(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendListScreen(onBack: () -> Unit) {
+fun FriendListScreen(onBack: () -> Unit,onChatClick: (String, String) -> Unit) {
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
     val currentUser = auth.currentUser
@@ -92,7 +94,7 @@ fun FriendListScreen(onBack: () -> Unit) {
             LazyColumn(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
                 items(friends) { friend ->
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable { onChatClick(friend.id, friend.username) },
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Row(
@@ -106,6 +108,14 @@ fun FriendListScreen(onBack: () -> Unit) {
                                 if (friend.bio.isNotEmpty()) {
                                     Text(friend.bio, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
+                                IconButton(onClick = { onChatClick(friend.id, friend.username) }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Chat,
+                                        contentDescription = "Message",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+
                             }
                         }
                     }
