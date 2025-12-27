@@ -1,6 +1,7 @@
 package np.ict.mad.mad25_p03_team03.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -29,7 +30,7 @@ data class LeaderboardEntry(
 )
 
 @Composable
-fun LeaderboardScreen() {
+fun LeaderboardScreen(onPlayerClick: (String) -> Unit = {}) {
     var leaderboardData by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
@@ -127,7 +128,9 @@ fun LeaderboardScreen() {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 itemsIndexed(leaderboardData) { index, entry ->
-                    LeaderboardItem(rank = index + 1, entry = entry)
+                    LeaderboardItem(rank = index + 1, entry = entry,onClick = {onPlayerClick(entry.userId)
+
+                    })
                 }
             }
         }
@@ -135,7 +138,7 @@ fun LeaderboardScreen() {
 }
 
 @Composable
-fun LeaderboardItem(rank: Int, entry: LeaderboardEntry) {
+fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,onClick: () -> Unit) {
     val rankColor = when (rank) {
         1 -> Color(0xFFFFD700) // Gold
         2 -> Color(0xFFC0C0C0) // Silver
@@ -146,7 +149,8 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
