@@ -126,7 +126,6 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             composable("friend_list") {
                 FriendListScreen(
                     onBack = { navController.popBackStack() },onChatClick = { friendId, friendName ->
-                        // 导航到聊天页面
                         navController.navigate("chat/$friendId/$friendName")
                     }
                 )

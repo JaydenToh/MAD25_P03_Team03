@@ -21,7 +21,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
-// 定义消息数据类
 data class ChatMessage(
     val senderId: String = "",
     val text: String = "",
@@ -42,12 +41,12 @@ fun ChatScreen(
     var messageText by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
 
-    // 生成唯一的 Chat Room ID (通过排序 UID)
+    // generate unique chat room ID based on user IDs
     val chatRoomId = getChatRoomId(currentUser?.uid ?: "", friendId)
 
     val listState = rememberLazyListState()
 
-    // 监听实时消息
+    // listen for new messages
     LaunchedEffect(chatRoomId) {
         if (currentUser != null) {
             db.collection("chats")
@@ -63,7 +62,7 @@ fun ChatScreen(
         }
     }
 
-    // 自动滚动到底部
+    // auto-scroll to bottom when new message arrives
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
@@ -73,7 +72,7 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(friendName) }, // 显示朋友名字
+                title = { Text(friendName) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -87,7 +86,6 @@ fun ChatScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // 消息列表
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -101,7 +99,6 @@ fun ChatScreen(
                 }
             }
 
-            // 输入框区域
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -124,13 +121,12 @@ fun ChatScreen(
                                 text = messageText.trim(),
                                 timestamp = System.currentTimeMillis()
                             )
-                            // 发送消息到 Firestore
                             db.collection("chats")
                                 .document(chatRoomId)
                                 .collection("messages")
                                 .add(newMessage)
 
-                            messageText = "" // 清空输入框
+                            messageText = ""
                         }
                     },
                     modifier = Modifier
@@ -144,7 +140,6 @@ fun ChatScreen(
     }
 }
 
-// 消息气泡组件
 @Composable
 fun MessageBubble(message: ChatMessage, isMe: Boolean) {
     Column(
@@ -171,7 +166,6 @@ fun MessageBubble(message: ChatMessage, isMe: Boolean) {
     }
 }
 
-// 辅助函数：生成唯一 Chat ID
 fun getChatRoomId(user1: String, user2: String): String {
     return if (user1 < user2) {
         "${user1}_${user2}"
