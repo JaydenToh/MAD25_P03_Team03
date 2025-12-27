@@ -22,6 +22,7 @@ import np.ict.mad.mad25_p03_team03.ui.GameScreen
 import np.ict.mad.mad25_p03_team03.ui.HomeScreen
 import np.ict.mad.mad25_p03_team03.ui.LeaderboardScreen
 import np.ict.mad.mad25_p03_team03.ui.ModeSelectionScreen
+import np.ict.mad.mad25_p03_team03.ui.PlayerProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
@@ -100,7 +101,20 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             }
 
             composable("leaderboard") {
-                LeaderboardScreen()
+                LeaderboardScreen(onPlayerClick = { userId ->
+                    navController.navigate("player_profile/$userId")
+                })
+            }
+
+            composable(
+                route = "player_profile/{userId}",
+                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                PlayerProfileScreen(
+                    userId = userId,
+                    onBack = { navController.popBackStack() }
+                )
             }
 
             composable("profile") {
