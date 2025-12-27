@@ -102,7 +102,7 @@ fun ModeSelectionScreen(
             Spacer(Modifier.weight(1f))
 
 
-            // --- 单人模式开始按钮 ---
+
             Button(
                 onClick = { onStartGame(selectedMode, selectedDifficulty) },
                 modifier = Modifier
@@ -115,7 +115,7 @@ fun ModeSelectionScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // --- 分割线 ---
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Divider(modifier = Modifier.weight(1f))
                 Text(" OR ", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 8.dp))
@@ -123,17 +123,17 @@ fun ModeSelectionScreen(
             }
             Spacer(Modifier.height(16.dp))
 
-            // --- PVP 模式按钮 ---
+
             Button(
-                onClick = onStartPvp, // 调用匹配逻辑
+                onClick = onStartPvp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF9C27B0) // 使用紫色突出多人模式
+                    containerColor = Color(0xFF9C27B0)
                 )
             ) {
-                Icon(Icons.Default.FlashOn, contentDescription = null) // 闪电图标表示快节奏
+                Icon(Icons.Default.FlashOn, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("⚡ PLAY PVP (1 VS 1)", style = MaterialTheme.typography.titleMedium)
             }

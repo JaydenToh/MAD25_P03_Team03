@@ -36,7 +36,7 @@ data class GameRoom(
 @Composable
 fun LobbyScreen(
     songRepository: SongRepository,
-    onNavigateToGame: (String) -> Unit, // 传入 roomId
+    onNavigateToGame: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -48,11 +48,10 @@ fun LobbyScreen(
     var rooms by remember { mutableStateOf<List<GameRoom>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
 
-    // 1. 实时监听：获取所有状态为 "waiting" 的房间
     LaunchedEffect(Unit) {
         db.collection("pvp_rooms")
             .whereEqualTo("status", "waiting")
-            .orderBy("createdAt", Query.Direction.DESCENDING) // 记得在 Firestore 建索引
+            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) return@addSnapshotListener
                 if (snapshot != null) {
@@ -67,16 +66,13 @@ fun LobbyScreen(
             }
     }
 
-    // 2. 创建房间逻辑
     fun createRoom() {
         if (currentUser == null) return
         isLoading = true
 
         scope.launch {
-            // 获取当前玩家的名字 (可选: 如果你之前存过 username 可以先 fetch 一下，这里为了简单直接用 Email 或 ID)
             val username = currentUser.email?.substringBefore("@") ?: "Player 1"
 
-            // 预先生成题目
             val songs = songRepository.fetchSongsFromSupabase(GameMode.ENGLISH).take(5)
             val mappedQuestions = songs.map { song ->
                 mapOf(
@@ -88,10 +84,10 @@ fun LobbyScreen(
 
             val newRoom = hashMapOf(
                 "player1Id" to currentUser.uid,
-                "player1Name" to username, // 存名字方便列表显示
+                "player1Name" to username,
                 "player2Id" to null,
                 "status" to "waiting",
-                "createdAt" to com.google.firebase.Timestamp.now(), // 用于排序
+                "createdAt" to com.google.firebase.Timestamp.now(),
                 "currentQuestionIndex" to 0,
                 "scores" to hashMapOf(currentUser.uid to 0),
                 "questions" to mappedQuestions
@@ -100,7 +96,6 @@ fun LobbyScreen(
             db.collection("pvp_rooms").add(newRoom)
                 .addOnSuccessListener { docRef ->
                     isLoading = false
-                    // 创建成功，直接进入房间 (PvpGameScreen 会处理 waiting UI)
                     onNavigateToGame(docRef.id)
                 }
                 .addOnFailureListener {
@@ -110,7 +105,7 @@ fun LobbyScreen(
         }
     }
 
-    // 3. 加入房间逻辑
+
     fun joinRoom(room: GameRoom) {
         if (currentUser == null) return
         if (room.status != "waiting") {
@@ -118,9 +113,6 @@ fun LobbyScreen(
             return
         }
 
-        // 简单防止自己进自己房间 (虽然 UI 上可以不用禁，但逻辑上最好防一下)
-        // 这里的校验最好是在 PvpGameScreen 做，或者这里先 fetch 检查 player1Id
-        // 为了流畅，我们直接尝试加入，PvpGameScreen 里的 Transaction 会保证安全性
 
         db.collection("pvp_rooms").document(room.roomId)
             .update(

@@ -69,7 +69,6 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
                 LobbyScreen(
                     songRepository = songRepository,
                     onNavigateToGame = { roomId ->
-                        // 跳转到游戏页面，PvpGameScreen 会自动显示 "Waiting..."
                         navController.navigate("pvp_game/$roomId")
                     },
                     onBack = { navController.popBackStack() }
@@ -87,7 +86,6 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
                 val context = LocalContext.current
                 val db = FirebaseFirestore.getInstance()
                 val auth = FirebaseAuth.getInstance()
-                // 创建一个 Scope 来运行 suspend 函数
                 val scope = rememberCoroutineScope()
 
                 ModeSelectionScreen(
@@ -95,13 +93,10 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
                         navController.navigate("game/${mode.name}/${difficulty.name}")
                     },
                     onStartPvp = {
-                        // 点击 PVP 按钮时触发
                         val user = auth.currentUser
                         if (user != null) {
-                            // 显示 Loading...
                             Toast.makeText(context, "Finding match...", Toast.LENGTH_SHORT).show()
 
-                            // 调用匹配逻辑 (Step 1 定义的函数)
                             findOrCreateGame(
                                 db = db,
                                 currentUser = user,
@@ -246,12 +241,12 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             ) { backStackEntry ->
                 val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
 
-                // 确保你传入了 SongRepository
+
                 PvpGameScreen(
                     roomId = roomId,
                     songRepository = songRepository,
                     onNavigateBack = {
-                        // 游戏结束回主页
+
                         navController.navigate("home") {
                             popUpTo("home") { inclusive = true }
                         }

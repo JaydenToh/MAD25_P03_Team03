@@ -95,10 +95,10 @@ fun HomeScreen(
             )
 
             HomeCard(
-                icon = "🤝", // 换一个更适合多人对战的 icon
+                icon = "🤝",
                 title = "Multiplayer Lobby",
                 description = "Challenge other players in PVP",
-                onClick = onOpenLobby // 使用传入的 Lobby 跳转逻辑
+                onClick = onOpenLobby
             )
 
             // Sign Out Card - Added after Song Library
