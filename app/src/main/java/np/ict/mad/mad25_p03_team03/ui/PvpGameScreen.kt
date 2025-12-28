@@ -46,6 +46,7 @@ fun PvpGameScreen(
     var message by remember { mutableStateOf("Waiting for opponent...") }
 
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+    val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
 
     // ✅ 页面关闭时释放资源
     DisposableEffect(Unit) {
@@ -58,7 +59,9 @@ fun PvpGameScreen(
     // ✅ 播放函数
     fun playAudio(url: String) {
         try {
+            // 先停止上一首
             mediaPlayer?.release()
+
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
@@ -68,14 +71,31 @@ fun PvpGameScreen(
                 )
                 setDataSource(url)
                 prepareAsync()
-                setOnPreparedListener { start() }
+                setOnPreparedListener {
+                    start()
+                    // Toast.makeText(context, "Playing...", Toast.LENGTH_SHORT).show() // ❌ 注释掉这一行
+                }
                 setOnErrorListener { _, _, _ ->
-                    Toast.makeText(context, "Audio Error", Toast.LENGTH_SHORT).show()
+                    // 出错还是提示一下比较好
+                    // Toast.makeText(context, "Audio Error", Toast.LENGTH_SHORT).show()
                     true
                 }
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Failed to load audio", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+    }
+
+
+    fun stopAudio() {
+        try {
+            if (mediaPlayer?.isPlaying == true) {
+                mediaPlayer?.stop()
+            }
+            mediaPlayer?.release()
+            mediaPlayer = null
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -132,6 +152,23 @@ fun PvpGameScreen(
         }
     }
 
+    LaunchedEffect(currentIdx, status, questions) {
+        // 只有当状态是 playing 且有题目时才播放
+        if (status == "playing" && questions.isNotEmpty()) {
+            val currentQuestion = questions.getOrNull(currentIdx)
+            val url = currentQuestion?.audioUrl
+
+            if (!url.isNullOrEmpty()) {
+                // 稍微延迟一点点，让 UI 先刷新出来，体验更好 (可选)
+                delay(300)
+                playAudio(url)
+            }
+        } else {
+            // 如果状态变成了 finished 或者 waiting，停止播放
+            stopAudio()
+        }
+    }
+
     // 房主生成题目 (保持不变)
     LaunchedEffect(roomData) {
         val p1Id = roomData?.get("player1Id") as? String
@@ -152,7 +189,6 @@ fun PvpGameScreen(
         }
     }
 
-    val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
     val roundWinnerId = roomData?.get("roundWinnerId") as? String
     // 这里的 winnerId 是整场游戏的赢家
     val gameWinnerId = roomData?.get("winnerId") as? String
@@ -277,7 +313,7 @@ fun PvpGameScreen(
                             } },
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                     ) {
-                        Text("▶️ Play Song")
+                        Text("▶️ Replay Song")
                     }
 
                     Spacer(Modifier.height(16.dp))
