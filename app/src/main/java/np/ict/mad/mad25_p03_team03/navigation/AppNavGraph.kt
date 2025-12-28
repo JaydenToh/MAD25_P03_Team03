@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,20 +42,18 @@ import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 
 // navigation/AppNavGraph.kt
 @Composable
-fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
-    val navController = rememberNavController()
+fun AppNavGraph(navController: NavHostController,
+                modifier: Modifier = Modifier,
+                songRepository: SongRepository,
+                onSignOut: () -> Unit) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    Scaffold(
-        bottomBar = {
-            BottomNavBar(navController = navController, currentDestination = currentDestination)
-        }
-    ) { paddingValues ->
+
         NavHost(
             navController = navController,
             startDestination = "home",
-            modifier = Modifier.padding(paddingValues) // handle scaffold padding
+            modifier = modifier
         ) {
             composable("home") {
                 HomeScreen(
@@ -255,4 +254,3 @@ fun AppNavGraph(songRepository: SongRepository,onSignOut: () -> Unit) {
             }
         }
     }
-}
