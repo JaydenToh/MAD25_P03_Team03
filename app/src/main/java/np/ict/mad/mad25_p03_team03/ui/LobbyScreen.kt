@@ -31,13 +31,15 @@ data class GameRoom(
     val roomId: String,
     val player1Name: String,
     val player1Id: String,
-    val status: String
+    val status: String,
+    val mode: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LobbyScreen(
     songRepository: SongRepository,
+    onNavigateToCreate: () -> Unit,
     onNavigateToGame: (String) -> Unit,
     onBack: () -> Unit
 ) {
@@ -62,7 +64,8 @@ fun LobbyScreen(
                             roomId = doc.id,
                             player1Name = doc.getString("player1Name") ?: "Unknown Player",
                             player1Id = doc.getString("player1Id") ?: "",
-                            status = doc.getString("status") ?: "waiting"
+                            status = doc.getString("status") ?: "waiting",
+                            mode = doc.getString("gameMode") ?: "ENGLISH"
                         )
                     }
                 }
@@ -153,7 +156,7 @@ fun LobbyScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { createRoom() },
+                onClick = { onNavigateToCreate() },
                 icon = { Icon(Icons.Default.Add, "Create") },
                 text = { Text("Create Room") },
                 containerColor = MaterialTheme.colorScheme.primary
@@ -211,7 +214,7 @@ fun RoomItem(room: GameRoom,currentUserId: String, onJoin: () -> Unit,onDelete: 
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(room.player1Name + "'s Room", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("Status: Waiting", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                    Text("Language: ${room.mode}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
             }
 
