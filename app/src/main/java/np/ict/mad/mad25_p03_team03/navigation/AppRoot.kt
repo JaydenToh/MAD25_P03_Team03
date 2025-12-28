@@ -41,7 +41,7 @@ fun AppRoot() {
 
         is RootScreen.Music -> {
             MusicRoot(
-                songRepository = songRepository, // 🔥 传进去
+                songRepository = songRepository,
                 onSignOut = { auth.signOut()
                     currentScreen = RootScreen.Login}
             )

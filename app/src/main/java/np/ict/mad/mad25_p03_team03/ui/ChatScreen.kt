@@ -127,15 +127,15 @@ fun ChatScreen(
                                 .collection("messages")
                                 .add(newMessage)
 
-                            // 🆕 2. 新增：更新聊天室父文档 (为了全局通知和列表显示)
+
                             val chatRoomUpdate = mapOf(
                                 "lastMessage" to messageText.trim(),
                                 "lastSenderId" to currentUser.uid,
                                 "lastTimestamp" to System.currentTimeMillis(),
-                                "participants" to listOf(currentUser.uid, friendId) // 🔥 关键：存入参与者ID数组
+                                "participants" to listOf(currentUser.uid, friendId)
                             )
 
-                            // 使用 set(..., SetOptions.merge()) 避免覆盖其他字段
+
                             db.collection("chats")
                                 .document(chatRoomId)
                                 .set(chatRoomUpdate, SetOptions.merge())

@@ -29,7 +29,6 @@ fun NotificationBanner(
     onClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    // 使用 Card 来制作悬浮感
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,7 +47,6 @@ fun NotificationBanner(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 图标部分
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -66,7 +64,6 @@ fun NotificationBanner(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // 文字部分
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = data.senderName,
@@ -82,8 +79,7 @@ fun NotificationBanner(
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                 )
             }
-
-            // 右侧提示
+            
             Text(
                 text = "Now",
                 style = MaterialTheme.typography.labelSmall,

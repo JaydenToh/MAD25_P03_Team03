@@ -22,7 +22,7 @@ fun MusicHome(navController: NavHostController, songRepository: SongRepository,o
         }
     ) { paddingValues ->
         AppNavGraph(
-            navController = navController, // 👈 确保 AppNavGraph 接收这个参数
+            navController = navController,
             modifier = Modifier.padding(paddingValues),
             songRepository = songRepository,
             onSignOut = onSignOut
