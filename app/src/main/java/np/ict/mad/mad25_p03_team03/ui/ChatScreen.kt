@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 
 data class ChatMessage(
     val senderId: String = "",
@@ -125,6 +126,19 @@ fun ChatScreen(
                                 .document(chatRoomId)
                                 .collection("messages")
                                 .add(newMessage)
+
+
+                            val chatRoomUpdate = mapOf(
+                                "lastMessage" to messageText.trim(),
+                                "lastSenderId" to currentUser.uid,
+                                "lastTimestamp" to System.currentTimeMillis(),
+                                "participants" to listOf(currentUser.uid, friendId)
+                            )
+
+
+                            db.collection("chats")
+                                .document(chatRoomId)
+                                .set(chatRoomUpdate, SetOptions.merge())
 
                             messageText = ""
                         }

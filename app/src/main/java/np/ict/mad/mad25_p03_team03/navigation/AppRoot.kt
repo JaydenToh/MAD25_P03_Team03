@@ -2,18 +2,21 @@
 package np.ict.mad.mad25_p03_team03.navigation
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import np.ict.mad.mad25_p03_team03.LoginScreen
 import np.ict.mad.mad25_p03_team03.OTPScreen
 import np.ict.mad.mad25_p03_team03.SignUpScreen
+import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.*
 
 @Composable
 fun AppRoot() {
     val auth = FirebaseAuth.getInstance()
     var currentScreen by remember { mutableStateOf<RootScreen>(RootScreen.Login) }
+    val songRepository = remember { SongRepository() }
 
 
     LaunchedEffect(Unit) {
@@ -36,10 +39,13 @@ fun AppRoot() {
             onContinueToApp = { currentScreen = RootScreen.Music }
         )
 
-        is RootScreen.Music -> MusicHome(onSignOut = {
-            auth.signOut()
-            currentScreen = RootScreen.Login
-        })
+        is RootScreen.Music -> {
+            MusicRoot(
+                songRepository = songRepository,
+                onSignOut = { auth.signOut()
+                    currentScreen = RootScreen.Login}
+            )
+        }
     }
 }
 

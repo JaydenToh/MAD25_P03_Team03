@@ -1,15 +1,31 @@
 // ui/MusicHome.kt
 package np.ict.mad.mad25_p03_team03.ui
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.navigation.AppNavGraph
 
 @Composable
-fun MusicHome(onSignOut: () -> Unit) {
-    val songRepository = SongRepository() // Repository（Supabase + local fallback）
+fun MusicHome(navController: NavHostController, songRepository: SongRepository,onSignOut: () -> Unit) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
 
-    // render the main navigation graph
-    AppNavGraph(songRepository = songRepository,onSignOut = onSignOut)
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(navController = navController, currentDestination = currentDestination)
+        }
+    ) { paddingValues ->
+        AppNavGraph(
+            navController = navController,
+            modifier = Modifier.padding(paddingValues),
+            songRepository = songRepository,
+            onSignOut = onSignOut
+        )
+    }
 }
