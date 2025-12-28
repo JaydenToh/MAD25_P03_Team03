@@ -2,6 +2,7 @@ package np.ict.mad.mad25_p03_team03.ui
 
 import android.media.MediaPlayer
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import np.ict.mad.mad25_p03_team03.data.SongRepository
 import kotlinx.coroutines.delay
 import np.ict.mad.mad25_p03_team03.data.GameMode
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PvpGameScreen(
     roomId: String,
@@ -34,6 +36,36 @@ fun PvpGameScreen(
     var roomData by remember { mutableStateOf<Map<String, Any>?>(null) }
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var message by remember { mutableStateOf("Waiting for opponent...") }
+
+    val player1Id = roomData?.get("player1Id") as? String
+    val status = roomData?.get("status") as? String ?: "waiting"
+    val context = LocalContext.current
+
+    val handleExit = {
+        if (player1Id == myId) {
+            if (status == "waiting") {
+                db.collection("pvp_rooms").document(roomId).delete()
+            } else {
+                db.collection("pvp_rooms").document(roomId).delete()
+            }
+        } else {
+            if (status == "waiting" || status == "playing") {
+                db.collection("pvp_rooms").document(roomId).update(
+                    mapOf(
+                        "player2Id" to null,
+                        "status" to "waiting"
+                    )
+                )
+            }
+        }
+        onNavigateBack()
+    }
+
+    BackHandler {
+        handleExit()
+    }
+
+
 
     LaunchedEffect(roomId) {
         val docRef = db.collection("pvp_rooms").document(roomId)
@@ -52,6 +84,9 @@ fun PvpGameScreen(
                         )
                     }
                 }
+            }else {
+                Toast.makeText(context, "Room closed by host", Toast.LENGTH_SHORT).show()
+                onNavigateBack()
             }
         }
     }
@@ -83,7 +118,7 @@ fun PvpGameScreen(
     }
 
 
-    val status = roomData?.get("status") as? String ?: "waiting"
+
     val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
     val scores = roomData?.get("scores") as? Map<String, Long> ?: emptyMap()
     val roundWinnerId = roomData?.get("roundWinnerId") as? String
@@ -110,7 +145,7 @@ fun PvpGameScreen(
                         db.collection("pvp_rooms").document(roomId),
                         mapOf(
                             "roundWinnerId" to myId,
-                            "scores.$myId" to myScore + 10 // 加分
+                            "scores.$myId" to myScore + 10
                         )
                     )
                 }
@@ -152,7 +187,21 @@ fun PvpGameScreen(
     }
 
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = {
+            if (status == "waiting" || status == "playing") {
+                CenterAlignedTopAppBar(
+                    title = { Text("PVP Match") },
+                    navigationIcon = {
+                        IconButton(onClick = { handleExit() }) {
+                            Text("❌", fontSize = 18.sp)
+                        }
+                    }
+                )
+            }
+        }
+    )
+    { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -215,10 +264,21 @@ fun PvpGameScreen(
                     }
                 }
             } else {
+                Spacer(Modifier.height(40.dp))
                 Text("Game Over!", style = MaterialTheme.typography.headlineLarge)
-                val winnerText = if (myScore > opponentScore) "You Won! 🏆" else "You Lost 😢"
+                Spacer(Modifier.height(16.dp))
+
+                val winnerText = if (myScore > opponentScore) "You Won! 🏆" else if (myScore < opponentScore) "You Lost 😢" else "It's a Draw! 🤝"
                 Text(winnerText, style = MaterialTheme.typography.headlineMedium)
-                Button(onClick = onNavigateBack) { Text("Back to Home") }
+
+                Spacer(Modifier.height(32.dp))
+                
+                Button(
+                    onClick = { handleExit() },
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                ) {
+                    Text("Back to Lobby")
+                }
             }
         }
     }
