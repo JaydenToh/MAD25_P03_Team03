@@ -115,6 +115,11 @@ fun RhythmGameScreen(
                 prepareAsync()
                 setOnPreparedListener { start() }
             }
+        }else if (status == "finished") {
+            // 🔥 2. 修复：游戏结束时停止播放
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+            mediaPlayer = null
         }
     }
 
@@ -136,35 +141,47 @@ fun RhythmGameScreen(
     fun onTap() {
         if (status != "playing") return
 
+        var moveAmount = 0
+
         if (checkHit()) {
             feedbackText = "PERFECT! ⭐"
             combo++
-            // 推球逻辑
-            db.runTransaction { transaction ->
-                val snapshot = transaction.get(db.collection("pvp_rooms").document(roomId))
-                val currentPos = snapshot.getLong("ballPosition")?.toInt() ?: 0
-                val direction = if (isPlayer1) 1 else -1
-                var newPos = currentPos + direction
-
-                // 限制
-                if (newPos > 10) newPos = 10
-                if (newPos < -10) newPos = -10
-
-                val updates = mutableMapOf<String, Any>("ballPosition" to newPos)
-                // 判赢
-                if (newPos >= 10) { updates["status"] = "finished"; updates["winnerId"] = player1Id ?: "" }
-                if (newPos <= -10) { updates["status"] = "finished"; updates["winnerId"] = "opponent" }
-
-                transaction.update(db.collection("pvp_rooms").document(roomId), updates)
-            }
+            moveAmount = 1 // 成功，正常推进
         } else {
             feedbackText = "MISS... ❌"
             combo = 0
-            // 可以选择扣分或者不惩罚
+            moveAmount = -1 // 🔥 1. 修复：失败，反向惩罚 (扣分)
         }
 
-        // 1秒后清除文字
-        // 注意：Compose里要在协程做清除，或者简单的让它留着
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(db.collection("pvp_rooms").document(roomId))
+            val currentPos = snapshot.getLong("ballPosition")?.toInt() ?: 0
+
+            // 计算方向：
+            // P1 想要往正方向推 (+1)
+            // P2 想要往负方向推 (-1)
+            val playerDirection = if (isPlayer1) 1 else -1
+
+            // 最终移动值 = 玩家方向 * 判定结果 (1 或 -1)
+            // 例子 P1: Perfect -> 1 * 1 = +1 (前进); Miss -> 1 * -1 = -1 (后退)
+            // 例子 P2: Perfect -> -1 * 1 = -1 (前进); Miss -> -1 * -1 = +1 (后退)
+            val actualMove = playerDirection * moveAmount
+
+            var newPos = currentPos + actualMove
+
+            // 限制范围
+            if (newPos > 10) newPos = 10
+            if (newPos < -10) newPos = -10
+
+            val updates = mutableMapOf<String, Any>("ballPosition" to newPos)
+
+            // 判赢
+            if (newPos >= 10) { updates["status"] = "finished"; updates["winnerId"] = player1Id ?: "" }
+            if (newPos <= -10) { updates["status"] = "finished"; updates["winnerId"] = "opponent" }
+
+            transaction.update(db.collection("pvp_rooms").document(roomId), updates)
+
+        }
     }
 
     Scaffold(
@@ -273,8 +290,16 @@ fun RhythmGameScreen(
                 Spacer(Modifier.height(20.dp))
 
             } else if (status == "finished") {
-                Text(if ((ballPosition >= 10 && isPlayer1) || (ballPosition <= -10 && !isPlayer1)) "YOU WON! 🏆" else "YOU LOST 💀", fontSize = 32.sp)
-                Button(onClick = handleExit) { Text("Leave") }
+                // 结果页面
+                Spacer(Modifier.height(40.dp))
+
+                // 判断胜负
+                val iWon = (ballPosition >= 10 && isPlayer1) || (ballPosition <= -10 && !isPlayer1)
+
+                Text(if (iWon) "YOU WON! 🏆" else "YOU LOST 💀", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = if(iWon) Color.Green else Color.Red)
+
+                Spacer(Modifier.height(20.dp))
+                Button(onClick = handleExit) { Text("Back to Lobby") }
             } else {
                 CircularProgressIndicator()
                 Text("Waiting for opponent...")
