@@ -72,8 +72,12 @@ fun AppNavGraph(navController: NavHostController,
                     onNavigateToCreate = {
                         navController.navigate("multiplayer_mode_select")
                     },
-                    onNavigateToGame = { roomId ->
-                        navController.navigate("pvp_game/$roomId")
+                    onNavigateToGame = { roomId,gameType ->
+                        if (gameType == "RHYTHM") {
+                            navController.navigate("rhythm_game/$roomId")
+                        } else {
+                            navController.navigate("pvp_game/$roomId")
+                        }
                     },
                     onBack = { navController.popBackStack() }
                 )
