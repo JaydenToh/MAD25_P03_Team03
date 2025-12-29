@@ -32,7 +32,8 @@ data class GameRoom(
     val player1Name: String,
     val player1Id: String,
     val status: String,
-    val mode: String
+    val mode: String,
+    val gameType: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +41,7 @@ data class GameRoom(
 fun LobbyScreen(
     songRepository: SongRepository,
     onNavigateToCreate: () -> Unit,
-    onNavigateToGame: (String) -> Unit,
+    onNavigateToGame: (String,String) -> Unit,
     onBack: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -65,7 +66,8 @@ fun LobbyScreen(
                             player1Name = doc.getString("player1Name") ?: "Unknown Player",
                             player1Id = doc.getString("player1Id") ?: "",
                             status = doc.getString("status") ?: "waiting",
-                            mode = doc.getString("gameMode") ?: "ENGLISH"
+                            mode = doc.getString("gameMode") ?: "ENGLISH",
+                            gameType = doc.getString("gameType") ?: "TRIVIA"
                         )
                     }
                 }
@@ -102,7 +104,7 @@ fun LobbyScreen(
             db.collection("pvp_rooms").add(newRoom)
                 .addOnSuccessListener { docRef ->
                     isLoading = false
-                    onNavigateToGame(docRef.id)
+                    onNavigateToGame(docRef.id,"RHYTHM")
                 }
                 .addOnFailureListener {
                     isLoading = false
@@ -136,7 +138,7 @@ fun LobbyScreen(
                 )
             )
             .addOnSuccessListener {
-                onNavigateToGame(room.roomId)
+                onNavigateToGame(room.roomId,room.gameType)
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to join room", Toast.LENGTH_SHORT).show()
