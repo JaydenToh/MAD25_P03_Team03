@@ -40,6 +40,7 @@ import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 import kotlinx.coroutines.launch
 import np.ict.mad.mad25_p03_team03.ui.MultiplayerModeSelectionScreen
+import np.ict.mad.mad25_p03_team03.ui.RhythmGameScreen
 
 // navigation/AppNavGraph.kt
 @Composable
@@ -88,7 +89,7 @@ fun AppNavGraph(navController: NavHostController,
 
                 MultiplayerModeSelectionScreen(
                     onBack = { navController.popBackStack() },
-                    onCreateRoom = { selectedMode ->
+                    onCreateRoom = { selectedMode,selectedType ->
 
                         if (currentUser != null) {
                             Toast.makeText(context, "Creating room...", Toast.LENGTH_SHORT).show()
@@ -114,6 +115,7 @@ fun AppNavGraph(navController: NavHostController,
                                     "player2Id" to null,
                                     "status" to "waiting",
                                     "gameMode" to selectedMode.name,
+                                    "gameType" to selectedType.name,
                                     "createdAt" to com.google.firebase.Timestamp.now(),
                                     "currentQuestionIndex" to 0,
                                     "ballPosition" to 0,
@@ -124,9 +126,12 @@ fun AppNavGraph(navController: NavHostController,
                                 db.collection("pvp_rooms").add(newRoom)
                                     .addOnSuccessListener { docRef ->
 
-                                        navController.navigate("pvp_game/${docRef.id}") {
-
-                                            popUpTo("lobby") { inclusive = false }
+                                        if (selectedType == np.ict.mad.mad25_p03_team03.ui.GameType.RHYTHM) {
+                                            navController.navigate("rhythm_game/${docRef.id}") // 🔥 去新页面
+                                        } else {
+                                            // 还要记得 fetch 题目给 Trivia 模式
+                                            // fetchSongs... (如果是 Trivia 才做这一步)
+                                            navController.navigate("pvp_game/${docRef.id}") // 🔥 去旧页面
                                         }
                                     }
                                     .addOnFailureListener {
@@ -135,6 +140,18 @@ fun AppNavGraph(navController: NavHostController,
                             }
                         }
                     }
+                )
+            }
+
+            composable(
+                route = "rhythm_game/{roomId}",
+                arguments = listOf(navArgument("roomId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
+                RhythmGameScreen(
+                    roomId = roomId,
+                    songRepository = songRepository,
+                    onNavigateBack = { navController.navigate("lobby") { popUpTo("lobby") { inclusive = true } } }
                 )
             }
 
