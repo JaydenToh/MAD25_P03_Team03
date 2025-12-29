@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -29,13 +30,16 @@ import kotlinx.coroutines.launch
 data class GameRoom(
     val roomId: String,
     val player1Name: String,
-    val status: String
+    val player1Id: String,
+    val status: String,
+    val mode: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LobbyScreen(
     songRepository: SongRepository,
+    onNavigateToCreate: () -> Unit,
     onNavigateToGame: (String) -> Unit,
     onBack: () -> Unit
 ) {
@@ -59,7 +63,9 @@ fun LobbyScreen(
                         GameRoom(
                             roomId = doc.id,
                             player1Name = doc.getString("player1Name") ?: "Unknown Player",
-                            status = doc.getString("status") ?: "waiting"
+                            player1Id = doc.getString("player1Id") ?: "",
+                            status = doc.getString("status") ?: "waiting",
+                            mode = doc.getString("gameMode") ?: "ENGLISH"
                         )
                     }
                 }
@@ -105,6 +111,14 @@ fun LobbyScreen(
         }
     }
 
+    fun deleteRoom(roomId: String) {
+        db.collection("pvp_rooms").document(roomId)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(context, "Room deleted", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 
     fun joinRoom(room: GameRoom) {
         if (currentUser == null) return
@@ -142,7 +156,7 @@ fun LobbyScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { createRoom() },
+                onClick = { onNavigateToCreate() },
                 icon = { Icon(Icons.Default.Add, "Create") },
                 text = { Text("Create Room") },
                 containerColor = MaterialTheme.colorScheme.primary
@@ -173,7 +187,7 @@ fun LobbyScreen(
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(rooms) { room ->
-                        RoomItem(room = room, onJoin = { joinRoom(room) })
+                        RoomItem(room = room,currentUserId = currentUser?.uid ?: "", onJoin = { joinRoom(room) },onDelete = { deleteRoom(room.roomId) })
                     }
                 }
             }
@@ -182,7 +196,7 @@ fun LobbyScreen(
 }
 
 @Composable
-fun RoomItem(room: GameRoom, onJoin: () -> Unit) {
+fun RoomItem(room: GameRoom,currentUserId: String, onJoin: () -> Unit,onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -200,12 +214,20 @@ fun RoomItem(room: GameRoom, onJoin: () -> Unit) {
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(room.player1Name + "'s Room", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("Status: Waiting", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                    Text("Language: ${room.mode}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                 }
             }
 
-            Button(onClick = onJoin) {
-                Text("Join")
+
+
+            if (room.player1Id == currentUserId) {
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete Room", tint = Color.Red)
+                }
+            } else {
+                Button(onClick = onJoin) {
+                    Text("Join")
+                }
             }
         }
     }

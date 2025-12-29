@@ -38,7 +38,8 @@ import np.ict.mad.mad25_p03_team03.ui.RulesScreen
 import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
 import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
-
+import kotlinx.coroutines.launch
+import np.ict.mad.mad25_p03_team03.ui.MultiplayerModeSelectionScreen
 
 // navigation/AppNavGraph.kt
 @Composable
@@ -67,10 +68,73 @@ fun AppNavGraph(navController: NavHostController,
             composable("lobby") {
                 LobbyScreen(
                     songRepository = songRepository,
+                    onNavigateToCreate = {
+                        navController.navigate("multiplayer_mode_select")
+                    },
                     onNavigateToGame = { roomId ->
                         navController.navigate("pvp_game/$roomId")
                     },
                     onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("multiplayer_mode_select") {
+                val context = LocalContext.current
+                val db = FirebaseFirestore.getInstance()
+                val auth = FirebaseAuth.getInstance()
+                val currentUser = auth.currentUser
+
+                val scope = rememberCoroutineScope()
+
+                MultiplayerModeSelectionScreen(
+                    onBack = { navController.popBackStack() },
+                    onCreateRoom = { selectedMode ->
+
+                        if (currentUser != null) {
+                            Toast.makeText(context, "Creating room...", Toast.LENGTH_SHORT).show()
+
+                            scope.launch {
+
+                                val songs = songRepository.fetchSongsFromSupabase(selectedMode).take(10)
+
+                                val mappedQuestions = songs.map { song ->
+                                    val options = (listOf(song.title) + song.fakeOptions).shuffled().take(4)
+                                    mapOf(
+                                        "correctTitle" to song.title,
+                                        "options" to options,
+                                        "audioUrl" to song.audioUrl
+                                    )
+                                }
+
+
+                                val username = currentUser.email?.substringBefore("@") ?: "Player"
+                                val newRoom = hashMapOf(
+                                    "player1Id" to currentUser.uid,
+                                    "player1Name" to username,
+                                    "player2Id" to null,
+                                    "status" to "waiting",
+                                    "gameMode" to selectedMode.name,
+                                    "createdAt" to com.google.firebase.Timestamp.now(),
+                                    "currentQuestionIndex" to 0,
+                                    "ballPosition" to 0,
+                                    "questions" to mappedQuestions
+                                )
+
+
+                                db.collection("pvp_rooms").add(newRoom)
+                                    .addOnSuccessListener { docRef ->
+
+                                        navController.navigate("pvp_game/${docRef.id}") {
+
+                                            popUpTo("lobby") { inclusive = false }
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(context, "Failed to create room", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        }
+                    }
                 )
             }
 
