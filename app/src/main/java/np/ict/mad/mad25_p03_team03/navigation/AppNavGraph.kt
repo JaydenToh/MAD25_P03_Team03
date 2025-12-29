@@ -39,6 +39,7 @@ import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
 import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 import kotlinx.coroutines.launch
+import np.ict.mad.mad25_p03_team03.ui.MimicGameScreen
 import np.ict.mad.mad25_p03_team03.ui.MultiplayerModeSelectionScreen
 import np.ict.mad.mad25_p03_team03.ui.RhythmGameScreen
 
@@ -62,7 +63,8 @@ fun AppNavGraph(navController: NavHostController,
                     onStartGame = { navController.navigate("rules") },
                     onOpenLobby = { navController.navigate("lobby") },
                     onIdentifySong = { navController.navigate("identifier") },
-                    onSignOut = onSignOut
+                    onSignOut = onSignOut,
+                    onOpenMimic = { navController.navigate("mimic_game") },
                 )
             }
 
@@ -225,6 +227,13 @@ fun AppNavGraph(navController: NavHostController,
 
             composable("identifier") {
                 SongIdentifier()
+            }
+
+            composable("mimic_game") {
+                // 确保你已经 import 了 MimicGameScreen
+                MimicGameScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
 
             composable("leaderboard") {

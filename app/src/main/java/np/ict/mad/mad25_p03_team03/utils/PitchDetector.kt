@@ -51,7 +51,7 @@ class PitchDetector {
         if (hz < 20) return "" // 噪音过滤
         val notes = arrayOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
         val log2 = Math.log(hz / 440.0) / Math.log(2.0)
-        val noteNumber = Math.round(12 * log2) + 69 // MIDI note number
+        val noteNumber = (Math.round(12 * log2) + 69).toInt() // MIDI note number
         val octave = (noteNumber / 12) - 1
         val noteIndex = noteNumber % 12
         return if (noteIndex >= 0 && noteIndex < notes.size) {

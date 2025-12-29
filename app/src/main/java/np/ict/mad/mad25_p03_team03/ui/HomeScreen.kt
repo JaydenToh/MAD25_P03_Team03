@@ -28,7 +28,8 @@ fun HomeScreen(
     onStartGame: () -> Unit,
     onOpenLobby: () -> Unit,
     onIdentifySong: () -> Unit,
-    onSignOut:  () -> Unit
+    onSignOut:  () -> Unit,
+    onOpenMimic: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -107,6 +108,17 @@ fun HomeScreen(
                 title = "Log Out",
                 description = "Log out of your account",
                 onClick = onSignOut
+            )
+
+            HomeCard(
+                icon = "🎤", // 麦克风图标
+                title = "Humming Challenge",
+                description = "Test your pitch accuracy!",
+                onClick = {
+                    // 这里的 onClick 需要你修改 HomeScreen 的参数传进来，或者暂时写死 navController (不推荐)
+                    // 最好的办法是给 HomeScreen 加一个 onOpenMimic 回调
+                    onOpenMimic()
+                }
             )
 
             Spacer(modifier = Modifier.weight(1f))
