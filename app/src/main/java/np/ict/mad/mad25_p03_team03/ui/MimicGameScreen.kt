@@ -61,8 +61,10 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
             // 开始监听
             isListening = true
             pitchDetector.start { hz, note ->
-                currentPitch = hz
-                currentNoteName = note
+                if (isListening) {
+                    currentPitch = hz
+                    currentNoteName = note
+                }
             }
         } else {
             Toast.makeText(context, "Mic permission needed!", Toast.LENGTH_SHORT).show()
@@ -76,16 +78,25 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
             pitchDetector.stop()
 
             Toast.makeText(context, "Listen...", Toast.LENGTH_SHORT).show()
-            SoundGenerator.playTone(currentLevel.frequency, 1000) // 播1秒
+            val targetFreq = levels[currentLevelIndex].frequency
 
-            // 播完重新开始听
+            SoundGenerator.playTone(targetFreq, 1000)
+
             delay(500)
-            if (!isListening) { // 重新检查权限启动
-                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-            } else {
-                pitchDetector.start { hz, note ->
-                    currentPitch = hz
-                    currentNoteName = note
+            if (!isListening) {
+                // ... (保持原有的权限检查逻辑)
+                // 如果你有权限检查逻辑，确保这里也能正确重启
+                // 简单起见，这里可以直接 pitchDetector.start(...)
+                // 或者调用 permissionLauncher (但这会导致弹窗)
+                // 最好的方式是直接重启监听：
+                try {
+                    pitchDetector.start { hz, note ->
+                        currentPitch = hz
+                        currentNoteName = note
+                    }
+                    isListening = true
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
@@ -97,25 +108,30 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
             // 允许误差范围 +/- 15Hz (比较宽松)
             val diff = abs(currentPitch - currentLevel.frequency)
 
-            if (diff < 15.0) {
-                // 哼对了！增加进度
+            if (diff < 20.0) {
                 matchProgress += 0.05f
                 if (matchProgress >= 1f) {
                     // 过关！
                     matchProgress = 0f
-                    Toast.makeText(context, "Perfect! Next Level!", Toast.LENGTH_SHORT).show()
-                    delay(1000)
-                    if (currentLevelIndex < levels.size - 1) {
-                        currentLevelIndex++
-                        // 自动播放下一关
-                        playTargetSound()
-                    } else {
-                        Toast.makeText(context, "You Finished All Levels!", Toast.LENGTH_LONG).show()
-                        onNavigateBack()
+                    isListening = false // 立即停止接收新的判定，防止重复触发
+
+                    // 🔥 核心修复：使用 scope.launch 启动一个独立的协程来处理跳转
+                    // 这样即使 LaunchedEffect 被取消，这个跳转逻辑也会继续执行
+                    scope.launch {
+                        Toast.makeText(context, "Perfect! Next Level!", Toast.LENGTH_SHORT).show()
+                        delay(1000) // 这里等待很安全，不会被打断
+
+                        if (currentLevelIndex < levels.size - 1) {
+                            currentLevelIndex++
+                            // 自动播放下一关
+                            playTargetSound()
+                        } else {
+                            Toast.makeText(context, "You Finished All Levels!", Toast.LENGTH_LONG).show()
+                            onNavigateBack()
+                        }
                     }
                 }
             } else {
-                // 哼错了，慢慢扣进度
                 if (matchProgress > 0) matchProgress -= 0.02f
             }
         }
