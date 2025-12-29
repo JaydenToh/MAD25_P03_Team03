@@ -230,7 +230,6 @@ fun AppNavGraph(navController: NavHostController,
             }
 
             composable("mimic_game") {
-                // 确保你已经 import 了 MimicGameScreen
                 MimicGameScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )

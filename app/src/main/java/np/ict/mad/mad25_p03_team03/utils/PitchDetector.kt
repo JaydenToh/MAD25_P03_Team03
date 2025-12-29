@@ -14,14 +14,14 @@ class PitchDetector {
     fun start(onPitchDetected: (Float, String) -> Unit) {
         if (isRunning) return
 
-        // 采样率 22050Hz, 缓冲区 1024
+
         dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0)
 
         val pitchHandler = PitchDetectionHandler { result, _ ->
             val pitchInHz = result.pitch
-            // -1 表示没识别到有效声音（比如太安静）
+
             if (pitchInHz != -1f) {
-                // 简单的频率转音名算法 (比如 261Hz -> C4)
+
                 val noteName = getNoteName(pitchInHz)
                 onPitchDetected(pitchInHz, noteName)
             }
@@ -46,16 +46,16 @@ class PitchDetector {
         isRunning = false
     }
 
-    // 辅助函数：Hz 转 音名
+
     private fun getNoteName(hz: Float): String {
-        if (hz < 20) return "" // 噪音过滤
+        if (hz < 20) return ""
         val notes = arrayOf("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
         val log2 = Math.log(hz / 440.0) / Math.log(2.0)
         val noteNumber = (Math.round(12 * log2) + 69).toInt() // MIDI note number
         val octave = (noteNumber / 12) - 1
         val noteIndex = noteNumber % 12
         return if (noteIndex >= 0 && noteIndex < notes.size) {
-            "${notes[noteIndex]}$octave" // 例如 C4, A3
+            "${notes[noteIndex]}$octave"
         } else {
             "?"
         }

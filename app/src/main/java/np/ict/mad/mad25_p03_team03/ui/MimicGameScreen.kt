@@ -27,7 +27,7 @@ import np.ict.mad.mad25_p03_team03.utils.PitchDetector
 import np.ict.mad.mad25_p03_team03.utils.SoundGenerator
 import kotlin.math.abs
 
-// 定义关卡数据 (音名, 频率)
+
 data class MimicLevel(val name: String, val targetNote: String, val frequency: Double)
 
 val levels = listOf(
@@ -42,23 +42,22 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // 状态
     var currentLevelIndex by remember { mutableStateOf(0) }
     val currentLevel = levels[currentLevelIndex]
 
     var isListening by remember { mutableStateOf(false) }
-    var currentPitch by remember { mutableStateOf(0f) }      // 当前哼的 Hz
-    var currentNoteName by remember { mutableStateOf("--") } // 当前哼的音名
-    var matchProgress by remember { mutableStateOf(0f) }     // 匹配进度 (0..1)
+    var currentPitch by remember { mutableStateOf(0f) }
+    var currentNoteName by remember { mutableStateOf("--") }
+    var matchProgress by remember { mutableStateOf(0f) }
 
     val pitchDetector = remember { PitchDetector() }
 
-    // 权限请求
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // 开始监听
+
             isListening = true
             pitchDetector.start { hz, note ->
                 if (isListening) {
@@ -71,10 +70,10 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
         }
     }
 
-    // 播放示例声音
+
     fun playTargetSound() {
         scope.launch {
-            isListening = false // 播放时暂停监听，防止自己听到自己
+            isListening = false
             pitchDetector.stop()
 
             Toast.makeText(context, "Listen...", Toast.LENGTH_SHORT).show()
@@ -84,11 +83,7 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
 
             delay(500)
             if (!isListening) {
-                // ... (保持原有的权限检查逻辑)
-                // 如果你有权限检查逻辑，确保这里也能正确重启
-                // 简单起见，这里可以直接 pitchDetector.start(...)
-                // 或者调用 permissionLauncher (但这会导致弹窗)
-                // 最好的方式是直接重启监听：
+
                 try {
                     pitchDetector.start { hz, note ->
                         currentPitch = hz
@@ -102,28 +97,26 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
         }
     }
 
-    // 判定逻辑 (LaunchedEffect 监听 currentPitch)
+
     LaunchedEffect(currentPitch) {
         if (isListening && currentPitch > 0) {
-            // 允许误差范围 +/- 15Hz (比较宽松)
+
             val diff = abs(currentPitch - currentLevel.frequency)
 
             if (diff < 20.0) {
                 matchProgress += 0.05f
                 if (matchProgress >= 1f) {
-                    // 过关！
-                    matchProgress = 0f
-                    isListening = false // 立即停止接收新的判定，防止重复触发
 
-                    // 🔥 核心修复：使用 scope.launch 启动一个独立的协程来处理跳转
-                    // 这样即使 LaunchedEffect 被取消，这个跳转逻辑也会继续执行
+                    matchProgress = 0f
+                    isListening = false
+
+
                     scope.launch {
                         Toast.makeText(context, "Perfect! Next Level!", Toast.LENGTH_SHORT).show()
-                        delay(1000) // 这里等待很安全，不会被打断
+                        delay(1000)
 
                         if (currentLevelIndex < levels.size - 1) {
                             currentLevelIndex++
-                            // 自动播放下一关
                             playTargetSound()
                         } else {
                             Toast.makeText(context, "You Finished All Levels!", Toast.LENGTH_LONG).show()
@@ -137,7 +130,7 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
         }
     }
 
-    // 页面销毁时停止录音
+
     DisposableEffect(Unit) {
         onDispose {
             pitchDetector.stop()
@@ -150,14 +143,14 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 顶部信息
+
         Text("Humming Challenge", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(currentLevel.name, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
 
         Spacer(Modifier.height(32.dp))
 
-        // 目标显示
+
         Card(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
@@ -181,28 +174,27 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
 
         Spacer(Modifier.height(32.dp))
 
-        // 仪表盘 (Tuner UI)
+
         Text("You represent:", style = MaterialTheme.typography.labelMedium)
         Text("$currentNoteName (${currentPitch.toInt()} Hz)", style = MaterialTheme.typography.headlineSmall)
 
         Spacer(Modifier.height(16.dp))
 
-        // 简单的可视化条：左边低，右边高，中间准
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
                 .background(Color.LightGray, CircleShape)
         ) {
-            // 中心标记
+
             Box(Modifier.align(Alignment.Center).width(4.dp).fillMaxHeight().background(Color.Black))
 
-            // 计算偏差偏移量
-            // 假设范围是 +/- 100Hz
-            val diff = (currentPitch - currentLevel.frequency).coerceIn(-100.0, 100.0)
-            val offsetX = (diff / 100.0) * 150 // 映射到像素偏移 (假设宽度300左右)
 
-            // 指针
+            val diff = (currentPitch - currentLevel.frequency).coerceIn(-100.0, 100.0)
+            val offsetX = (diff / 100.0) * 150
+
+
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -218,7 +210,6 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
 
         Spacer(Modifier.weight(1f))
 
-        // 匹配进度条
         Text("Holding Logic...", style = MaterialTheme.typography.labelSmall)
         LinearProgressIndicator(
             progress = { matchProgress },
@@ -229,7 +220,6 @@ fun MimicGameScreen(onNavigateBack: () -> Unit) {
 
         Spacer(Modifier.height(24.dp))
 
-        // 第一次启动按钮
         if (!isListening) {
             Button(
                 onClick = { permissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },

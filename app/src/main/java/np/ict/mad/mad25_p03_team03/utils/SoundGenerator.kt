@@ -7,19 +7,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object SoundGenerator {
-    // 播放指定频率的声音（正弦波）
+
     suspend fun playTone(frequency: Double, durationMs: Int) = withContext(Dispatchers.Default) {
         val sampleRate = 44100
         val numSamples = durationMs * sampleRate / 1000
         val sample = DoubleArray(numSamples)
         val generatedSnd = ByteArray(2 * numSamples)
 
-        // 生成正弦波数据
+
         for (i in 0 until numSamples) {
             sample[i] = Math.sin(2 * Math.PI * i / (sampleRate / frequency))
         }
 
-        // 转换成 PCM 16bit byte array
+
         var idx = 0
         for (dVal in sample) {
             val shortVal = (dVal * 32767).toInt().toShort()
@@ -47,7 +47,7 @@ object SoundGenerator {
 
         audioTrack.write(generatedSnd, 0, generatedSnd.size)
         audioTrack.play()
-        // 等待播放完释放
+
         Thread.sleep(durationMs.toLong())
         audioTrack.release()
     }

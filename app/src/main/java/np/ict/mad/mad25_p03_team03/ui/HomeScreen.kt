@@ -111,12 +111,10 @@ fun HomeScreen(
             )
 
             HomeCard(
-                icon = "🎤", // 麦克风图标
+                icon = "🎤",
                 title = "Humming Challenge",
                 description = "Test your pitch accuracy!",
                 onClick = {
-                    // 这里的 onClick 需要你修改 HomeScreen 的参数传进来，或者暂时写死 navController (不推荐)
-                    // 最好的办法是给 HomeScreen 加一个 onOpenMimic 回调
                     onOpenMimic()
                 }
             )
