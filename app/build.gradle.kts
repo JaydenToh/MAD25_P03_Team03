@@ -125,4 +125,8 @@ dependencies {
     implementation("androidx.media3:media3-ui:$media3_version")
     implementation("androidx.media3:media3-session:$media3_version")
 
+
+    // TarsosDSP
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+
 }
