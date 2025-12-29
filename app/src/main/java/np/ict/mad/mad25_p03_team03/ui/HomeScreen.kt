@@ -28,7 +28,8 @@ fun HomeScreen(
     onStartGame: () -> Unit,
     onOpenLobby: () -> Unit,
     onIdentifySong: () -> Unit,
-    onSignOut:  () -> Unit
+    onSignOut:  () -> Unit,
+    onOpenMimic: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -107,6 +108,15 @@ fun HomeScreen(
                 title = "Log Out",
                 description = "Log out of your account",
                 onClick = onSignOut
+            )
+
+            HomeCard(
+                icon = "🎤",
+                title = "Humming Challenge",
+                description = "Test your pitch accuracy!",
+                onClick = {
+                    onOpenMimic()
+                }
             )
 
             Spacer(modifier = Modifier.weight(1f))
