@@ -69,7 +69,7 @@ fun AppNavGraph(navController: NavHostController,
                 LobbyScreen(
                     songRepository = songRepository,
                     onNavigateToCreate = {
-                        navController.navigate("multiplayer_mode_select") // 跳转到新页面
+                        navController.navigate("multiplayer_mode_select")
                     },
                     onNavigateToGame = { roomId ->
                         navController.navigate("pvp_game/$roomId")
@@ -83,18 +83,18 @@ fun AppNavGraph(navController: NavHostController,
                 val db = FirebaseFirestore.getInstance()
                 val auth = FirebaseAuth.getInstance()
                 val currentUser = auth.currentUser
-                // 获取协程作用域来运行 fetch
+
                 val scope = rememberCoroutineScope()
 
                 MultiplayerModeSelectionScreen(
                     onBack = { navController.popBackStack() },
                     onCreateRoom = { selectedMode ->
-                        // 🔥 在这里处理创建房间逻辑
+
                         if (currentUser != null) {
                             Toast.makeText(context, "Creating room...", Toast.LENGTH_SHORT).show()
 
                             scope.launch {
-                                // A. 根据选择的模式 fetch 歌曲
+
                                 val songs = songRepository.fetchSongsFromSupabase(selectedMode).take(10)
 
                                 val mappedQuestions = songs.map { song ->
@@ -106,26 +106,26 @@ fun AppNavGraph(navController: NavHostController,
                                     )
                                 }
 
-                                // B. 准备房间数据
+
                                 val username = currentUser.email?.substringBefore("@") ?: "Player"
                                 val newRoom = hashMapOf(
                                     "player1Id" to currentUser.uid,
                                     "player1Name" to username,
                                     "player2Id" to null,
                                     "status" to "waiting",
-                                    "gameMode" to selectedMode.name, // 存入模式名字
+                                    "gameMode" to selectedMode.name,
                                     "createdAt" to com.google.firebase.Timestamp.now(),
                                     "currentQuestionIndex" to 0,
-                                    "ballPosition" to 0, // 记得加上铅球位置
+                                    "ballPosition" to 0,
                                     "questions" to mappedQuestions
                                 )
 
-                                // C. 写入 Firestore
+
                                 db.collection("pvp_rooms").add(newRoom)
                                     .addOnSuccessListener { docRef ->
-                                        // D. 跳转到游戏
+
                                         navController.navigate("pvp_game/${docRef.id}") {
-                                            // 把选择页从栈里弹出来，按返回直接回 Lobby
+
                                             popUpTo("lobby") { inclusive = false }
                                         }
                                     }

@@ -14,10 +14,10 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MultiplayerModeSelectionScreen(
-    onCreateRoom: (GameMode) -> Unit, // 回调：传入选中的模式
+    onCreateRoom: (GameMode) -> Unit,
     onBack: () -> Unit
 ) {
-    // 默认选中英文
+
     var selectedMode by remember { mutableStateOf(GameMode.ENGLISH) }
 
     Scaffold(
@@ -48,7 +48,7 @@ fun MultiplayerModeSelectionScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // 语言选择 Chips
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 FilterChip(
                     selected = selectedMode == GameMode.ENGLISH,
@@ -65,9 +65,9 @@ fun MultiplayerModeSelectionScreen(
 
             Spacer(Modifier.weight(1f))
 
-            // 创建按钮
+
             Button(
-                onClick = { onCreateRoom(selectedMode) }, // 把选中的语言传出去
+                onClick = { onCreateRoom(selectedMode) }, 
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

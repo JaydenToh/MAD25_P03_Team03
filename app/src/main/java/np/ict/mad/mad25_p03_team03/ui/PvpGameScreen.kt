@@ -4,7 +4,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.animateDpAsState // 用于动画
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -48,7 +48,7 @@ fun PvpGameScreen(
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
 
-    // ✅ 页面关闭时释放资源
+
     DisposableEffect(Unit) {
         onDispose {
             mediaPlayer?.release()
@@ -56,10 +56,10 @@ fun PvpGameScreen(
         }
     }
 
-    // ✅ 播放函数
+
     fun playAudio(url: String) {
         try {
-            // 先停止上一首
+
             mediaPlayer?.release()
 
             mediaPlayer = MediaPlayer().apply {
@@ -73,11 +73,8 @@ fun PvpGameScreen(
                 prepareAsync()
                 setOnPreparedListener {
                     start()
-                    // Toast.makeText(context, "Playing...", Toast.LENGTH_SHORT).show() // ❌ 注释掉这一行
                 }
                 setOnErrorListener { _, _, _ ->
-                    // 出错还是提示一下比较好
-                    // Toast.makeText(context, "Audio Error", Toast.LENGTH_SHORT).show()
                     true
                 }
             }
@@ -99,20 +96,20 @@ fun PvpGameScreen(
         }
     }
 
-    // 解析基础数据
+
     val player1Id = roomData?.get("player1Id") as? String
     val status = roomData?.get("status") as? String ?: "waiting"
 
-    // 🔥 核心：获取铅球位置 (默认为 0)
+
     // 0 = Center
     // Positive (+) = Towards Player 2
     // Negative (-) = Towards Player 1
     val ballPosition = (roomData?.get("ballPosition") as? Long)?.toInt() ?: 0
 
-    // 判断我是 P1 还是 P2
+
     val isPlayer1 = myId == player1Id
 
-    // 退出逻辑 (保持不变)
+
     val handleExit = {
         if (player1Id == myId) {
             db.collection("pvp_rooms").document(roomId).delete()
@@ -128,7 +125,7 @@ fun PvpGameScreen(
 
     BackHandler { handleExit() }
 
-    // 监听房间数据
+
     LaunchedEffect(roomId) {
         val docRef = db.collection("pvp_rooms").document(roomId)
         docRef.addSnapshotListener { snapshot, e ->
@@ -153,33 +150,33 @@ fun PvpGameScreen(
     }
 
     LaunchedEffect(currentIdx, status, questions) {
-        // 只有当状态是 playing 且有题目时才播放
+
         if (status == "playing" && questions.isNotEmpty()) {
             val currentQuestion = questions.getOrNull(currentIdx)
             val url = currentQuestion?.audioUrl
 
             if (!url.isNullOrEmpty()) {
-                // 稍微延迟一点点，让 UI 先刷新出来，体验更好 (可选)
+
                 delay(300)
                 playAudio(url)
             }
         } else {
-            // 如果状态变成了 finished 或者 waiting，停止播放
+
             stopAudio()
         }
     }
 
-    // 房主生成题目 (保持不变)
+
     LaunchedEffect(roomData) {
         val p1Id = roomData?.get("player1Id") as? String
         val questionsInRoom = roomData?.get("questions") as? List<*>
         if (p1Id == myId && (questionsInRoom == null || questionsInRoom.isEmpty())) {
-            val songs = songRepository.fetchSongsFromSupabase(GameMode.ENGLISH).take(10) // 取多一点题目
+            val songs = songRepository.fetchSongsFromSupabase(GameMode.ENGLISH).take(10)
             val mappedQuestions = songs.map { song ->
                 val options = (listOf(song.title) + song.fakeOptions).shuffled().take(4)
                 mapOf("correctTitle" to song.title, "options" to options, "audioUrl" to song.audioUrl)
             }
-            // 初始化 ballPosition 为 0
+
             db.collection("pvp_rooms").document(roomId).update(
                 mapOf(
                     "questions" to mappedQuestions,
@@ -190,10 +187,10 @@ fun PvpGameScreen(
     }
 
     val roundWinnerId = roomData?.get("roundWinnerId") as? String
-    // 这里的 winnerId 是整场游戏的赢家
+
     val gameWinnerId = roomData?.get("winnerId") as? String
 
-    // 🔥 提交答案逻辑 (修改为推球)
+
     fun submitAnswer(selectedOption: String) {
         if (status != "playing" || roundWinnerId != null || gameWinnerId != null) return
         val currentQuestion = questions.getOrNull(currentIdx) ?: return
@@ -201,14 +198,14 @@ fun PvpGameScreen(
         if (selectedOption == currentQuestion.correctTitle) {
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(db.collection("pvp_rooms").document(roomId))
-                // 只有这一轮还没人赢的时候才处理
+
                 if (snapshot.getString("roundWinnerId") == null) {
                     val currentPos = snapshot.getLong("ballPosition")?.toInt() ?: 0
 
-                    // 逻辑：P1 答对 +1 (向右推), P2 答对 -1 (向左推)
+
                     var newPos = if (isPlayer1) currentPos + 1 else currentPos - 1
 
-                    // 限制范围 (虽然 UI 上只有 +/-3，但防止溢出)
+
                     if (newPos > 3) newPos = 3
                     if (newPos < -3) newPos = -3
 
@@ -217,16 +214,14 @@ fun PvpGameScreen(
                         "ballPosition" to newPos
                     )
 
-                    // 检查是否结束游戏 (砸到人了)
+
                     if (newPos == 3) {
-                        // 到了 +3，说明 P1 把球推到了 P2 脸上 -> P1 赢
+
                         updates["winnerId"] = player1Id ?: "" // P1 ID
                         updates["status"] = "finished"
                     } else if (newPos == -3) {
-                        // 到了 -3，说明 P2 把球推到了 P1 脸上 -> P2 赢
-                        // 这里需要获取 P2 ID，简单起见我们如果不存 P2 ID，可以用 !player1Id 判断
-                        // 但最好存了 player2Id。这里假设 'status' 变成 finished 就能在 UI 处理
-                        updates["winnerId"] = if (isPlayer1) "opponent" else myId // 逻辑稍微复杂，直接在 UI 判分
+
+                        updates["winnerId"] = if (isPlayer1) "opponent" else myId
                         updates["status"] = "finished"
                     }
 
@@ -238,24 +233,24 @@ fun PvpGameScreen(
             }
         } else {
             message = "Wrong answer! 😱"
-            // 惩罚机制：答错可以冻结几秒，或者球反向滚 (太残忍了，先不加)
+
         }
     }
 
-    // 回合过渡逻辑
+
     LaunchedEffect(roundWinnerId) {
         if (roundWinnerId != null) {
             message = if (roundWinnerId == myId) "💪 PUSHED!" else "🛡️ PUSHED BACK!"
             delay(1500)
 
-            // 只有房主负责切题，且如果没有人赢才切题
+
             if (player1Id == myId && gameWinnerId == null) {
                 if (currentIdx + 1 < questions.size) {
                     db.collection("pvp_rooms").document(roomId).update(
                         mapOf("currentQuestionIndex" to currentIdx + 1, "roundWinnerId" to null)
                     )
                 } else {
-                    // 题目用完了但还没分胜负？平局或者根据位置判
+
                     db.collection("pvp_rooms").document(roomId).update("status", "finished")
                 }
             }
@@ -288,9 +283,7 @@ fun PvpGameScreen(
                 Text("Waiting for opponent...", modifier = Modifier.padding(top = 16.dp))
             } else if (status == "playing") {
 
-                // --- 🔥 这里的 UI 是重点：铅球轨道 ---
-                // P1 在左 (-3), P2 在右 (+3)
-                // 格子: [-2] [-1] [0] [+1] [+2]
+
 
                 Spacer(Modifier.height(16.dp))
 
@@ -298,7 +291,7 @@ fun PvpGameScreen(
 
                 Spacer(Modifier.height(24.dp))
 
-                // 题目显示区域
+
                 val question = questions.getOrNull(currentIdx)
                 if (question != null) {
                     Text("Question ${currentIdx + 1}", style = MaterialTheme.typography.labelLarge)
@@ -341,14 +334,13 @@ fun PvpGameScreen(
                     }
                 }
             } else {
-                // --- Game Over 结算 ---
+                // --- Game Over  ---
                 Spacer(Modifier.height(40.dp))
                 Text("GAME OVER", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
                 Spacer(Modifier.height(24.dp))
 
-                // 判断赢家
-                // ballPosition == 3 -> P1 赢
-                // ballPosition == -3 -> P2 赢
+                // ballPosition == 3 -> P1
+                // ballPosition == -3 -> P2
 
                 val didIWin = if (isPlayer1) (ballPosition >= 3) else (ballPosition <= -3)
 
@@ -372,11 +364,11 @@ fun PvpGameScreen(
     }
 }
 
-// 🔥 新增组件：铅球轨道 UI
+
 @Composable
 fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // 顶部文字指示
+
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -395,29 +387,29 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
 
         Spacer(Modifier.height(8.dp))
 
-        // 轨道展示
+
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 左侧用户图标
+
             Text("👤", fontSize = 24.sp)
 
-            // 轨道主体
+
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .height(50.dp)
                     .padding(horizontal = 8.dp)
             ) {
-                // 背景轨道线
+
                 Divider(
                     modifier = Modifier.align(Alignment.Center),
                     thickness = 4.dp,
                     color = Color.LightGray
                 )
 
-                // 轨道上的 5 个刻度点 (-2, -1, 0, 1, 2)
+                //  (-2, -1, 0, 1, 2)
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -432,10 +424,8 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                     }
                 }
 
-                // 💣 铅球 (根据 ballPosition 移动)
-                // 映射逻辑：ballPosition 从 -3 到 3
-                // 我们在轨道上只显示 -2 到 2 的位置
-                // BiasAlignment 的 horizontalBias 范围是 -1f (最左) 到 1f (最右)
+
+                // BiasAlignment
                 if (ballPosition in -2..2) {
                     // 将 -2..2 映射到 -1f..1f
                     val hBias = ballPosition / 2f
@@ -445,7 +435,7 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                             .fillMaxSize()
                             .align(Alignment.Center)
                     ) {
-                        // ✅ 修复：使用 BiasAlignment 类而不是 Alignment 接口
+
                         Box(
                             modifier = Modifier
                                 .align(BiasAlignment(horizontalBias = hBias, verticalBias = 0f))
@@ -461,18 +451,18 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                 }
             }
 
-            // 右侧用户图标
+
             Text("👤", fontSize = 24.sp)
         }
 
-        // 爆炸效果提示 (当位置达到 +/- 3 时)
+
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // 如果球撞到了左边 (P1 输)
+
             Text(if (ballPosition <= -3) "💥 CRUSHED!" else "", color = Color.Red, fontWeight = FontWeight.Bold)
-            // 如果球撞到了右边 (P2 输)
+
             Text(if (ballPosition >= 3) "💥 CRUSHED!" else "", color = Color.Red, fontWeight = FontWeight.Bold)
         }
     }
