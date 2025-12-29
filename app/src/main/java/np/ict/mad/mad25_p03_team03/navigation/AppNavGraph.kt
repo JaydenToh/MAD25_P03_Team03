@@ -131,11 +131,10 @@ fun AppNavGraph(navController: NavHostController,
                                     .addOnSuccessListener { docRef ->
 
                                         if (selectedType == np.ict.mad.mad25_p03_team03.ui.GameType.RHYTHM) {
-                                            navController.navigate("rhythm_game/${docRef.id}") // 🔥 去新页面
+                                            navController.navigate("rhythm_game/${docRef.id}")
                                         } else {
-                                            // 还要记得 fetch 题目给 Trivia 模式
-                                            // fetchSongs... (如果是 Trivia 才做这一步)
-                                            navController.navigate("pvp_game/${docRef.id}") // 🔥 去旧页面
+
+                                            navController.navigate("pvp_game/${docRef.id}")
                                         }
                                     }
                                     .addOnFailureListener {
