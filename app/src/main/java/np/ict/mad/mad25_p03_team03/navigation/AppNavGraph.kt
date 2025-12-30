@@ -40,6 +40,7 @@ import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 import kotlinx.coroutines.launch
 import np.ict.mad.mad25_p03_team03.ui.MimicGameScreen
+import np.ict.mad.mad25_p03_team03.ui.MultiplayerMimicGameScreen
 import np.ict.mad.mad25_p03_team03.ui.MultiplayerModeSelectionScreen
 import np.ict.mad.mad25_p03_team03.ui.RhythmGameScreen
 
@@ -75,10 +76,10 @@ fun AppNavGraph(navController: NavHostController,
                         navController.navigate("multiplayer_mode_select")
                     },
                     onNavigateToGame = { roomId,gameType ->
-                        if (gameType == "RHYTHM") {
-                            navController.navigate("rhythm_game/$roomId")
-                        } else {
-                            navController.navigate("pvp_game/$roomId")
+                        when (gameType) {
+                            "RHYTHM" -> navController.navigate("rhythm_game/$roomId")
+                            "MIMIC" -> navController.navigate("mimic_game/$roomId")
+                            else -> navController.navigate("pvp_game/$roomId")
                         }
                     },
                     onBack = { navController.popBackStack() }
@@ -132,11 +133,13 @@ fun AppNavGraph(navController: NavHostController,
                                 db.collection("pvp_rooms").add(newRoom)
                                     .addOnSuccessListener { docRef ->
 
-                                        if (selectedType == np.ict.mad.mad25_p03_team03.ui.GameType.RHYTHM) {
-                                            navController.navigate("rhythm_game/${docRef.id}")
-                                        } else {
-
-                                            navController.navigate("pvp_game/${docRef.id}")
+                                        when (selectedType) {
+                                            np.ict.mad.mad25_p03_team03.ui.GameType.RHYTHM ->
+                                                navController.navigate("rhythm_game/${docRef.id}")
+                                            np.ict.mad.mad25_p03_team03.ui.GameType.MIMIC ->
+                                                navController.navigate("mimic_game/${docRef.id}")
+                                            else ->
+                                                navController.navigate("pvp_game/${docRef.id}")
                                         }
                                     }
                                     .addOnFailureListener {
@@ -144,6 +147,19 @@ fun AppNavGraph(navController: NavHostController,
                                     }
                             }
                         }
+                    }
+                )
+            }
+
+            composable(
+                route = "mimic_game/{roomId}",
+                arguments = listOf(navArgument("roomId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val roomId = backStackEntry.arguments?.getString("roomId") ?: ""
+                MultiplayerMimicGameScreen(
+                    roomId = roomId,
+                    onNavigateBack = {
+                        navController.navigate("lobby") { popUpTo("lobby") { inclusive = true } }
                     }
                 )
             }
