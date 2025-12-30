@@ -96,7 +96,7 @@ fun AppNavGraph(navController: NavHostController,
 
                 MultiplayerModeSelectionScreen(
                     onBack = { navController.popBackStack() },
-                    onCreateRoom = { selectedMode,selectedType ->
+                    onCreateRoom = { selectedMode,selectedType, isBotMode ->
 
                         if (currentUser != null) {
                             Toast.makeText(context, "Creating room...", Toast.LENGTH_SHORT).show()
@@ -119,8 +119,9 @@ fun AppNavGraph(navController: NavHostController,
                                 val newRoom = hashMapOf(
                                     "player1Id" to currentUser.uid,
                                     "player1Name" to username,
-                                    "player2Id" to null,
-                                    "status" to "waiting",
+                                    "player2Id" to if (isBotMode) "BOT" else null,
+                                    "player2Name" to if (isBotMode) "🤖 AI Bot" else null,
+                                    "status" to if (isBotMode) "playing" else "waiting",
                                     "gameMode" to selectedMode.name,
                                     "gameType" to selectedType.name,
                                     "createdAt" to com.google.firebase.Timestamp.now(),

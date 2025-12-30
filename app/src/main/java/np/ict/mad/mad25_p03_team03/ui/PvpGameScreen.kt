@@ -45,6 +45,10 @@ fun PvpGameScreen(
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var message by remember { mutableStateOf("Waiting for opponent...") }
 
+    val player2Id = roomData?.get("player2Id") as? String
+
+    val isBotGame = player2Id == "BOT" || player2Id == "AI"
+
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
 
@@ -116,7 +120,7 @@ fun PvpGameScreen(
         } else {
             if (status == "waiting" || status == "playing") {
                 db.collection("pvp_rooms").document(roomId).update(
-                    mapOf("player2Id" to null, "status" to "waiting", "ballPosition" to 0) // 退出重置位置
+                    mapOf("player2Id" to null, "status" to "waiting", "ballPosition" to 0)
                 )
             }
         }
@@ -258,6 +262,14 @@ fun PvpGameScreen(
             message = "Push the ball to enemy! 💣"
         }
     }
+
+    TriviaBotLogic(
+        roomId = roomId,
+        status = status,
+        isPlayer1 = isPlayer1,
+        isBotGame = isBotGame,
+        currentQuestionIndex = currentIdx
+    )
 
     Scaffold(
         topBar = {
@@ -427,7 +439,6 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
 
                 // BiasAlignment
                 if (ballPosition in -2..2) {
-                    // 将 -2..2 映射到 -1f..1f
                     val hBias = ballPosition / 2f
 
                     Box(

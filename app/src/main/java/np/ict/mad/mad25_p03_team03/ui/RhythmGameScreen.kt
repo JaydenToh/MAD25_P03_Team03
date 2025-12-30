@@ -53,6 +53,8 @@ fun RhythmGameScreen(
     val isPlayer1 = myId == player1Id
     val songUrl = roomData?.get("currentSongUrl") as? String
     val status = roomData?.get("status") as? String ?: "waiting"
+    val isBotGame = roomData?.get("player2Id") == "BOT"
+
 
 
     val infiniteTransition = rememberInfiniteTransition(label = "rhythm")
@@ -174,6 +176,13 @@ fun RhythmGameScreen(
 
         }
     }
+
+    RhythmBotLogic(
+        roomId = roomId,
+        status = status,
+        isPlayer1 = isPlayer1,
+        isBotGame = isBotGame
+    )
 
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Rhythm Master") }) }
