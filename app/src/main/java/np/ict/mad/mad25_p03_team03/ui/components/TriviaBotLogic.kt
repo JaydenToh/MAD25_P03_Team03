@@ -27,7 +27,7 @@ fun TriviaBotLogic(
             Log.d("BotLogic", "Bot is thinking...")
 
             // 1. 模拟思考时间
-            val delayTime = Random.nextLong(2000, 5000)
+            val delayTime = Random.nextLong(5000, 10000)
             delay(delayTime)
 
             // 二次检查状态
