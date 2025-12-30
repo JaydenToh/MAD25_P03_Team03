@@ -89,6 +89,15 @@ fun HomeScreen(
             )
 
             HomeCard(
+                icon = "🎤",
+                title = "Humming Challenge",
+                description = "Test your pitch accuracy!",
+                onClick = {
+                    onOpenMimic()
+                }
+            )
+
+            HomeCard(
                 icon = "🔍",
                 title = "Song Identifier",
                 description = "Recognize songs by listening",
@@ -110,14 +119,6 @@ fun HomeScreen(
                 onClick = onSignOut
             )
 
-            HomeCard(
-                icon = "🎤",
-                title = "Humming Challenge",
-                description = "Test your pitch accuracy!",
-                onClick = {
-                    onOpenMimic()
-                }
-            )
 
             Spacer(modifier = Modifier.weight(1f))
 
