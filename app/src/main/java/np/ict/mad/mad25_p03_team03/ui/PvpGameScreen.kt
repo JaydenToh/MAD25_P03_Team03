@@ -45,6 +45,9 @@ fun PvpGameScreen(
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
     var message by remember { mutableStateOf("Waiting for opponent...") }
 
+    val player2Id = roomData?.get("player2Id") as? String
+    val isBotGame = player2Id == "BOT"
+
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
 
@@ -258,6 +261,14 @@ fun PvpGameScreen(
             message = "Push the ball to enemy! 💣"
         }
     }
+
+    TriviaBotLogic(
+        roomId = roomId,
+        status = status,
+        isPlayer1 = isPlayer1,
+        isBotGame = isBotGame,
+        currentQuestionIndex = currentIdx
+    )
 
     Scaffold(
         topBar = {
