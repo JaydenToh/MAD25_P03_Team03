@@ -2,8 +2,11 @@ package np.ict.mad.mad25_p03_team03.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.*
@@ -15,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import np.ict.mad.mad25_p03_team03.data.GameMode
 
 enum class GameType {
-    TRIVIA, RHYTHM
+    TRIVIA, RHYTHM, MIMIC
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +47,8 @@ fun MultiplayerModeSelectionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -90,6 +94,12 @@ fun MultiplayerModeSelectionScreen(
                     icon = Icons.Default.MusicNote,
                     isSelected = selectedType == GameType.RHYTHM,
                     onClick = { selectedType = GameType.RHYTHM }
+                )
+                GameTypeCard(
+                    title = "Mimic",
+                    icon = Icons.Default.Mic,
+                    isSelected = selectedType == GameType.MIMIC,
+                    onClick = { selectedType = GameType.MIMIC }
                 )
             }
 
