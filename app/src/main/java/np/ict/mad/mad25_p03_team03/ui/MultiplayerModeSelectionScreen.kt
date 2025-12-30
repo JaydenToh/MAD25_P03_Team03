@@ -110,7 +110,7 @@ fun MultiplayerModeSelectionScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // 原本的 Create Room (PVP)
+                // Create Room (PVP)
                 Button(
                     onClick = { onCreateRoom(selectedMode, selectedType, false) }, // isBot = false
                     modifier = Modifier.weight(1f).height(56.dp)
@@ -118,7 +118,7 @@ fun MultiplayerModeSelectionScreen(
                     Text("CREATE PVP")
                 }
 
-                // 🔥 新增：Play vs Bot
+                // Play vs Bot
                 Button(
                     onClick = { onCreateRoom(selectedMode, selectedType, true) }, // isBot = true
                     modifier = Modifier.weight(1f).height(56.dp),
