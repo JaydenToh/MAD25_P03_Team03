@@ -119,7 +119,7 @@ fun AppNavGraph(navController: NavHostController,
                                 val newRoom = hashMapOf(
                                     "player1Id" to currentUser.uid,
                                     "player1Name" to username,
-                                    "player2Id" to null,
+                                    "player2Id" to if (isBotMode) "BOT" else null,
                                     "player2Name" to if (isBotMode) "🤖 AI Bot" else null,
                                     "status" to if (isBotMode) "playing" else "waiting",
                                     "gameMode" to selectedMode.name,

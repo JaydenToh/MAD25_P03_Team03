@@ -46,7 +46,8 @@ fun PvpGameScreen(
     var message by remember { mutableStateOf("Waiting for opponent...") }
 
     val player2Id = roomData?.get("player2Id") as? String
-    val isBotGame = player2Id == "BOT"
+
+    val isBotGame = player2Id == "BOT" || player2Id == "AI" // 根据你存的值
 
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
