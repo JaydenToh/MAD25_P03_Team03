@@ -78,8 +78,8 @@ fun AppNavGraph(navController: NavHostController,
                     onNavigateToGame = { roomId,gameType ->
                         when (gameType) {
                             "RHYTHM" -> navController.navigate("rhythm_game/$roomId")
-                            "MIMIC" -> navController.navigate("mimic_game/$roomId") // 新增
-                            else -> navController.navigate("pvp_game/$roomId") // 默认 Trivia
+                            "MIMIC" -> navController.navigate("mimic_game/$roomId")
+                            else -> navController.navigate("pvp_game/$roomId")
                         }
                     },
                     onBack = { navController.popBackStack() }
@@ -137,7 +137,7 @@ fun AppNavGraph(navController: NavHostController,
                                             np.ict.mad.mad25_p03_team03.ui.GameType.RHYTHM ->
                                                 navController.navigate("rhythm_game/${docRef.id}")
                                             np.ict.mad.mad25_p03_team03.ui.GameType.MIMIC ->
-                                                navController.navigate("mimic_game/${docRef.id}") // 新增
+                                                navController.navigate("mimic_game/${docRef.id}")
                                             else ->
                                                 navController.navigate("pvp_game/${docRef.id}")
                                         }

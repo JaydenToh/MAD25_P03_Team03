@@ -52,9 +52,9 @@ fun MultiplayerMimicGameScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // --- 音高识别相关状态 ---
+
     var currentLevelIndex by remember { mutableStateOf(0) }
-    // 循环关卡：如果超过了列表长度，就取模循环
+
     val currentLevel = mimicLevels[currentLevelIndex % mimicLevels.size]
 
     var isListening by remember { mutableStateOf(false) }
@@ -63,14 +63,14 @@ fun MultiplayerMimicGameScreen(
     var matchProgress by remember { mutableStateOf(0f) }
     val pitchDetector = remember { PitchDetector() }
 
-    // --- PVP 房间状态 ---
+
     var roomData by remember { mutableStateOf<Map<String, Any>?>(null) }
     val player1Id = roomData?.get("player1Id") as? String
     val ballPosition = (roomData?.get("ballPosition") as? Long)?.toInt() ?: 0
     val isPlayer1 = myId == player1Id
     val status = roomData?.get("status") as? String ?: "waiting"
 
-    // 权限
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -87,12 +87,12 @@ fun MultiplayerMimicGameScreen(
         }
     }
 
-    // 清理
+
     DisposableEffect(Unit) {
         onDispose { pitchDetector.stop() }
     }
 
-    // 退出逻辑
+
     val handleExit = {
         if (player1Id == myId) db.collection("pvp_rooms").document(roomId).delete()
         else db.collection("pvp_rooms").document(roomId).update("player2Id", null)
@@ -100,56 +100,56 @@ fun MultiplayerMimicGameScreen(
     }
     BackHandler { handleExit() }
 
-    // 监听房间
+
     LaunchedEffect(roomId) {
         db.collection("pvp_rooms").document(roomId).addSnapshotListener { s, _ ->
             if (s != null && s.exists()) roomData = s.data else onNavigateBack()
         }
     }
 
-    // 播放目标声音
+
     fun playTargetSound() {
         scope.launch {
-            // 暂停监听防止干扰
+
             val wasListening = isListening
             isListening = false
 
-            SoundGenerator.playTone(currentLevel.frequency, 800) // 播放0.8秒
+            SoundGenerator.playTone(currentLevel.frequency, 800)
 
             delay(200)
-            if (wasListening) isListening = true // 恢复监听
+            if (wasListening) isListening = true
         }
     }
 
-    // 自动开始监听 (当状态变为 playing 时)
+
     LaunchedEffect(status) {
         if (status == "playing" && !isListening) {
             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 
-    // 🔥 核心判定逻辑
+
     LaunchedEffect(currentPitch) {
         if (isListening && status == "playing" && currentPitch > 0) {
             val diff = abs(currentPitch - currentLevel.frequency)
-            if (diff < 20.0) { // 误差 20Hz
+            if (diff < 20.0) {
                 matchProgress += 0.1f
                 if (matchProgress >= 1f) {
-                    // 🎉 匹配成功！
+
                     matchProgress = 0f
-                    // 1. 本地切下一关
+
                     currentLevelIndex++
-                    // 2. 播放声音提示
+
                     playTargetSound()
 
-                    // 3. 🔥 上传推球数据
+
                     db.runTransaction { transaction ->
                         val snapshot = transaction.get(db.collection("pvp_rooms").document(roomId))
                         val currentPos = snapshot.getLong("ballPosition")?.toInt() ?: 0
                         val direction = if (isPlayer1) 1 else -1
                         var newPos = currentPos + direction
 
-                        // 限制
+
                         if (newPos > 2) newPos = 2
                         if (newPos < -2) newPos = -2
 
@@ -161,7 +161,7 @@ fun MultiplayerMimicGameScreen(
                     }
                 }
             } else {
-                if (matchProgress > 0) matchProgress -= 0.02f // 衰减
+                if (matchProgress > 0) matchProgress -= 0.02f
             }
         }
     }
@@ -174,7 +174,7 @@ fun MultiplayerMimicGameScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (status == "playing") {
-                // 1. 顶部推球状态 (复用)
+
                 Text("PUSH WITH YOUR VOICE!", fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 LinearProgressIndicator(
@@ -193,7 +193,7 @@ fun MultiplayerMimicGameScreen(
 
                 Spacer(Modifier.height(30.dp))
 
-                // 2. 当前关卡显示
+
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                 ) {
@@ -215,19 +215,19 @@ fun MultiplayerMimicGameScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // 3. 调音器 UI (Tuner)
+
                 Text("You: $currentNoteName (${currentPitch.toInt()} Hz)", style = MaterialTheme.typography.headlineSmall)
                 Box(
                     modifier = Modifier.fillMaxWidth().height(50.dp).background(Color.LightGray, CircleShape)
                 ) {
-                    // 中心线
+
                     Box(Modifier.align(Alignment.Center).width(2.dp).fillMaxHeight().background(Color.Black))
 
-                    // 偏差计算
+
                     val diff = (currentPitch - currentLevel.frequency).coerceIn(-100.0, 100.0)
                     val offsetX = (diff / 100.0) * 150
 
-                    // 指针
+
                     Box(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -240,7 +240,7 @@ fun MultiplayerMimicGameScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // 进度条
+
                 Text("Hold steady...", style = MaterialTheme.typography.bodySmall)
                 LinearProgressIndicator(
                     progress = { matchProgress },
@@ -251,7 +251,7 @@ fun MultiplayerMimicGameScreen(
                 Spacer(Modifier.weight(1f))
 
             } else if (status == "finished") {
-                // 结果页面
+
                 val iWon = (ballPosition >= 10 && isPlayer1) || (ballPosition <= -10 && !isPlayer1)
                 Spacer(Modifier.height(40.dp))
                 Text(if (iWon) "VICTORY! 🎤" else "DEFEAT...", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = if(iWon) Color.Green else Color.Red)
