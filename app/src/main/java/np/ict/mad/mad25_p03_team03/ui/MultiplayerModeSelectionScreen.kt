@@ -24,7 +24,7 @@ enum class GameType {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MultiplayerModeSelectionScreen(
-    onCreateRoom: (GameMode, GameType) -> Unit,
+    onCreateRoom: (GameMode, GameType, Boolean) -> Unit,
     onBack: () -> Unit
 ) {
 
@@ -106,14 +106,26 @@ fun MultiplayerModeSelectionScreen(
             Spacer(Modifier.weight(1f))
 
 
-            Button(
-                onClick = { onCreateRoom(selectedMode,selectedType) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("CREATE ROOM", style = MaterialTheme.typography.titleMedium)
+                // 原本的 Create Room (PVP)
+                Button(
+                    onClick = { onCreateRoom(selectedMode, selectedType, false) }, // isBot = false
+                    modifier = Modifier.weight(1f).height(56.dp)
+                ) {
+                    Text("CREATE PVP")
+                }
+
+                // 🔥 新增：Play vs Bot
+                Button(
+                    onClick = { onCreateRoom(selectedMode, selectedType, true) }, // isBot = true
+                    modifier = Modifier.weight(1f).height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                ) {
+                    Text("VS BOT 🤖")
+                }
             }
 
             Spacer(Modifier.height(16.dp))
