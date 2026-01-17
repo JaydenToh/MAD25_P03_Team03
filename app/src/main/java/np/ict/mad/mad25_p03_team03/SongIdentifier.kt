@@ -56,6 +56,17 @@ import retrofit2.Response
 import java.io.File
 
 
+// Toggle this flag for testing without real API
+private const val USE_FAKE_IDENTIFY_RESULT = true
+
+// Fake results for quick UI testing
+private val fakeIdentifyResults = listOf(
+    "Song: Blinding Lights\nArtist: The Weeknd",
+    "Song: Shape of You\nArtist: Ed Sheeran",
+    "Song: Levitating\nArtist: Dua Lipa",
+    "Song: Stay\nArtist: The Kid LAROI & Justin Bieber",
+    "Song: Perfect\nArtist: Ed Sheeran"
+)
 
 // Compose UI state
 @Composable
@@ -72,6 +83,20 @@ fun SongIdentifier() {
     val mediaRecorderState = remember { mutableStateOf<MediaRecorder?>(null) }
     val audioFileState = remember { mutableStateOf<File?>(null) }
 
+    // Helper to apply state + save into history when we have a song result
+    fun applyState(rec: Boolean, status: String, song: String) {
+        isRecording = rec
+        statusText = status
+
+        if (song.isNotBlank()) {
+            songText = song
+            // Save into shared history (title + artist, mood initially null)
+            IdentifiedSongHistory.addFromSongText(song, null)
+        } else {
+            songText = song
+        }
+    }
+
     // Request for microphone permission
     val requestMicPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -81,9 +106,7 @@ fun SongIdentifier() {
                     mediaRecorderState = mediaRecorderState,
                     audioFileState = audioFileState
                 ) { rec, status, song ->
-                    isRecording = rec
-                    statusText = status
-                    songText = song
+                    applyState(rec, status, song)
                 }
             } else {
                 Toast.makeText(context, "Microphone permission required", Toast.LENGTH_SHORT).show()
@@ -102,9 +125,7 @@ fun SongIdentifier() {
                 mediaRecorderState = mediaRecorderState,
                 audioFileState = audioFileState
             ) { rec, status, song ->
-                isRecording = rec
-                statusText = status
-                songText = song
+                applyState(rec, status, song)
             }
         } else {
             requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
@@ -117,9 +138,7 @@ fun SongIdentifier() {
                 mediaRecorderState = mediaRecorderState,
                 audioFile = audioFileState.value
             ) { rec, status, song ->
-                isRecording = rec
-                statusText = status
-                songText = song
+                applyState(rec, status, song)
             }
         } else {
             selectedMood = null
@@ -136,19 +155,22 @@ fun SongIdentifier() {
         onButtonClick = { handleButtonClick() },
         onBackClick = { activity?.finish() },
         onHistoryClick = {
-            context.startActivity(
-                Intent(context, IdentifierHistory::class.java)
+            activity?.startActivity(
+                Intent(activity, IdentifierHistory::class.java)
             )
         },
         onIdentifierClick = {
+            // already on this page
         },
         onMoodPlaylistClick = {
-            context.startActivity(
-                Intent(context, MoodPlaylist::class.java)
+            activity?.startActivity(
+                Intent(activity, MoodPlaylist::class.java)
             )
         },
         onMoodSelected = { mood ->
             selectedMood = mood
+            // update last song in history with this mood
+            IdentifiedSongHistory.updateLastMood(mood)
         }
     )
 }
@@ -222,7 +244,16 @@ private fun uploadToAudD(
     file: File,
     onStateChange: (Boolean, String, String) -> Unit
 ) {
-
+    // Fake mode for testing UI without using real API
+    if (USE_FAKE_IDENTIFY_RESULT) {
+        val fake = fakeIdentifyResults.random()
+        onStateChange(
+            false,
+            "Tap the music note to identify another song",
+            fake
+        )
+        return
+    }
 
     val apiKeyRequest = "15917ddb670bc03f22799efae908c24a"     // New API Key to access AudD API
         .toRequestBody("text/plain".toMediaTypeOrNull())
@@ -495,17 +526,7 @@ fun SongIdentifierScreen(
                                 }
                             }
                         }
-
-                        if (selectedMood != null) {
-                            Spacer(modifier = Modifier.height(14.dp))
-                            Text(
-                                text = "Mood tagged as: $selectedMood",
-                                fontSize = 16.sp,
-                                color = Color(0xCCFFFFFF),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        // removed "Mood tagged as: ..." text so card doesn't grow taller
                     }
                 }
             }
