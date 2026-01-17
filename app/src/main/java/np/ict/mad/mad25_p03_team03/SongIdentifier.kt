@@ -1,24 +1,41 @@
 package np.ict.mad.mad25_p03_team03
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.media.MediaRecorder
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -38,14 +55,18 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
+
+
 // Compose UI state
 @Composable
 fun SongIdentifier() {
     val context = LocalContext.current
+    val activity = context as? Activity
 
     var isRecording by remember { mutableStateOf(false) }
     var statusText by remember { mutableStateOf("Tap the music note to start") }
     var songText by remember { mutableStateOf("") }
+    var selectedMood by remember { mutableStateOf<String?>(null) }
 
     // Recording state
     val mediaRecorderState = remember { mutableStateOf<MediaRecorder?>(null) }
@@ -73,7 +94,7 @@ fun SongIdentifier() {
         val hasPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
         if (hasPermission) {
             startRecording(
@@ -101,6 +122,8 @@ fun SongIdentifier() {
                 songText = song
             }
         } else {
+            selectedMood = null
+            songText = ""
             checkPermissionAndStart()
         }
     }
@@ -109,7 +132,24 @@ fun SongIdentifier() {
         isRecording = isRecording,
         statusText = statusText,
         songText = songText,
-        onButtonClick = { handleButtonClick() }
+        selectedMood = selectedMood,
+        onButtonClick = { handleButtonClick() },
+        onBackClick = { activity?.finish() },
+        onHistoryClick = {
+            context.startActivity(
+                Intent(context, IdentifierHistory::class.java)
+            )
+        },
+        onIdentifierClick = {
+        },
+        onMoodPlaylistClick = {
+            context.startActivity(
+                Intent(context, MoodPlaylist::class.java)
+            )
+        },
+        onMoodSelected = { mood ->
+            selectedMood = mood
+        }
     )
 }
 
@@ -182,7 +222,9 @@ private fun uploadToAudD(
     file: File,
     onStateChange: (Boolean, String, String) -> Unit
 ) {
-    val apiKeyRequest = "880c6fb033c7a283d9e29c6fde739bb1"     // API Key to access AudD API Expire - 18 December
+
+
+    val apiKeyRequest = "15917ddb670bc03f22799efae908c24a"     // New API Key to access AudD API
         .toRequestBody("text/plain".toMediaTypeOrNull())
 
     val audioRequest = file.asRequestBody("audio/*".toMediaTypeOrNull())
@@ -230,7 +272,13 @@ fun SongIdentifierScreen(
     isRecording: Boolean,
     statusText: String,
     songText: String,
-    onButtonClick: () -> Unit
+    selectedMood: String?,
+    onButtonClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onIdentifierClick: () -> Unit,
+    onMoodPlaylistClick: () -> Unit,
+    onMoodSelected: (String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -239,8 +287,8 @@ fun SongIdentifierScreen(
                 Brush.linearGradient(
                     colors = listOf(
                         Color(0xFF59168B),
-                        Color(0xFF1C398E),
-                        Color(0xFF312C85)
+                        Color(0xFF312C85),
+                        Color(0xFF1C398E)
                     )
                 )
             )
@@ -249,25 +297,41 @@ fun SongIdentifierScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            // Top row with back arrow
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = "Song Identifier",
-                    fontSize = 22.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    modifier = Modifier.padding(top = 60.dp)
+                    modifier = Modifier.padding(top = 40.dp)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "Hold your phone near the music source",
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     color = Color(0xCCFFFFFF),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -283,7 +347,7 @@ fun SongIdentifierScreen(
                 Button(
                     onClick = onButtonClick,
                     shape = CircleShape,
-                    modifier = Modifier.size(220.dp),
+                    modifier = Modifier.size(230.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
                     ),
@@ -308,7 +372,7 @@ fun SongIdentifierScreen(
                             Text(
                                 text = "STOP SEARCHING",
                                 color = Color.White,
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -318,38 +382,214 @@ fun SongIdentifierScreen(
                                 imageVector = Icons.Default.MusicNote,
                                 contentDescription = "Identify music",
                                 tint = Color.White,
-                                modifier = Modifier.size(72.dp)
+                                modifier = Modifier.size(80.dp)
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
                     text = statusText,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
-                        .padding(top = 50.dp)
+                        .padding(top = 32.dp)
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Text(
-                text = songText,
-                fontSize = 18.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                lineHeight = 22.sp,
+            // Slide-up result card
+            AnimatedVisibility(
+                visible = songText.isNotBlank(),
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 300.dp)
+                        .padding(horizontal = 8.dp, vertical = 12.dp)
+                        .background(
+                            color = Color(0xAA000000),
+                            shape = RoundedCornerShape(28.dp)
+                        )
+                        .padding(horizontal = 24.dp, vertical = 22.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Identified Result",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xCCFFFFFF)
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = songText,
+                            fontSize = 22.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 26.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(18.dp))
+
+                        // Question text above the mood buttons
+                        Text(
+                            text = "What mood do you think this song fits best?",
+                            fontSize = 20.sp,
+                            lineHeight = 24.sp,
+                            color = Color(0xCCFFFFFF),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Mood selection row
+                        val moods = listOf("Chill", "Hype", "Emotional")
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            moods.forEach { mood ->
+                                Button(
+                                    onClick = { onMoodSelected(mood) },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = 4.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (selectedMood == mood)
+                                            Color(0xFF4C6FFF)
+                                        else
+                                            Color(0x33FFFFFF)
+                                    ),
+                                    contentPadding = PaddingValues(
+                                        vertical = 10.dp,
+                                        horizontal = 12.dp
+                                    )
+                                ) {
+                                    Text(
+                                        text = mood,
+                                        fontSize = 16.sp,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
+
+                        if (selectedMood != null) {
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = "Mood tagged as: $selectedMood",
+                                fontSize = 16.sp,
+                                color = Color(0xCCFFFFFF),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ------- Bottom Navigation --------
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 50.dp)
-            )
+                    .padding(top = 8.dp, bottom = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = Color(0x33000000),
+                            shape = RoundedCornerShape(50.dp)
+                        )
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    // History
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onHistoryClick() },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = "History",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Text(
+                            text = "History",
+                            fontSize = 12.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    // Song Identifier Page
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onIdentifierClick() },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MusicNote,
+                            contentDescription = "Identifier",
+                            tint = Color(0xFF4C6FFF),
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Text(
+                            text = "Identifier",
+                            fontSize = 12.sp,
+                            color = Color(0xFF4C6FFF),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    // Playlist
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onMoodPlaylistClick() },
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.QueueMusic,
+                            contentDescription = "Playlist",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Text(
+                            text = "Playlist",
+                            fontSize = 12.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+            }
         }
     }
 }
