@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +56,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-
 // Toggle this flag for testing without real API
 private const val USE_FAKE_IDENTIFY_RESULT = true
 
@@ -74,6 +74,11 @@ fun SongIdentifier() {
     val context = LocalContext.current
     val activity = context as? Activity
 
+    // Ensure history is loaded from storage
+    LaunchedEffect(Unit) {
+        IdentifiedSongHistory.ensureLoaded(context)
+    }
+
     var isRecording by remember { mutableStateOf(false) }
     var statusText by remember { mutableStateOf("Tap the music note to start") }
     var songText by remember { mutableStateOf("") }
@@ -83,15 +88,14 @@ fun SongIdentifier() {
     val mediaRecorderState = remember { mutableStateOf<MediaRecorder?>(null) }
     val audioFileState = remember { mutableStateOf<File?>(null) }
 
-    // Helper to apply state + save into history when we have a song result
     fun applyState(rec: Boolean, status: String, song: String) {
         isRecording = rec
         statusText = status
 
         if (song.isNotBlank()) {
             songText = song
-            // Save into shared history (title + artist, mood initially null)
-            IdentifiedSongHistory.addFromSongText(song, null)
+            IdentifiedSongHistory.addFromSongText(songText, selectedMood)
+            IdentifiedSongHistory.saveToPreferences(context)
         } else {
             songText = song
         }
@@ -155,22 +159,21 @@ fun SongIdentifier() {
         onButtonClick = { handleButtonClick() },
         onBackClick = { activity?.finish() },
         onHistoryClick = {
-            activity?.startActivity(
-                Intent(activity, IdentifierHistory::class.java)
+            context.startActivity(
+                Intent(context, IdentifierHistory::class.java)
             )
         },
         onIdentifierClick = {
-            // already on this page
         },
         onMoodPlaylistClick = {
-            activity?.startActivity(
-                Intent(activity, MoodPlaylist::class.java)
+            context.startActivity(
+                Intent(context, MoodPlaylist::class.java)
             )
         },
         onMoodSelected = { mood ->
             selectedMood = mood
-            // update last song in history with this mood
             IdentifiedSongHistory.updateLastMood(mood)
+            IdentifiedSongHistory.saveToPreferences(context)
         }
     )
 }
@@ -320,10 +323,11 @@ fun SongIdentifierScreen(
                         Color(0xFF59168B),
                         Color(0xFF312C85),
                         Color(0xFF1C398E)
+
                     )
                 )
             )
-            .padding(24.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 60.dp, bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -526,7 +530,6 @@ fun SongIdentifierScreen(
                                 }
                             }
                         }
-                        // removed "Mood tagged as: ..." text so card doesn't grow taller
                     }
                 }
             }
