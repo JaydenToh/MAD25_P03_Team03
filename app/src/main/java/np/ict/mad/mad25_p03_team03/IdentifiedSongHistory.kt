@@ -108,6 +108,7 @@ object IdentifiedSongHistory {
                 )
             )
         } else {
+            // New song will append to history
             items.add(
                 Item(
                     title = title,
