@@ -164,6 +164,7 @@ fun SongIdentifier() {
             )
         },
         onIdentifierClick = {
+            // Already on this screen
         },
         onMoodPlaylistClick = {
             context.startActivity(
@@ -323,14 +324,20 @@ fun SongIdentifierScreen(
                         Color(0xFF59168B),
                         Color(0xFF312C85),
                         Color(0xFF1C398E)
-
                     )
                 )
             )
-            .padding(start = 16.dp, end = 16.dp, top = 60.dp, bottom = 16.dp)
     ) {
+
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 60.dp,
+                    bottom = 40.dp
+                )
         ) {
             // Top row with back arrow
             Row(
@@ -533,85 +540,86 @@ fun SongIdentifierScreen(
                     }
                 }
             }
+        }
 
-            // ------- Bottom Navigation --------
-            Box(
+        // ------- Bottom Navigation --------
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 4.dp)
+        ) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp)
+                    .background(
+                        color = Color(0x33000000),
+                        shape = RoundedCornerShape(50.dp)
+                    )
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
+
+                // History
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color(0x33000000),
-                            shape = RoundedCornerShape(50.dp)
-                        )
-                        .padding(vertical = 8.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .weight(1f)
+                        .clickable { onHistoryClick() },
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = "History",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Text(
+                        text = "History",
+                        fontSize = 12.sp,
+                        color = Color.White
+                    )
+                }
 
-                    // History
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onHistoryClick() },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = "History",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "History",
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
+                // Song Identifier Page
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onIdentifierClick() },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MusicNote,
+                        contentDescription = "Identifier",
+                        tint = Color(0xFF4C6FFF),
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Text(
+                        text = "Identifier",
+                        fontSize = 12.sp,
+                        color = Color(0xFF4C6FFF),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
 
-                    // Song Identifier Page
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onIdentifierClick() },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MusicNote,
-                            contentDescription = "Identifier",
-                            tint = Color(0xFF4C6FFF),
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "Identifier",
-                            fontSize = 12.sp,
-                            color = Color(0xFF4C6FFF),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    // Playlist
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onMoodPlaylistClick() },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                            contentDescription = "Playlist",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "Playlist",
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
+                // Playlist
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onMoodPlaylistClick() },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.QueueMusic,
+                        contentDescription = "Playlist",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Text(
+                        text = "Playlist",
+                        fontSize = 12.sp,
+                        color = Color.White
+                    )
                 }
             }
         }
