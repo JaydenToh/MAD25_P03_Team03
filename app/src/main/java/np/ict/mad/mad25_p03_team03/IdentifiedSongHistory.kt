@@ -2,138 +2,137 @@ package np.ict.mad.mad25_p03_team03
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import org.json.JSONArray
+import org.json.JSONObject
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import androidx.core.content.edit
+
 
 object IdentifiedSongHistory {
 
     data class Item(
         val title: String,
         val artist: String,
-        val timestamp: String,
-        val mood: String?
+        var mood: String?,
+        var timestamp: String
     )
 
-    private val _items = mutableStateListOf<Item>()
-    val items: List<Item> get() = _items
+    val items: SnapshotStateList<Item> = mutableStateListOf()
 
-    private var isLoaded = false
+    private const val PREF_NAME = "identified_song_history"
+    private const val KEY_HISTORY = "history_json"
 
-
-    fun addFromSongText(songText: String, mood: String?) {
-        val titlePrefix = "Song:"
-        val artistPrefix = "Artist:"
-
-        var title = "Unknown title"
-        var artist = "Unknown artist"
-
-        val lines = songText.split("\n")
-        lines.forEach { line ->
-            when {
-                line.startsWith(titlePrefix) ->
-                    title = line.removePrefix(titlePrefix).trim()
-
-                line.startsWith(artistPrefix) ->
-                    artist = line.removePrefix(artistPrefix).trim()
-            }
-        }
-
-        val timestamp = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-            .format(Date())
-
-        _items.add(
-            Item(
-                title = title,
-                artist = artist,
-                timestamp = timestamp,
-                mood = mood
-            )
-        )
-    }
-
-    // To Update mood of most recent item
-    fun updateLastMood(mood: String) {
-        if (_items.isNotEmpty()) {
-            val lastIndex = _items.lastIndex
-            val last = _items[lastIndex]
-            _items[lastIndex] = last.copy(mood = mood)
-        }
-    }
-
-    fun updateMoodAt(index: Int, mood: String) {
-        if (index in _items.indices) {
-            val current = _items[index]
-            _items[index] = current.copy(mood = mood)
-        }
-    }
-
-    // Delete a single entry (for the trash icon)
-    fun deleteAt(index: Int) {
-        if (index in _items.indices) {
-            _items.removeAt(index)
-        }
-    }
-
-    fun clear(context: Context) {
-        _items.clear()
-        saveToPreferences(context)
-    }
+    private val formatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
 
 
     fun ensureLoaded(context: Context) {
-        if (isLoaded) return
-        loadFromPreferences(context)
-        isLoaded = true
-    }
+        if (items.isNotEmpty()) return
 
-    fun saveToPreferences(context: Context) {
-        val prefs = context.getSharedPreferences("identified_history", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val json = prefs.getString(KEY_HISTORY, null) ?: return
 
-
-        val serialized = _items.joinToString("§§") { item ->
-            listOf(
-                sanitize(item.title),
-                sanitize(item.artist),
-                sanitize(item.timestamp),
-                item.mood ?: ""
-            ).joinToString("||")
-        }
-
-        prefs.edit().putString("items", serialized).apply()
-    }
-
-    private fun loadFromPreferences(context: Context) {
-        val prefs = context.getSharedPreferences("identified_history", Context.MODE_PRIVATE)
-        val raw = prefs.getString("items", null) ?: return
-
-        _items.clear()
-
-        raw.split("§§").forEach { entry ->
-            if (entry.isBlank()) return@forEach
-
-            val parts = entry.split("||")
-            if (parts.size >= 4) {
-                val title = parts[0]
-                val artist = parts[1]
-                val timestamp = parts[2]
-                val moodStr = parts[3].ifEmpty { null }
-
-                _items.add(
+        try {
+            val arr = JSONArray(json)
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                items.add(
                     Item(
-                        title = title,
-                        artist = artist,
-                        timestamp = timestamp,
-                        mood = moodStr
+                        title = obj.optString("title"),
+                        artist = obj.optString("artist"),
+                        mood = if (obj.isNull("mood")) null else obj.optString("mood"),
+                        timestamp = obj.optString("timestamp")
                     )
                 )
             }
+        } catch (_: Exception) {
         }
     }
 
-    private fun sanitize(value: String): String {
-        return value
-            .replace("§§", " ")
-            .replace("||", " ")
+    fun saveToPreferences(context: Context) {
+        val arr = JSONArray()
+        items.forEach { item ->
+            val obj = JSONObject().apply {
+                put("title", item.title)
+                put("artist", item.artist)
+                put("mood", item.mood)
+                put("timestamp", item.timestamp)
+            }
+            arr.put(obj)
+        }
+
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        prefs.edit {
+            putString(KEY_HISTORY, arr.toString())
+        }
+    }
+
+
+    fun addFromSongText(songText: String, selectedMood: String?) {
+        if (songText.isBlank()) return
+
+        val lines = songText.split('\n')
+
+        var title: String = songText
+        var artist = "Unknown Artist"
+
+        lines.forEach { line ->
+            when {
+                line.startsWith("Song:", ignoreCase = true) ->
+                    title = line.removePrefix("Song:").trim()
+
+                line.startsWith("Title:", ignoreCase = true) ->
+                    title = line.removePrefix("Title:").trim()
+
+                line.startsWith("Artist:", ignoreCase = true) ->
+                    artist = line.removePrefix("Artist:").trim()
+            }
+        }
+
+        val now = LocalDateTime.now().format(formatter)
+
+        val existingIndex = items.indexOfFirst {
+            it.title.equals(title, ignoreCase = true) &&
+                    it.artist.equals(artist, ignoreCase = true)
+        }
+
+        if (existingIndex >= 0) {
+            val existing = items[existingIndex]
+            items.removeAt(existingIndex)
+            items.add(
+                existing.copy(
+                    mood = existing.mood,
+                    timestamp = now
+                )
+            )
+        } else {
+            // New song will append to history
+            items.add(
+                Item(
+                    title = title,
+                    artist = artist,
+                    mood = selectedMood,
+                    timestamp = now
+                )
+            )
+        }
+    }
+
+
+    fun updateLastMood(mood: String) {
+        if (items.isEmpty()) return
+        items[items.lastIndex].mood = mood
+    }
+
+    fun updateMoodAt(index: Int, mood: String) {
+        if (index < 0 || index >= items.size) return
+        items[index].mood = mood
+    }
+
+    fun deleteAt(index: Int) {
+        if (index < 0 || index >= items.size) return
+        items.removeAt(index)
     }
 }
