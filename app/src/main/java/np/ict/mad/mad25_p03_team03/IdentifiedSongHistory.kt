@@ -99,6 +99,7 @@ object IdentifiedSongHistory {
         }
 
         if (existingIndex >= 0) {
+            // Update existing entry this keep old mood if new one is null
             val existing = items[existingIndex]
             items.removeAt(existingIndex)
             items.add(
