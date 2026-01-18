@@ -456,7 +456,7 @@ fun SongIdentifierScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 300.dp)
-                        .padding(horizontal = 8.dp, vertical = 12.dp)
+                        .padding(horizontal = 8.dp, vertical = 45.dp)
                         .background(
                             color = Color(0xAA000000),
                             shape = RoundedCornerShape(28.dp)
@@ -468,7 +468,7 @@ fun SongIdentifierScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Identified Result",
+                            text = "We Found This Song",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xCCFFFFFF)
@@ -547,7 +547,7 @@ fun SongIdentifierScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 4.dp)
+                .padding(horizontal = 16.dp, vertical = 20.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -556,7 +556,7 @@ fun SongIdentifierScreen(
                         color = Color(0x33000000),
                         shape = RoundedCornerShape(50.dp)
                     )
-                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                    .padding(vertical = 5.dp, horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
