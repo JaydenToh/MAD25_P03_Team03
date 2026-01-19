@@ -3,11 +3,11 @@ package np.ict.mad.mad25_p03_team03
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.media.MediaRecorder
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -22,8 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -47,6 +45,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -73,110 +74,128 @@ private val fakeIdentifyResults = listOf(
 fun SongIdentifier() {
     val context = LocalContext.current
     val activity = context as? Activity
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val sectionNav = rememberNavController()
 
-    // Ensure history is loaded from storage
-    LaunchedEffect(Unit) {
-        IdentifiedSongHistory.ensureLoaded(context)
-    }
+    NavHost(
+        navController = sectionNav,
+        startDestination = "identifier_main"
+    ) {
+        composable("identifier_main") {
+            // Ensure history is loaded from storage
+            LaunchedEffect(Unit) {
+                IdentifiedSongHistory.ensureLoaded(context)
+            }
 
-    var isRecording by remember { mutableStateOf(false) }
-    var statusText by remember { mutableStateOf("Tap the music note to start") }
-    var songText by remember { mutableStateOf("") }
-    var selectedMood by remember { mutableStateOf<String?>(null) }
+            var isRecording by remember { mutableStateOf(false) }
+            var statusText by remember { mutableStateOf("Tap the music note to start") }
+            var songText by remember { mutableStateOf("") }
+            var selectedMood by remember { mutableStateOf<String?>(null) }
 
-    // Recording state
-    val mediaRecorderState = remember { mutableStateOf<MediaRecorder?>(null) }
-    val audioFileState = remember { mutableStateOf<File?>(null) }
+            // Recording state
+            val mediaRecorderState = remember { mutableStateOf<MediaRecorder?>(null) }
+            val audioFileState = remember { mutableStateOf<File?>(null) }
 
-    fun applyState(rec: Boolean, status: String, song: String) {
-        isRecording = rec
-        statusText = status
+            fun applyState(rec: Boolean, status: String, song: String) {
+                isRecording = rec
+                statusText = status
 
-        if (song.isNotBlank()) {
-            songText = song
-            IdentifiedSongHistory.addFromSongText(songText, selectedMood)
-            IdentifiedSongHistory.saveToPreferences(context)
-        } else {
-            songText = song
-        }
-    }
-
-    // Request for microphone permission
-    val requestMicPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                startRecording(
-                    context = context,
-                    mediaRecorderState = mediaRecorderState,
-                    audioFileState = audioFileState
-                ) { rec, status, song ->
-                    applyState(rec, status, song)
+                if (song.isNotBlank()) {
+                    songText = song
+                    IdentifiedSongHistory.addFromSongText(songText, selectedMood)
+                    IdentifiedSongHistory.saveToPreferences(context)
+                } else {
+                    songText = song
                 }
-            } else {
-                Toast.makeText(context, "Microphone permission required", Toast.LENGTH_SHORT).show()
             }
+
+            // Request for microphone permission
+            val requestMicPermissionLauncher =
+                rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                    if (isGranted) {
+                        startRecording(
+                            context = context,
+                            mediaRecorderState = mediaRecorderState,
+                            audioFileState = audioFileState
+                        ) { rec, status, song ->
+                            applyState(rec, status, song)
+                        }
+                    } else {
+                        Toast.makeText(context, "Microphone permission required", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            fun checkPermissionAndStart() {
+                val hasPermission = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.RECORD_AUDIO
+                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+                if (hasPermission) {
+                    startRecording(
+                        context = context,
+                        mediaRecorderState = mediaRecorderState,
+                        audioFileState = audioFileState
+                    ) { rec, status, song ->
+                        applyState(rec, status, song)
+                    }
+                } else {
+                    requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+
+            fun handleButtonClick() {
+                if (isRecording) {
+                    stopRecording(
+                        mediaRecorderState = mediaRecorderState,
+                        audioFile = audioFileState.value
+                    ) { rec, status, song ->
+                        applyState(rec, status, song)
+                    }
+                } else {
+                    selectedMood = null
+                    songText = ""
+                    checkPermissionAndStart()
+                }
+            }
+
+            SongIdentifierScreen(
+                isRecording = isRecording,
+                statusText = statusText,
+                songText = songText,
+                selectedMood = selectedMood,
+                onButtonClick = { handleButtonClick() },
+                onBackClick = { backDispatcher?.onBackPressed() ?: activity?.finish() },
+                onHistoryClick = { sectionNav.navigate("identifier_history") },
+                onIdentifierClick = {
+                },
+                onMoodPlaylistClick = { sectionNav.navigate("mood_playlist") },
+                onMoodSelected = { mood ->
+                    selectedMood = mood
+                    IdentifiedSongHistory.updateLastMood(mood)
+                    IdentifiedSongHistory.saveToPreferences(context)
+                }
+            )
         }
 
-    fun checkPermissionAndStart() {
-        val hasPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        composable("identifier_history") {
+            IdentifierHistoryScreen(
+                onBackClick = { sectionNav.popBackStack() },
+                onHistoryClick = { },
+                onIdentifierClick = { sectionNav.navigate("identifier_main") },
+                onMoodPlaylistClick = { sectionNav.navigate("mood_playlist") }
+            )
+        }
 
-        if (hasPermission) {
-            startRecording(
-                context = context,
-                mediaRecorderState = mediaRecorderState,
-                audioFileState = audioFileState
-            ) { rec, status, song ->
-                applyState(rec, status, song)
-            }
-        } else {
-            requestMicPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        composable("mood_playlist") {
+            MoodPlaylistScreen(
+                onBackClick = { sectionNav.popBackStack() },
+                onHistoryClick = { sectionNav.navigate("identifier_history") },
+                onIdentifierClick = { sectionNav.navigate("identifier_main") },
+                onMoodPlaylistClick = { }
+            )
         }
     }
-
-    fun handleButtonClick() {
-        if (isRecording) {
-            stopRecording(
-                mediaRecorderState = mediaRecorderState,
-                audioFile = audioFileState.value
-            ) { rec, status, song ->
-                applyState(rec, status, song)
-            }
-        } else {
-            selectedMood = null
-            songText = ""
-            checkPermissionAndStart()
-        }
-    }
-
-    SongIdentifierScreen(
-        isRecording = isRecording,
-        statusText = statusText,
-        songText = songText,
-        selectedMood = selectedMood,
-        onButtonClick = { handleButtonClick() },
-        onBackClick = { activity?.finish() },
-        onHistoryClick = {
-            context.startActivity(
-                Intent(context, IdentifierHistory::class.java)
-            )
-        },
-        onIdentifierClick = {
-            // Already on this screen
-        },
-        onMoodPlaylistClick = {
-            context.startActivity(
-                Intent(context, MoodPlaylist::class.java)
-            )
-        },
-        onMoodSelected = { mood ->
-            selectedMood = mood
-            IdentifiedSongHistory.updateLastMood(mood)
-            IdentifiedSongHistory.saveToPreferences(context)
-        }
-    )
 }
 
 // Configure it to start Recording and capturing audio
@@ -335,15 +354,15 @@ fun SongIdentifierScreen(
                 .padding(
                     start = 16.dp,
                     end = 16.dp,
-                    top = 60.dp,
-                    bottom = 40.dp
+                    top = 20.dp,
+                    bottom = 1.dp
                 )
         ) {
             // Top row with back arrow
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(top = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBackClick) {
@@ -355,18 +374,86 @@ fun SongIdentifierScreen(
                 }
             }
 
+            // segmented tab bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp, bottom = 8.dp)
+                    .background(
+                        color = Color(0x33000000),
+                        shape = RoundedCornerShape(50.dp)
+                    )
+                    .padding(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val selectedColor = Color(0xFF4C6FFF)
+                    val unselectedText = Color(0xCCFFFFFF)
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .clickable { onHistoryClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "History",
+                            fontSize = 13.sp,
+                            color = unselectedText,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = selectedColor, shape = RoundedCornerShape(50.dp))
+                            .clickable { onIdentifierClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Identifier",
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .clickable { onMoodPlaylistClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Playlist",
+                            fontSize = 13.sp,
+                            color = unselectedText,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = "Song Identifier",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    modifier = Modifier.padding(top = 40.dp)
+                    modifier = Modifier.padding(top = 20.dp)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -380,7 +467,7 @@ fun SongIdentifierScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -430,7 +517,7 @@ fun SongIdentifierScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = statusText,
@@ -440,11 +527,10 @@ fun SongIdentifierScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
-                        .padding(top = 32.dp)
+                        .padding(top = 20.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
 
             // Slide-up result card
             AnimatedVisibility(
@@ -456,29 +542,29 @@ fun SongIdentifierScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 300.dp)
-                        .padding(horizontal = 8.dp, vertical = 45.dp)
+                        .padding(horizontal = 8.dp, vertical = 30.dp)
                         .background(
                             color = Color(0xAA000000),
                             shape = RoundedCornerShape(28.dp)
                         )
-                        .padding(horizontal = 24.dp, vertical = 22.dp)
+                        .padding(horizontal = 24.dp, vertical = 20.dp)
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "We Found This Song",
-                            fontSize = 20.sp,
+                            text = "We Found This Song!",
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xCCFFFFFF)
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
                             text = songText,
-                            fontSize = 22.sp,
+                            fontSize = 20.sp,
                             color = Color.White,
                             textAlign = TextAlign.Center,
                             lineHeight = 26.sp,
@@ -492,7 +578,7 @@ fun SongIdentifierScreen(
                         // Question text above the mood buttons
                         Text(
                             text = "What mood do you think this song fits best?",
-                            fontSize = 20.sp,
+                            fontSize = 16.sp,
                             lineHeight = 24.sp,
                             color = Color(0xCCFFFFFF),
                             textAlign = TextAlign.Center,
@@ -538,88 +624,6 @@ fun SongIdentifierScreen(
                             }
                         }
                     }
-                }
-            }
-        }
-
-        // ------- Bottom Navigation --------
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 20.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = Color(0x33000000),
-                        shape = RoundedCornerShape(50.dp)
-                    )
-                    .padding(vertical = 5.dp, horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                // History
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onHistoryClick() },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.History,
-                        contentDescription = "History",
-                        tint = Color.White,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Text(
-                        text = "History",
-                        fontSize = 12.sp,
-                        color = Color.White
-                    )
-                }
-
-                // Song Identifier Page
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onIdentifierClick() },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MusicNote,
-                        contentDescription = "Identifier",
-                        tint = Color(0xFF4C6FFF),
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Text(
-                        text = "Identifier",
-                        fontSize = 12.sp,
-                        color = Color(0xFF4C6FFF),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                // Playlist
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onMoodPlaylistClick() },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                        contentDescription = "Playlist",
-                        tint = Color.White,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Text(
-                        text = "Playlist",
-                        fontSize = 12.sp,
-                        color = Color.White
-                    )
                 }
             }
         }

@@ -1,26 +1,31 @@
 package np.ict.mad.mad25_p03_team03
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -30,17 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-class MoodPlaylist : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MoodPlaylistScreen(
-                onBackClick = { finish() }
-            )
-        }
-    }
-}
 
 data class MoodTrack(
     val title: String,
@@ -72,7 +66,10 @@ private val emotionalTracks = listOf(
 
 @Composable
 fun MoodPlaylistScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onIdentifierClick: () -> Unit,
+    onMoodPlaylistClick: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -101,7 +98,6 @@ fun MoodPlaylistScreen(
     }
 
     var overrideMood by remember { mutableStateOf<String?>(null) }
-
     val activeMood: String? = overrideMood ?: dominantMood
 
     // Base playlist based on the active mood
@@ -112,7 +108,7 @@ fun MoodPlaylistScreen(
         else -> emptyList()
     }
 
-    // Shuffled playlist that changes when mood changes or shuffle button pressed
+    // Shuffled playlist that changes when mood changes
     var displayedTracks by remember(activeMood) {
         mutableStateOf(
             if (baseTracks.isNotEmpty()) baseTracks.shuffled() else emptyList()
@@ -130,7 +126,7 @@ fun MoodPlaylistScreen(
                     )
                 )
             )
-            .padding(start = 16.dp, end = 16.dp, top = 60.dp, bottom = 16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -157,7 +153,75 @@ fun MoodPlaylistScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            // segmented tab bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+                    .background(
+                        color = Color(0x33000000),
+                        shape = RoundedCornerShape(50.dp)
+                    )
+                    .padding(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val selectedColor = Color(0xFF4C6FFF)
+                    val unselectedText = Color(0xCCFFFFFF)
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .clickable { onHistoryClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "History",
+                            fontSize = 13.sp,
+                            color = unselectedText,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .clickable { onIdentifierClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Identifier",
+                            fontSize = 13.sp,
+                            color = unselectedText,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = selectedColor, shape = RoundedCornerShape(50.dp))
+                            .clickable { onMoodPlaylistClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Playlist",
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(top = 4.dp))
 
             Box(
                 modifier = Modifier
@@ -185,7 +249,7 @@ fun MoodPlaylistScreen(
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.padding(top = 8.dp))
                         Text(
                             text = "Tag moods in your Identifier History to unlock a personalised playlist.",
                             fontSize = 15.sp,
@@ -193,7 +257,6 @@ fun MoodPlaylistScreen(
                             lineHeight = 20.sp
                         )
                     } else {
-                        // Show current mood based on auto/manual
                         val headerLabel = if (overrideMood == null) {
                             "Your current vibe (Auto):"
                         } else {
@@ -205,14 +268,14 @@ fun MoodPlaylistScreen(
                             fontSize = 15.sp,
                             color = Color(0xFFE0E0E0)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.padding(top = 4.dp))
                         Text(
                             text = activeMood,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.padding(top = 8.dp))
 
                         if (overrideMood == null && moodCounts.isNotEmpty()) {
                             val totalTagged = moodCounts.values.sum()
@@ -230,7 +293,7 @@ fun MoodPlaylistScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.padding(top = 12.dp))
 
                     val moodsForOverride = listOf("Auto", "Chill", "Hype", "Emotional")
 
@@ -258,205 +321,79 @@ fun MoodPlaylistScreen(
                                         shape = RoundedCornerShape(999.dp)
                                     )
                                     .clickable {
-                                        overrideMood = if (moodLabel == "Auto") {
-                                            null
-                                        } else {
-                                            moodLabel
-                                        }
+                                        overrideMood = if (moodLabel == "Auto") null else moodLabel
+                                        displayedTracks =
+                                            when (overrideMood ?: dominantMood) {
+                                                "Chill" -> chillTracks.shuffled()
+                                                "Hype" -> hypeTracks.shuffled()
+                                                "Emotional" -> emotionalTracks.shuffled()
+                                                else -> emptyList()
+                                            }
                                     }
-                                    .padding(vertical = 10.dp, horizontal = 10.dp),
+                                    .padding(vertical = 10.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = if (moodLabel == "Auto") "Auto" else moodLabel,
+                                    text = moodLabel,
                                     fontSize = 13.sp,
-                                    color = Color.White,
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Mood counts info row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf("Chill", "Hype", "Emotional").forEach { mood ->
-                            val count = moodCounts[mood] ?: 0
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .background(
-                                        color = Color(0x33000000),
-                                        shape = RoundedCornerShape(999.dp)
-                                    )
-                                    .padding(vertical = 7.dp, horizontal = 12.dp)
-                            ) {
-                                Text(
-                                    text = "$mood · $count",
-                                    fontSize = 13.sp,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                     color = Color.White
                                 )
                             }
                         }
                     }
-                }
-            }
 
-            Spacer(modifier = Modifier.height(18.dp))
+                    // Mood Counter
+                    Spacer(modifier = Modifier.padding(top = 10.dp))
 
-            //Playlist + Shuffle
-            if (activeMood == null || baseTracks.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Once you tag song moods,\nwe'll build a custom playlist for you here.",
-                        fontSize = 16.sp,
-                        color = Color(0xCCFFFFFF),
-                        lineHeight = 20.sp
-                    )
-                }
-            } else {
-                Text(
-                    text = when (activeMood) {
-                        "Chill" -> "Recommended Chill Playlist"
-                        "Hype" -> "Recommended Hype Playlist"
-                        "Emotional" -> "Recommended Emotional Playlist"
-                        else -> "Recommended Playlist"
-                    },
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+                    val chillCount = moodCounts["Chill"] ?: 0
+                    val hypeCount = moodCounts["Hype"] ?: 0
+                    val emoCount = moodCounts["Emotional"] ?: 0
 
-                //Shuffle button
-                Button(
-                    onClick = {
-                        if (baseTracks.isNotEmpty()) {
-                            displayedTracks = baseTracks.shuffled()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4C6FFF)
-                    ),
-                    contentPadding = PaddingValues(vertical = 12.dp)
-                ) {
-                    Text(
-                        text = "Shuffle Playlist",
-                        fontSize = 16.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(vertical = 4.dp)
-                ) {
-                    items(displayedTracks) { track ->
-                        PlaylistTrackRow(track = track)
-                    }
-                }
-            }
-
-            //Bottom Navigation
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color(0x33000000),
-                            shape = RoundedCornerShape(50.dp)
-                        )
-                        .padding(vertical = 8.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    // History
-                    Column(
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                context.startActivity(
-                                    Intent(context, IdentifierHistory::class.java)
-                                )
-                            },
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth()
+                            .background(
+                                color = Color(0x22000000),
+                                shape = RoundedCornerShape(14.dp)
+                            )
+                            .padding(vertical = 8.dp, horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.History,
-                            contentDescription = "History",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
+                        Text(
+                            text = "Chill: $chillCount",
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "History",
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                context.startActivity(
-                                    Intent(context, MainActivity::class.java)
-                                )
-                            },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MusicNote,
-                            contentDescription = "Identifier",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
+                            text = "Hype: $hypeCount",
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "Identifier",
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                            contentDescription = "Playlist",
-                            tint = Color(0xFF4C6FFF),
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "Playlist",
-                            fontSize = 12.sp,
-                            color = Color(0xFF4C6FFF),
+                            text = "Emotional: $emoCount",
+                            fontSize = 13.sp,
+                            color = Color.White,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.padding(top = 12.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(vertical = 4.dp)
+            ) {
+                items(displayedTracks) { track ->
+                    PlaylistTrackRow(track = track)
                 }
             }
         }
@@ -469,39 +406,39 @@ private fun PlaylistTrackRow(track: MoodTrack) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                brush = Brush.horizontalGradient(
+                brush = Brush.verticalGradient(
                     colors = listOf(
                         Color(0xFF211A3B),
                         Color(0xFF2B1F4F)
                     )
                 ),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(22.dp)
             )
-            .padding(horizontal = 18.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = track.title,
-                fontSize = 19.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.padding(top = 2.dp))
             Text(
                 text = track.artist,
-                fontSize = 15.sp,
-                color = Color(0xFFB0BEC5),
+                fontSize = 14.sp,
+                color = Color(0xCCFFFFFF),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.padding(top = 8.dp))
             Text(
                 text = track.note,
-                fontSize = 14.sp,
-                color = Color(0xFFE0E0E0)
+                fontSize = 13.sp,
+                color = Color(0x99FFFFFF),
+                lineHeight = 18.sp
             )
         }
     }
