@@ -1,28 +1,34 @@
 package np.ict.mad.mad25_p03_team03
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,20 +39,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-class IdentifierHistory : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            IdentifierHistoryScreen(
-                onBackClick = { finish() }
-            )
-        }
-    }
-}
-
 @Composable
 fun IdentifierHistoryScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onIdentifierClick: () -> Unit,
+    onMoodPlaylistClick: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -67,17 +65,15 @@ fun IdentifierHistoryScreen(
                     )
                 )
             )
-            // 👇 same outer padding as SongIdentifier
-            .padding(start = 16.dp, end = 16.dp, top = 60.dp, bottom = 16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // ---------- Header ----------
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 12.dp),
+                    .padding(top = 6.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBackClick) {
@@ -96,7 +92,75 @@ fun IdentifierHistoryScreen(
                 )
             }
 
-            // ---------- List area (takes remaining height above nav) ----------
+            // segmented tab bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
+                    .background(
+                        color = Color(0x33000000),
+                        shape = RoundedCornerShape(50.dp)
+                    )
+                    .padding(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val selectedColor = Color(0xFF4C6FFF)
+                    val unselectedText = Color(0xCCFFFFFF)
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = selectedColor, shape = RoundedCornerShape(50.dp))
+                            .clickable { onHistoryClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "History",
+                            fontSize = 13.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .clickable { onIdentifierClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Identifier",
+                            fontSize = 13.sp,
+                            color = unselectedText,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .clickable { onMoodPlaylistClick() }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Playlist",
+                            fontSize = 13.sp,
+                            color = unselectedText,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            // List of identified song history
             if (historyItems.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -130,91 +194,6 @@ fun IdentifierHistoryScreen(
                                 IdentifiedSongHistory.deleteAt(index)
                                 IdentifiedSongHistory.saveToPreferences(context)
                             }
-                        )
-                    }
-                }
-            }
-
-            // ---------- Bottom Navigation (copied style from SongIdentifier) ----------
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Color(0x33000000),
-                            shape = RoundedCornerShape(50.dp)   // same pill shape
-                        )
-                        .padding(vertical = 8.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    // History - this screen is active → blue
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { /* already on this screen */ },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.History,
-                            contentDescription = "History",
-                            tint = Color(0xFF4C6FFF),
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "History",
-                            fontSize = 12.sp,
-                            color = Color(0xFF4C6FFF),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    // Song Identifier – go back
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onBackClick() },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MusicNote,
-                            contentDescription = "Identifier",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "Identifier",
-                            fontSize = 12.sp,
-                            color = Color.White
-                        )
-                    }
-
-                    // Playlist
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                context.startActivity(
-                                    Intent(context, MoodPlaylist::class.java)
-                                )
-                            },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                            contentDescription = "Playlist",
-                            tint = Color.White,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "Playlist",
-                            fontSize = 12.sp,
-                            color = Color.White
                         )
                     }
                 }
@@ -264,33 +243,39 @@ private fun HistoryItemRow(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Spacer(modifier = Modifier.padding(top = 2.dp))
+
                     Text(
                         text = item.artist,
                         fontSize = 14.sp,
-                        color = Color(0xFFB0BEC5),
+                        color = Color(0xCCFFFFFF),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Spacer(modifier = Modifier.padding(top = 6.dp))
+
                     Text(
-                        text = "Identified on ${item.timestamp}",
+                        text = item.timestamp,
                         fontSize = 12.sp,
-                        color = Color(0x88FFFFFF)
+                        color = Color(0x99FFFFFF)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Spacer(modifier = Modifier.padding(top = 8.dp))
+
+                    val moodLabel = item.mood ?: "No mood tagged"
                     Text(
-                        text = "Mood: ${item.mood ?: "Not set"}",
+                        text = "Mood: $moodLabel",
                         fontSize = 14.sp,
-                        color = Color(0xFFB3C3FF),
+                        color = if (item.mood == null) Color(0x99FFFFFF) else Color(0xFFB3E5FC),
                         fontWeight = FontWeight.Medium
                     )
                 }
 
-                // Edit + Delete icons stacked vertically
+                // icon stacked vertically
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalAlignment = Alignment.End
                 ) {
                     IconButton(onClick = { showMoodOptions = !showMoodOptions }) {
                         Icon(
@@ -299,18 +284,20 @@ private fun HistoryItemRow(
                             tint = Color(0xFFFFD54F)
                         )
                     }
+
                     IconButton(onClick = onDelete) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete entry",
-                            tint = Color(0xFFFF5252)
+                            contentDescription = "Delete",
+                            tint = Color(0xFFFF6B6B)
                         )
                     }
                 }
             }
 
             if (showMoodOptions) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+
                 val moods = listOf("Chill", "Hype", "Emotional")
 
                 Row(
@@ -323,22 +310,16 @@ private fun HistoryItemRow(
                                 onMoodChange(mood)
                                 showMoodOptions = false
                             },
-                            modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (item.mood == mood)
-                                    Color(0xFF4C6FFF)
-                                else
-                                    Color(0x33FFFFFF)
+                                containerColor = if (item.mood == mood) Color(0xFF4C6FFF) else Color(0x33000000)
                             ),
-                            contentPadding = PaddingValues(
-                                vertical = 6.dp,
-                                horizontal = 4.dp
-                            )
+                            shape = RoundedCornerShape(999.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
                             Text(
                                 text = mood,
-                                fontSize = 13.sp,
-                                color = Color.White
+                                color = Color.White,
+                                fontSize = 13.sp
                             )
                         }
                     }
