@@ -63,6 +63,7 @@ This application falls under the Music & Audio category, as it focuses on provid
 - Chatgpt
 - Gemini
 - Copilot
+- Perplexity
 
 ---------------------------
 
@@ -163,6 +164,9 @@ This application falls under the Music & Audio category, as it focuses on provid
 |  Background Playback Service | A continuous “radio” that plays random songs from packs when app is in background. | 
 |  Sleep Timer Activity | Let user set a timer to stop all music after N minutes (for sleeping) | 
 |  Album | Let the user can store the songs in album  | 
+|  Identifier History | Saves identified songs into a persistent history (SharedPreferences)  | 
+|  Mood Playlist | Generates playlist suggestions based on your tagged moods in history  | 
+|  Playlist Recommendation | Detects dominant mood (most tagged mood), Shuffle button to reshuffle recommendations.  | 
 | Leaderboard | Save best scores with player name and show ranked list (top 10)  | 
 | Error Handling & Retry UI | Friendly screens when audio fails to load, with retry buttons.  |
 | Skip song | User can skip the song when they encounter a difficult song   |
