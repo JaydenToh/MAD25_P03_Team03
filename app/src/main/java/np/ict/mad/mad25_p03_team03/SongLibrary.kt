@@ -62,8 +62,8 @@ class SongLibrary : ComponentActivity() {
 @Composable
 fun SongLibraryScreen(
     collectionName: String,
-    onNavigateBack: () -> Unit,
-    onSongClick: (String) -> Unit
+    //onNavigateBack: () -> Unit,
+    //onSongClick: (String) -> Unit
     ){
 
     val context = LocalContext.current
@@ -122,19 +122,6 @@ fun SongLibraryScreen(
                 error = e.message
                 loading = false
             }
-    }
-
-    fun getAlbumArtFromName(songTitle: String): Int {
-        return when (songTitle.lowercase().trim()) {
-            "heavy is the crown" -> R.drawable.heavyiscrownpic
-            "i can't hear it now" -> R.drawable.icanthearitnowpic
-            "paint the town blue" -> R.drawable.painttownbluepic
-            "remember me" -> R.drawable.remembermepic
-            "what have they done to us" -> R.drawable.whathavetheydonetouspic
-            "blood sweat & tears" -> R.drawable.bloodsweattearspic
-            // Add a default case to prevent crashes if a song title doesn't match
-            else -> R.drawable.arcanepic
-        }
     }
 
     fun playSong(index: Int) {
@@ -217,12 +204,26 @@ fun SongLibraryScreen(
     }
 }
 
+fun getAlbumArtFromName(songTitle: String): Int {
+    return when (songTitle.lowercase().trim()) {
+        "heavy is the crown" -> R.drawable.heavyiscrownpic
+        "i can't hear it now" -> R.drawable.icanthearitnowpic
+        "paint the town blue" -> R.drawable.painttownbluepic
+        "remember me" -> R.drawable.remembermepic
+        "what have they done to us" -> R.drawable.whathavetheydonetouspic
+        "blood sweat & tears" -> R.drawable.bloodsweattearspic
+        // Add a default case to prevent crashes if a song title doesn't match
+        else -> R.drawable.arcanepic
+    }
+}
+
 @Composable
 fun SongList(
     songs: List<SongItem>,
     onPlayClick: (SongItem) -> Unit,
     currentSong: Int,
     currentUrl: String?,
+    allSongs: List<SongItem>,
     isPlaying: Boolean
 ) {
     LazyColumn(
@@ -247,7 +248,7 @@ fun SongList(
 @Composable
 fun SongRow(
     song: SongItem,
-    onPlayClick: (String) -> Unit,
+    onPlayClick: () -> Unit,
     isThisSongPlaying: Boolean
 ) {
     Card(
