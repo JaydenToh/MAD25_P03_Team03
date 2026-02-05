@@ -107,7 +107,13 @@ fun SongLibraryScreen(
             .collection(collectionName)
             .get()
             .addOnSuccessListener { result ->
-                val songs = result.documents.mapNotNull { doc -> doc.toObject(SongItem::class.java) }
+                val songs =
+                    result.documents.mapNotNull { doc -> doc.toObject(SongItem::class.java) }
+
+                songs.forEach { song ->
+                    song.drawableId = getAlbumArtFromName(song.title)
+            }
+
                 songList = songs
                 loading = false
             }
@@ -195,7 +201,13 @@ fun SongLibraryScreen(
                     // List with Play Logic
                     SongList(
                         songs = filteredSongs,
-                        onPlayClick = { url -> playAudio(url) },
+                        onPlayClick = { song ->
+                            val index = songList.indexOf(song)
+                            if (index != -1) playSong(index)
+                        },
+
+                        currentSong = currentSong,
+                        allSongs = songList,
                         currentUrl = currentPlayingUrl,
                         isPlaying = isPlaying
                     )
@@ -208,7 +220,8 @@ fun SongLibraryScreen(
 @Composable
 fun SongList(
     songs: List<SongItem>,
-    onPlayClick: (String) -> Unit,
+    onPlayClick: (SongItem) -> Unit,
+    currentSong: Int,
     currentUrl: String?,
     isPlaying: Boolean
 ) {
@@ -217,9 +230,14 @@ fun SongList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(songs) { song ->
+            // Check if this song is the one currently playing
+            // Find where this song is
+            val indexInMainList = allSongs.indexOf(song)
+            val isThisSongPlaying = (indexInMainList == currentSong && isPlaying)
+
             SongRow(
                 song = song,
-                onPlayClick = onPlayClick,
+                onPlayClick = { onPlayClick(song) },
                 isThisSongPlaying = (currentUrl == song.audioUrl && isPlaying)
             )
         }
@@ -262,11 +280,7 @@ fun SongRow(
 
             // PLAY BUTTON
             IconButton(
-                onClick = {
-                    if (song.audioUrl.isNotEmpty()) {
-                        onPlayClick(song.audioUrl)
-                    }
-                },
+                onClick = onPlayClick,
                 modifier = Modifier
                     .size(48.dp)
                     .background(Color(0xFF3A3A50), shape = RoundedCornerShape(50))
