@@ -1,5 +1,6 @@
 package np.ict.mad.mad25_p03_team03
 
+import android.R.attr.repeatMode
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,14 +54,20 @@ class SongLibrary : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MAD25_P03_Team03Theme {
-                SongLibraryScreen(collectionName = "songs")
+                SongLibraryScreen(
+                    collectionName = "songs",
+                    onNavigateBack = { finish() }
+                )
             }
         }
     }
 }
 
 @Composable
-fun SongLibraryScreen(collectionName: String){
+fun SongLibraryScreen(
+    collectionName: String,
+    onNavigateBack: () -> Unit
+){
     val context = LocalContext.current
     var songList by remember { mutableStateOf(listOf<SongItem>()) }
     var loading by remember { mutableStateOf(true) }
@@ -155,44 +162,53 @@ fun SongLibraryScreen(collectionName: String){
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF59168B), Color(0xFF1C398E), Color(0xFF312C85))
+    Scaffold(
+        bottomBar = {
+            if (currentSong != -1 && songList.isNotEmpty() && currentSong < songList.size) {
+                BottomPlayerBar(
+                    song = songList[currentSong],
+                    isPlaying = isPlaying,
+                    repeatMode = repeatMode,
+                    onPlayPause = { if (isPlaying) exoPlayer.pause() else exoPlayer.play() },
+                    onNext = { if (exoPlayer.hasNextMediaItem()) exoPlayer.seekToNext() },
+                    onPrevious = { if (exoPlayer.hasPreviousMediaItem()) exoPlayer.seekToPrevious() },
+                    onRepeat = { toggleRepeat() }
                 )
-            ),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        when {
-            loading -> Text("Loading...", color = Color.White, modifier = Modifier.align(Alignment.Center))
-            error != null -> Text("Error: $error", color = Color.Red, modifier = Modifier.align(Alignment.Center))
-            else -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 20.dp)
-                ) {
-                    Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    SearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
-                    Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Brush.verticalGradient(listOf(Color(0xFF59168B), Color(0xFF1C398E), Color(0xFF312C85))))
+        ) {
+            when {
+                loading -> Text("Loading...", color = Color.White, modifier = Modifier.align(Alignment.Center))
+                error != null -> Text("Error: $error", color = Color.Red, modifier = Modifier.align(Alignment.Center))
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .statusBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 20.dp)
+                    ) {
+                        Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        SearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                    // List with Play Logic
-                    SongList(
-                        songs = filteredSongs,
-                        onPlayClick = { song ->
-                            val index = songList.indexOf(song)
-                            if (index != -1) playSong(index)
-                        },
-
-                        currentSong = currentSong,
-                        allSongs = songList,
-                        currentUrl = currentPlayingUrl,
-                        isPlaying = isPlaying
-                    )
+                        SongList(
+                            songs = filteredSongs,
+                            onPlayClick = { song ->
+                                val index = songList.indexOf(song)
+                                if (index != -1) playSong(index)
+                            },
+                            currentSong = currentSong,
+                            allSongs = songList,
+                            isPlaying = isPlaying
+                        )
+                    }
                 }
             }
         }
@@ -270,7 +286,6 @@ fun SongList(
     songs: List<SongItem>,
     onPlayClick: (SongItem) -> Unit,
     currentSong: Int,
-    currentUrl: String?,
     allSongs: List<SongItem>,
     isPlaying: Boolean
 ) {
@@ -281,13 +296,13 @@ fun SongList(
         items(songs) { song ->
             // Check if this song is the one currently playing
             // Find where this song is
-            val indexInMainList = allSongs.indexOf(song)
-            val isThisSongPlaying = (indexInMainList == currentSong && isPlaying)
+                val indexInMainList = allSongs.indexOf(song)
+                val isThisSongPlaying = (indexInMainList == currentSong && isPlaying)
 
-            SongRow(
-                song = song,
-                onPlayClick = { onPlayClick(song) },
-                isThisSongPlaying = (currentUrl == song.audioUrl && isPlaying)
+                SongRow(
+                    song = song,
+                    onPlayClick = { onPlayClick(song) },
+                isThisSongPlaying = isThisSongPlaying
             )
         }
     }
