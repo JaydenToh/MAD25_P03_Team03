@@ -140,6 +140,21 @@ fun SongLibraryScreen(collectionName: String){
         isPlaying = true
     }
 
+    fun toggleRepeat() {
+        val newMode = if (repeat == ExoPlayer.REPEAT_MODE_OFF) ExoPlayer.REPEAT_MODE_ONE else ExoPlayer.REPEAT_MODE_OFF
+        exoPlayer.repeatMode = newMode
+        repeat = newMode
+    }
+
+    val filteredSongs by remember(songList, searchQuery) {
+        mutableStateOf(
+            if (searchQuery.isBlank()) songList
+            else songList.filter {
+                it.title.contains(searchQuery, true) || it.artist.contains(searchQuery, true)
+            }
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
