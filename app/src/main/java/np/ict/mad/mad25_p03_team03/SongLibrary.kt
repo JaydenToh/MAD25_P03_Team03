@@ -60,7 +60,12 @@ class SongLibrary : ComponentActivity() {
 }
 
 @Composable
-fun SongLibraryScreen() {
+fun SongLibraryScreen(
+    collectionName: String,
+    onNavigateBack: () -> Unit,
+    onSongClick: (String) -> Unit
+    ){
+
     val context = LocalContext.current
     var songList by remember { mutableStateOf(listOf<SongItem>()) }
     var loading by remember { mutableStateOf(true) }
@@ -76,14 +81,40 @@ fun SongLibraryScreen() {
     var currentSong by remember { mutableStateOf(-1) }
     var repeat by remember { mutableStateOf(ExoPlayer.REPEAT_MODE_OFF) }
 
+    DisposableEffect(Unit) {
+        onDispose { exoPlayer.release() }
+    }
+
     // Cleanup when leaving screen
     DisposableEffect(exoPlayer) {
         val listener = object : androidx.media3.common.Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
                 isPlaying = playing
-        }
+            }
+
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 currentSong = exoPlayer.currentMediaItemIndex
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose { exoPlayer.removeListener(listener) }
+
+    }
+
+    LaunchedEffect(collectionName) {
+        loading = true
+        FirebaseFirestore.getInstance()
+            .collection(collectionName)
+            .get()
+            .addOnSuccessListener { result ->
+                val songs = result.documents.mapNotNull { doc -> doc.toObject(SongItem::class.java) }
+                songList = songs
+                loading = false
+            }
+
+            .addOnFailureListener { e ->
+                error = e.message
+                loading = false
             }
     }
 
@@ -99,50 +130,28 @@ fun SongLibraryScreen() {
             else -> R.drawable.arcanepic
         }
     }
-    LaunchedEffect(Unit) {
-        FirebaseFirestore.getInstance()
-            .collection("songs")
-            .get()
-            .addOnSuccessListener { result ->
-                // Convert documents to SongItem objects
-                val songs = result.documents.mapNotNull { doc ->
-                    doc.toObject(SongItem::class.java)
-                }
 
-                // Assign the correct image drawable to each song
-                songs.forEach { song ->
-                    song.drawableId = getAlbumArtFromName(song.title)
-                }
-
-                // Update the state with the list that now has images
-                songList = songs
-                loading = false
-            }
-            .addOnFailureListener { e ->
-                error = e.message
-                loading = false
-            }
-    }
-
-    // Audio Control Function
-    fun playAudio(url: String) {
-        // Handle "Pause" if clicking the same song
-        if (currentPlayingUrl == url && isPlaying) {
-            exoPlayer.pause()
-            isPlaying = false
+    fun playSong(index: Int) {
+        if(currentSong == index) {
+            if(isPlaying) exoPlayer.pause()
+            else exoPlayer.play()
+            return
         }
-        // Handle "New Song"
-        else {
-            exoPlayer.stop()
+
+        if(exoPlayer.mediaItemCount != songList.size) {
             exoPlayer.clearMediaItems()
-            val mediaItem = MediaItem.fromUri(url)
-            exoPlayer.setMediaItem(mediaItem)
-            exoPlayer.prepare()
-            exoPlayer.play()
-            currentPlayingUrl = url
-            isPlaying = true
+            val mediaItems = songList.map { MediaItem.fromUri(it.audioUrl) }
+            exoPlayer.setMediaItems(mediaItems)
         }
+
+        exoPlayer.seekTo(index, 0)
+        exoPlayer.prepare()
+        exoPlayer.play()
+
+        currentSong = index
+        isPlaying = true
     }
+
 
     val filteredSongs by remember(songList, searchQuery) {
         mutableStateOf(
