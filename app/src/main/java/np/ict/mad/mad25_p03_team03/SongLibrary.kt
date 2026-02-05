@@ -53,19 +53,14 @@ class SongLibrary : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MAD25_P03_Team03Theme {
-                SongLibraryScreen()
+                SongLibraryScreen(collectionName = "songs")
             }
         }
     }
 }
 
 @Composable
-fun SongLibraryScreen(
-    collectionName: String,
-    //onNavigateBack: () -> Unit,
-    //onSongClick: (String) -> Unit
-    ){
-
+fun SongLibraryScreen(collectionName: String){
     val context = LocalContext.current
     var songList by remember { mutableStateOf(listOf<SongItem>()) }
     var loading by remember { mutableStateOf(true) }
@@ -145,21 +140,6 @@ fun SongLibraryScreen(
         isPlaying = true
     }
 
-
-    val filteredSongs by remember(songList, searchQuery) {
-        mutableStateOf(
-            if (searchQuery.isBlank()) songList
-            else {
-                val q = searchQuery.trim().lowercase()
-                songList.filter { song ->
-                    song.title.lowercase().contains(q) ||
-                            song.artist.lowercase().contains(q) ||
-                            song.album.lowercase().contains(q)
-                }
-            }
-        )
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -214,6 +194,59 @@ fun getAlbumArtFromName(songTitle: String): Int {
         "blood sweat & tears" -> R.drawable.bloodsweattearspic
         // Add a default case to prevent crashes if a song title doesn't match
         else -> R.drawable.arcanepic
+    }
+}
+
+@Composable
+fun BottomPlayerBar(
+    song: SongItem,
+    isPlaying: Boolean,
+    repeatMode: Int,
+    onPlayPause: () -> Unit,
+    onNext: () -> Unit,
+    onPrevious: () -> Unit,
+    onRepeat: () -> Unit
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        modifier = Modifier.fillMaxWidth().height(85.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Left: Image & Text
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                Image(
+                    painter = painterResource(id = song.drawableId),
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp).clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(song.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
+                    Text(song.artist, color = Color.Gray, fontSize = 12.sp, maxLines = 1)
+                }
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onRepeat) {
+                    val color = if (repeatMode == ExoPlayer.REPEAT_MODE_OFF) Color.Gray else Color(0xFFBB86FC)
+                    Icon(if (repeatMode == ExoPlayer.REPEAT_MODE_ONE) Icons.Filled.RepeatOne else Icons.Filled.Repeat, "Repeat", tint = color)
+                }
+                IconButton(onClick = onPrevious) { Icon(Icons.Filled.SkipPrevious, "Prev", tint = Color.White) }
+                IconButton(
+                    onClick = onPlayPause,
+                    modifier = Modifier.background(Color(0xFFBB86FC), shape = RoundedCornerShape(50)).size(40.dp)
+                ) {
+                    Icon(if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play", tint = Color.Black)
+                }
+                IconButton(onClick = onNext) { Icon(Icons.Filled.SkipNext, "Next", tint = Color.White) }
+            }
+        }
     }
 }
 
