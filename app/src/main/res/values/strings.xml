@@ -3,4 +3,6 @@
     <string name="title_activity_song_identifier">SongIdentifier</string>
     <string name="title_activity_song_library">SongLibrary</string>
     <string name="title_activity_song_navigation">SongNavigation</string>
+    <string name="title_activity_music_manager.kt">MusicManager.kt</string>
+    <string name="title_activity_music_profile">MusicProfile</string>
 </resources>
