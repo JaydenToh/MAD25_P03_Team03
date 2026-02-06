@@ -200,16 +200,16 @@ fun SongLibraryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Brush.verticalGradient(listOf(Color(0xFF59168B), Color(0xFF1C398E), Color(0xFF312C85))))
+                .background(Color.White)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
                 }
-                Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                 Spacer(modifier = Modifier.weight(1f))
 
                 // Toggle button
@@ -223,7 +223,7 @@ fun SongLibraryScreen(
                     modifier = Modifier.height(36.dp)
                 ) {
                     Text(
-                        text = if (currentCollection == "songs") "🇺🇸 EN" else "🇨🇳 CN",
+                        text = if (currentCollection == "songs") "EN" else "CN",
                         fontSize = 12.sp,
                         color = Color.White
                     )

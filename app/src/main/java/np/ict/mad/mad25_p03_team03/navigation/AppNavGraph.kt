@@ -35,7 +35,7 @@ import np.ict.mad.mad25_p03_team03.ui.PlayerProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.PvpGameScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
-import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
+//import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
 //import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 import kotlinx.coroutines.launch
@@ -299,29 +299,35 @@ fun AppNavGraph(navController: NavHostController,
             }
 
 
+//            composable("library") {
+//                SongCategoryScreen(
+//                    onCategorySelected = { collectionName ->
+//
+//                        navController.navigate("library_list/$collectionName")
+//                    },
+//                    onBack = { navController.popBackStack() }
+//                )
+//            }
+
             composable("library") {
-                SongCategoryScreen(
-                    onCategorySelected = { collectionName ->
-
-                        navController.navigate("library_list/$collectionName")
-                    },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-
-
-            composable(
-                route = "library_list/{collectionName}",
-                arguments = listOf(navArgument("collectionName") { type = NavType.StringType })
-            ) { backStackEntry ->
-
-                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: "songs"
-
                 SongLibraryScreen(
-                    collectionName = collectionName,
+                    collectionName = "songs",
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+
+//            composable(
+//                route = "library_list/{collectionName}",
+//                arguments = listOf(navArgument("collectionName") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//
+//                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: "songs"
+//
+//                SongLibraryScreen(
+//                    collectionName = collectionName,
+//                    onNavigateBack = { navController.popBackStack() }
+//                )
+//            }
 
 //            composable(
 //                route = "song_detail/{collectionName}/{songTitle}",
