@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Stop
@@ -83,6 +84,8 @@ fun SongLibraryScreen(
     var currentSong by remember { mutableStateOf(-1) }
     var repeat by remember { mutableStateOf(ExoPlayer.REPEAT_MODE_OFF) }
 
+    var currentCollection by remember { mutableStateOf(collectionName) }
+
     DisposableEffect(Unit) {
         onDispose { exoPlayer.release() }
     }
@@ -101,6 +104,22 @@ fun SongLibraryScreen(
         exoPlayer.addListener(listener)
         onDispose { exoPlayer.removeListener(listener) }
 
+    }
+
+    LaunchedEffect(currentCollection) {
+        loading = true
+        // Clear list so user sees it's refreshing
+        songList = emptyList()
+        currentSong = -1
+
+        FirebaseFirestore.getInstance().collection(currentCollection).get()
+            .addOnSuccessListener { result ->
+                val songs = result.documents.mapNotNull { doc -> doc.toObject(SongItem::class.java) }
+                songs.forEach { it.drawableId = getAlbumArtFromName(it.title) }
+                songList = songs
+                loading = false
+            }
+            .addOnFailureListener { e -> error = e.message; loading = false }
     }
 
     LaunchedEffect(collectionName) {
@@ -183,6 +202,33 @@ fun SongLibraryScreen(
                 .padding(paddingValues)
                 .background(Brush.verticalGradient(listOf(Color(0xFF59168B), Color(0xFF1C398E), Color(0xFF312C85))))
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                }
+                Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Toggle button
+                Button(
+                    onClick = {
+                        currentCollection = if (currentCollection == "songs") "songs_mandarin" else "songs"
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A50)),
+                    shape = RoundedCornerShape(50),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text(
+                        text = if (currentCollection == "songs") "🇺🇸 EN" else "🇨🇳 CN",
+                        fontSize = 12.sp,
+                        color = Color.White
+                    )
+                }
+            }
             when {
                 loading -> Text("Loading...", color = Color.White, modifier = Modifier.align(Alignment.Center))
                 error != null -> Text("Error: $error", color = Color.Red, modifier = Modifier.align(Alignment.Center))
