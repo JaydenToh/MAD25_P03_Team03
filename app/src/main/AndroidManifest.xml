@@ -22,11 +22,7 @@
             android:exported="false"
             android:label="@string/title_activity_music_profile"
             android:theme="@style/Theme.MAD25_P03_Team03" />
-        <activity
-            android:name=".MusicManager.kt"
-            android:exported="false"
-            android:label="@string/title_activity_music_manager.kt"
-            android:theme="@style/Theme.MAD25_P03_Team03" /> <!-- Main Activity -->
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
