@@ -5,7 +5,6 @@ import androidx.media3.exoplayer.ExoPlayer
 
 object MusicManager {
     private var player: ExoPlayer? = null
-
     // Get the existing player or create a new one if missing
     fun getPlayer(context: Context): ExoPlayer {
         if (player == null) {

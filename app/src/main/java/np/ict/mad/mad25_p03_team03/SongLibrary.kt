@@ -91,29 +91,15 @@ fun SongLibraryScreen(
     // Listener
     DisposableEffect(exoPlayer) {
         val listener = object : androidx.media3.common.Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) { isPlaying = playing }
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                currentSong = exoPlayer.currentMediaItemIndex
-            }
-        }
-        exoPlayer.addListener(listener)
-        onDispose { exoPlayer.removeListener(listener) }
-    }
-
-    // Cleanup when leaving screen
-    DisposableEffect(exoPlayer) {
-        val listener = object : androidx.media3.common.Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
                 isPlaying = playing
             }
-
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 currentSong = exoPlayer.currentMediaItemIndex
             }
         }
         exoPlayer.addListener(listener)
         onDispose { exoPlayer.removeListener(listener) }
-
     }
 
     LaunchedEffect(currentCollection) {

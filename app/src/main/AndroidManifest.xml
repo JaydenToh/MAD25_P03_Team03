@@ -23,8 +23,7 @@
             android:name=".MusicProfile"
             android:exported="false"
             android:label="@string/title_activity_music_profile"
-            android:theme="@style/Theme.MAD25_P03_Team03" />
-        <!-- Main Activity -->
+            android:theme="@style/Theme.MAD25_P03_Team03" /> <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -35,8 +34,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <!-- Service for media notification -->
+        </activity> <!-- Service for media notification -->
         <service
             android:name=".PlaybackService"
             android:exported="true"
@@ -45,10 +43,6 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
-        <service
-            android:name=".OfflineMusic"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
     </application>
+
 </manifest>
