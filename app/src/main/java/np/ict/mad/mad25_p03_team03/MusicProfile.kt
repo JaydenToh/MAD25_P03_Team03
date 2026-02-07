@@ -133,26 +133,6 @@ fun MusicProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Scrolling the lyrics
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.weight(1f).fillMaxWidth()
-            ) {
-                Box(modifier = Modifier.padding(16.dp)) {
-                    val scrollState = rememberScrollState()
-                    Text(
-                        text = lyrics.replace("\\n", "\n"),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.verticalScroll(scrollState)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             // Controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -172,6 +152,26 @@ fun MusicProfileScreen(
 
                 IconButton(onClick = { if (exoPlayer.hasNextMediaItem()) exoPlayer.seekToNext() }, modifier = Modifier.size(50.dp)) {
                     Icon(Icons.Filled.SkipNext, null, tint = Color.White, modifier = Modifier.size(40.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Scrolling the lyrics
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            ) {
+                Box(modifier = Modifier.padding(16.dp)) {
+                    val scrollState = rememberScrollState()
+                    Text(
+                        text = lyrics.replace("\\n", "\n"),
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        modifier = Modifier.verticalScroll(scrollState)
+                    )
                 }
             }
         }

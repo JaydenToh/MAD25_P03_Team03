@@ -31,10 +31,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Updating Music Profile page design.">
+    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Updating Music Profile page design. Adding the newly created music profile into each music link towards the database.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.kotlin/sessions/kotlin-compiler-7213641019915553717.salive" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/SongLibrary.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/SongLibrary.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MusicProfile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MusicProfile.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -376,7 +376,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770410668879</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Updating Music Profile page design. Adding the newly created music profile into each music link towards the database.">
+      <option name="closed" value="true" />
+      <created>1770452841462</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1770452841462</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -410,7 +418,8 @@
     <MESSAGE value="Creation of new feature. The music manager file will hold the exoplayer so it survives the screen change. &#10;&#10;Creating Music Profile so that the activity will have the song data and lyrics through the use of Intent, and use the shared player to control music." />
     <MESSAGE value="Updating Music Profile page, to enable the use of the same exoplayer as songlibrary screen. Adding in listener and design to the code." />
     <MESSAGE value="Updating Music Profile page design." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updating Music Profile page design." />
+    <MESSAGE value="Updating Music Profile page design. Adding the newly created music profile into each music link towards the database." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updating Music Profile page design. Adding the newly created music profile into each music link towards the database." />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
