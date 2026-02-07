@@ -1,5 +1,6 @@
 package np.ict.mad.mad25_p03_team03
 
+import android.content.Intent
 import android.R.attr.repeatMode
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
@@ -76,7 +78,7 @@ fun SongLibraryScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     // 2. SETUP EXOPLAYER
-    val exoPlayer = remember { ExoPlayer.Builder(context).build() }
+    val exoPlayer = remember { MusicManager.getPlayer(context) }
 
     // Track playing state
     var currentPlayingUrl by remember { mutableStateOf<String?>(null) }
@@ -86,8 +88,16 @@ fun SongLibraryScreen(
 
     var currentCollection by remember { mutableStateOf(collectionName) }
 
-    DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
+    // Listener
+    DisposableEffect(exoPlayer) {
+        val listener = object : androidx.media3.common.Player.Listener {
+            override fun onIsPlayingChanged(playing: Boolean) { isPlaying = playing }
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                currentSong = exoPlayer.currentMediaItemIndex
+            }
+        }
+        exoPlayer.addListener(listener)
+        onDispose { exoPlayer.removeListener(listener) }
     }
 
     // Cleanup when leaving screen
@@ -166,6 +176,19 @@ fun SongLibraryScreen(
         isPlaying = true
     }
 
+    fun openMusicProfile() {
+        if (currentSong != -1) {
+            val song = songList[currentSong]
+            val intent = Intent(context, MusicProfile::class.java).apply {
+                putExtra("TITLE", song.title)
+                putExtra("ARTIST", song.artist)
+                //putExtra("LYRICS", song.lyrics)
+                putExtra("IMAGE_ID", song.drawableId)
+            }
+            context.startActivity(intent)
+        }
+    }
+
     fun toggleRepeat() {
         val newMode = if (repeat == ExoPlayer.REPEAT_MODE_OFF) ExoPlayer.REPEAT_MODE_ONE else ExoPlayer.REPEAT_MODE_OFF
         exoPlayer.repeatMode = newMode
@@ -184,15 +207,17 @@ fun SongLibraryScreen(
     Scaffold(
         bottomBar = {
             if (currentSong != -1 && songList.isNotEmpty() && currentSong < songList.size) {
-                BottomPlayerBar(
-                    song = songList[currentSong],
-                    isPlaying = isPlaying,
-                    repeatMode = repeatMode,
-                    onPlayPause = { if (isPlaying) exoPlayer.pause() else exoPlayer.play() },
-                    onNext = { if (exoPlayer.hasNextMediaItem()) exoPlayer.seekToNext() },
-                    onPrevious = { if (exoPlayer.hasPreviousMediaItem()) exoPlayer.seekToPrevious() },
-                    onRepeat = { toggleRepeat() }
-                )
+                Box(modifier = Modifier.clickable { openMusicProfile() }) {
+                    BottomPlayerBar(
+                        song = songList[currentSong],
+                        isPlaying = isPlaying,
+                        repeatMode = repeatMode,
+                        onPlayPause = { if (isPlaying) exoPlayer.pause() else exoPlayer.play() },
+                        onNext = { if (exoPlayer.hasNextMediaItem()) exoPlayer.seekToNext() },
+                        onPrevious = { if (exoPlayer.hasPreviousMediaItem()) exoPlayer.seekToPrevious() },
+                        onRepeat = { toggleRepeat() }
+                    )
+                }
             }
         }
     ) { paddingValues ->
