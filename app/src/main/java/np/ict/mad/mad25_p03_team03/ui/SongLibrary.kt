@@ -37,8 +37,6 @@ import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 
 
 val DarkBackground = Color(0xFF121212)
-val CardColor = Color(0xFF2F2F45)
-val ButtonColor = Color(0xFF3A3A50)
 
 class SongLibrary : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
