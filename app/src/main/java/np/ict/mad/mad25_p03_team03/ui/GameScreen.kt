@@ -397,8 +397,3 @@ fun GameScreen(
     )
 }
 
-data class SongQuestion(
-    val correctTitle: String,
-    val options: List<String>,
-    val audioUrl: String?
-)
