@@ -190,26 +190,6 @@ fun AppNavGraph(navController: NavHostController,
                     onStartGame = { mode, difficulty ->
                         navController.navigate("game/${mode.name}/${difficulty.name}")
                     },
-                    onStartPvp = {
-                        val user = auth.currentUser
-                        if (user != null) {
-                            Toast.makeText(context, "Finding match...", Toast.LENGTH_SHORT).show()
-
-                            findOrCreateGame(
-                                db = db,
-                                currentUser = user,
-                                songRepository = songRepository,
-                                onGameFound = { roomId ->
-                                    navController.navigate("pvp_game/$roomId")
-                                },
-                                onFail = { error ->
-                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                                }
-                            )
-                        } else {
-                            Toast.makeText(context, "Please login first", Toast.LENGTH_SHORT).show()
-                        }
-                    },
                     onBack = { navController.popBackStack() }
                 )
             }

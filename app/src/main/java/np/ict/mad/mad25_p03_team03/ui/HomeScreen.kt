@@ -141,7 +141,7 @@ fun HomeScreen(
             }
 
             Text(
-                text = "v1.0 • MAD25 P02 Team 02",
+                text = "v2.0 • MAD25 P02 Team 02",
                 fontSize = 16.sp,
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White,
