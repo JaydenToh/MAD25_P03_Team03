@@ -11,7 +11,7 @@ Garence Wong Kar Kang - S10262458, Github username: GarenceWong
 
 Jayden Toh Xuan Ming - S10241868, Github username: JaydenToh
 
-Lam Jun Yuan eeuwin - S10256929, Github username: sleeeeepyyyyy
+Lam Jun Yuan Leeuwin - S10256929, Github username: sleeeeepyyyyy
 
 
 ---------------------------
@@ -155,25 +155,18 @@ This application falls under the Music & Audio category, as it focuses on provid
 
 
 
-### Planned Tasks & Featured for Each Member for Stage 2
+## Tasks & Features for Each Member – Stage 2
 
-|Feature| Description | 
-|------------------|------------------|
-| Difficulty Levels (Easy / Medium / Hard) | Easy = longer clips, fewer options; Hard = short clips, more options | 
-| Different style music mode | KPop , Jazz , JPop  ,Rock,.....| 
-|  Background Playback Service | A continuous “radio” that plays random songs from packs when app is in background. | 
-|  Sleep Timer Activity | Let user set a timer to stop all music after N minutes (for sleeping) | 
-|  Album | Let the user can store the songs in album  | 
-|  Identifier History | Saves identified songs into a persistent history (SharedPreferences)  | 
-|  Mood Playlist | Generates playlist suggestions based on your tagged moods in history  | 
-|  Playlist Recommendation | Detects dominant mood (most tagged mood), Shuffle button to reshuffle recommendations.  | 
-| Leaderboard | Save best scores with player name and show ranked list (top 10)  | 
-| Error Handling & Retry UI | Friendly screens when audio fails to load, with retry buttons.  |
-| Skip song | User can skip the song when they encounter a difficult song   |
-| Song Profile | User can view the song more detail information like "publish year" and "music intrument using"   |
-| Song Lyrics | User can view the lyrics of the song while listening to the song    |
-| Setting | User can change the setting of the app with setting feature    |
-
+| Name | Feature | Description |
+|------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Liew Zhan Yang | Advanced Song Quiz | Expanded the quiz with new song categories such as Mandarin Pop, and integrated a Difficulty System (Easy, Middle, Hard) for a tailored user experience. |
+| Liew Zhan Yang | Game Statistics | Developed a comprehensive post-game overview that displays detailed performance statistics after each session. |
+| Liew Zhan Yang | Multiplayer Infrastructure | Built a real-time multiplayer waiting room and lobby system to manage room creation and matchmaking. |
+| Liew Zhan Yang | Multiplayer Game Modes | Implemented synchronized competitive modes including Trivia Quiz, Rhythm Tap, and the Humming/Mimic challenge. |
+| Liew Zhan Yang | Solo & AI Play | Created a Single Player Humming Game and integrated an AI-driven Bot mode for users to practice against automated opponents. |
+| Liew Zhan Yang | Social Ecosystem | Developed a Friends System and a real-time Chatting system, allowing users to connect and communicate within the app. |
+| Liew Zhan Yang | Competitive Features | Implemented a global Leaderboard and customizable Player Profiles to track progress and rank users. |
+| Liew Zhan Yang | Account Management | Enhanced security with email-verified login, a “Forget Password” recovery system, and a dedicated Log Out function. |
 
 
 ## User Interview
