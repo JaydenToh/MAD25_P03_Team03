@@ -56,6 +56,31 @@ Primary Category: Music & Audio & Entertainment
 
 This application falls under the Music & Audio category, as it focuses on providing an interactive experience involving song quizzes, music discovery, and song identification. The app combines fun gameplay with practical tools that allow users to explore and learn about music.
 
+---
+
+## Current State of Deployment (Software Lifecycle)
+
+In the **software lifecycle**, the app is currently in the **Development / Testing** stage. It is built to run quickly on your machine for debugging, not for public release.
+
+### 1. Current Status: Development Build (Local Testing)
+Right now, the app is in a development state.
+
+- **Runs on your computer only:**  
+  Android Studio builds a **debug APK** mainly for testing.
+- **Not hardened for public release:**  
+  Debug builds often keep settings more “open” to make development easier. This can make it easier for others to inspect how the app works.
+- **May fail on other devices:**  
+  Some Firebase settings may be tied to your setup (such as app identifiers). If you send the debug build to someone else, features like login may not work as expected.
+
+### 2. What Must Change for Release (Production / Deployment)
+To move into the **Deployment / Release** stage of the lifecycle (e.g., Google Play Store), three key changes are needed:
+
+#### A. Strengthen the App (Security)
+- **Now:** Code is built in a readable way to help you debug.
+- **For release:** Turn on **code shrinking/obfuscation** (minification) so the app is harder to reverse-engineer or tamper with.
+
+---
+
 ---------------------------
 
 ## Declaration of LLM Used
@@ -454,4 +479,302 @@ User Testing
 
 <img src="https://github.com/user-attachments/assets/df526530-58dd-497c-9e03-8adcffacb4fe" alt="usertesting1" width="250" />
 <img src="https://github.com/user-attachments/assets/1aa6e653-ba00-47c0-bc16-311215e711e0" alt="usertesting2" width="250" />
+
+---
+
+## Advanced Technical Features & Domain Implementation
+
+### 1. Immersive Audio Engine and Media Architecture
+**Feature: Music Profile with Media Control**  
+Each track in the SongLibrary has its own profile view that provides full playback control.
+
+**Core Controls**
+- Play
+- Pause
+- Skip
+- Repeat
+
+**Technical Implementation**
+- **Shared media state:**  
+  Built around `ViewModel + StateFlow` so the Music Profile and Mini-Player read from the same playback state. This keeps UI consistent across screens without tightly coupling components.
+- **Smooth performance with coroutines:**  
+  Used Kotlin Coroutines to run media preparation and buffering off the main thread, preventing UI lag when loading audio.
+
+---
+
+### 2. Algorithmic Lyric Synchronization (New Domain)
+**Feature: Real-Time Lyrics Syncing**  
+Lyrics move in sync with the current audio playback to support karaoke and guided practice.
+
+**How it works**
+- The app tracks the current playback time and highlights the lyric line being sung.
+- Users can follow along visually for practice and sing-along.
+
+**Technical Implementation**
+- **Custom lyric syncing engine:**  
+  Parses LRC lyrics into timed lines, then maps the media player’s current timestamp to the correct lyric line.
+- **Efficient line lookup:**  
+  Uses fast searching (e.g., binary search or optimized scanning) to quickly find the active line without heavy CPU usage.
+- **Compose redraw optimization:**  
+  Updates only the active lyric line instead of re-rendering the entire lyrics list, helping maintain smooth animations and stable frame rates.
+
+---
+
+### 3. Background Playback and Service Lifecycle
+**Feature: Mini-Player Bar and Background Playing**  
+A persistent mini-player and background audio service allow music to continue even when the app is minimized, closed, or the phone is locked.
+
+**Technical Implementation**
+- **Foreground Service for reliability:**  
+  Implemented a Foreground Service with a persistent notification to reduce the chances of Android stopping the audio process in the background.
+- **MediaSession integration:**  
+  Supports headset and lock screen media controls, and correctly handles audio focus events (e.g., pausing for incoming calls).
+- **Robust lifecycle handling:**  
+  Designed the UI-to-service connection to handle configuration changes (such as screen rotation) and activity recreation without breaking playback.
+
+---
+
+# App Features 
+
+---
+
+![Music Profile](assets/musicprofile.png)
+### Music Profile with Media Control
+An individual profile view for each track within the SongLibrary that grants users full playback control.
+
+
+- Dedicated controls available directly in the profile:
+  - Play
+  - Pause
+  - Skip
+  - Repeat
+
+### Lyrics Syncing with Song
+Lyrics are synchronized with the currently playing audio to support karaoke and guided practice.
+
+- Real-Time Synchronization  
+  The app syncs audio with lyrics and automatically highlights the line currently being sung.
+
+- Karaoke/Practice Mode  
+  The visual highlight helps users follow the exact song position, enabling sing-along practice.
+
+![Player Bar](assets/playerbar.png)
+### Music Player Bar
+A persistent mini-player that stays visible while users navigate through different screens.
+
+- Persistent Mini-Player  
+  A sticky player bar at the bottom of the screen remains accessible across the app.
+
+- Quick Access  
+  Displays current track information (Title/Artist) and provides immediate access to:
+  - Play
+  - Pause
+  - Repeat
+  - Skip  
+  without requiring users to open the full music profile.
+
+### Background Playing
+Music continues playing seamlessly even when the app is not in the foreground.
+
+- Seamless Audio Service  
+  A background service allows playback to continue uninterrupted when the Android application is minimized or closed.
+
+- Continuous Listening  
+  Integrates with the music profile workflow so playback is not cut off when users switch apps or lock their phone.
+
+![Language Selection](assets/language.png)
+### Switch between language in Song LIbrary
+Button to toggle the language of the song. 
+
+---
+
+## Design Decisions & Philosophy
+
+### 1. The "Immersive Dark" Aesthetic
+**Decision:** Adopted a unified high-contrast dark theme (Background `#121212`) across the entire application, replacing earlier iterations that used light modes or gradient backgrounds.
+
+**Rationale:**
+- **Gamer-centric focus:** Dark interfaces reduce eye strain during long sessions and keep attention on core content such as album art, lyrics, and game prompts instead of UI chrome.
+- **OLED optimization:** A near-black palette (`#121212`) can be more power-efficient on modern displays, which matters for mobile use with continuous audio and animations.
+- **Visual consistency:** Earlier versions had inconsistent theme usage across screens (e.g., light profile vs. dark game). Unifying the theme removed jarring transitions and created a seamless flow from login to gameplay.
+
+---
+
+### 2. Surface Level Hierarchy vs. Borders
+**Decision:** Used surface colors (e.g., Dark Purple/Blue `#2F2F45`) to create hierarchy and separation, instead of relying on white outlines or heavy borders.
+
+**Rationale:**
+- **Reduced visual noise:** Borders can add clutter and make layouts feel unfinished. Tonal surfaces create depth and separation without additional lines.
+- **Modern UI alignment:** This follows Material Design 3 conventions where elevation and tonal contrast are preferred over strokes to define components.
+
+---
+
+### 3. Functional Color Coding 
+**Decision:** Reserved the primary brand color (Vibrant Purple `#651FFF`) for interactive elements (buttons, active states), and used semantic colors to communicate game status.
+
+**Rationale:**
+- **Instant feedback:** Players can understand state changes quickly without reading labels, which is critical in timed modes (e.g., 8-second rounds).
+- **Consistent semantics:**
+  - Green: Accuracy and correct answers
+  - Orange: Streak or momentum indicators
+  - Red: Failure states such as "Game Over" or "Time's Up"
+- **Why not only text:** Color is processed faster than text, enabling quicker reactions under time pressure.
+
+---
+
+### 4. Persistent Navigation & Media Control
+**Decision:** Implemented a sticky bottom media bar that persists across navigation, instead of forcing users into a dedicated full-screen "Now Playing" view.
+
+**Rationale:**
+- **Supports multi-tasking:** Users can browse leaderboard, view friends, or navigate other pages while continuing playback.
+- **Frictionless flow:** One-tap controls (pause/skip) are always available, treating audio control as a core feature rather than a secondary screen.
+
+---
+
+## User Guide & Walkthrough
+
+### 1. Account Access & Security
+When you launch the app, you will start at the Authentication Gateway.
+
+**Sign Up (New Users)**
+1. Enter a valid email address and a strong password.
+2. Tap **Sign Up** to create your account.
+
+**Email Verification**
+1. After signing up, check your email inbox for a verification link.
+2. Once verified, your profile will display a **Verified Account** badge.
+
+**Login (Returning Users)**
+1. Enter your email and password.
+2. Tap **Login** to access the main menu.
+
+**Forgot Password**
+- Tap **Forgot Password** on the login screen to receive a password recovery email.
+
+---
+
+### 2. Navigating the Home Hub
+After logging in, you will land on the Home Dashboard, which acts as the central hub.
+
+**Choose Your Adventure**
+- Guessing Game (core trivia mode)
+- Humming Challenge (pitch and melody challenge)
+- Song Identifier (identify music utility)
+- Multiplayer Lobby (real-time play with friends)
+
+**Navigation Bar**
+Use the bottom navigation bar to switch between:
+- Home
+- Library
+- Leaderboard
+- Profile  
+without losing your place.
+
+---
+
+### 3. Playing the Song Guessing Game
+Follow these steps to start and complete a game session.
+
+**Step 1: Select Language**
+After selecting **Guessing Game**, choose a song dataset:
+- English
+- Mandarin
+
+**Step 2: The Game Loop**
+1. **Listen:** A song clip plays automatically.
+2. **Guess:** Select the correct track from the options provided.
+3. **Monitor Status:** Track your remaining lives and the countdown timer during the round.
+
+**Step 3: Game Over and Analysis**
+When the session ends (no lives remaining or questions completed), the Game Over screen appears.
+
+**Review Performance**
+- Final Score
+- Accuracy Percentage
+- Best Streak
+- Average Speed
+
+**Next Actions**
+- Play Again
+- Return to Menu
+
+---
+
+### 4. Music Library & Listening Experience
+Navigate to the **Library** tab to browse and play songs.
+
+**Music Profile Control**
+- Tap a song to open its dedicated music profile.
+- Use the profile controls to:
+  - Play
+  - Pause
+  - Skip
+  - Repeat
+
+**Karaoke Mode (Lyrics Sync)**
+- Lyrics scroll in real-time and highlight the current line as the song plays.
+- This can be used for practice and sing-along.
+
+**Background Playback**
+- Music continues playing even when the app is minimized or the screen is locked.
+
+**Mini-Player Bar**
+- A persistent player bar remains visible while navigating.
+- Allows quick control while browsing other sections (e.g., leaderboard or profile).
+
+---
+
+### 5. Social & Profile Management
+Use the **Leaderboard** and **Profile** tabs to personalize your account and track progress.
+
+**Leaderboard**
+- View the top players and compare your score against others.
+
+**My Profile**
+- Manage your account details and status.
+
+**Edit Details**
+- Update your username
+- Update your bio / about me
+- Tap **Save** to apply changes
+
+**Account Status**
+- Your profile shows whether your account is verified.
+
+**Friends**
+- View your connections using the **My Friends** counter.
+
+**Security Tools**
+- You can trigger **Send Password Reset Link** from the profile screen if needed.
+
+---
+
+### 6. Competitive Gameplay & Leaderboards
+Your performance in the Guessing Game contributes to your standing on the leaderboard.
+
+**Earning Points**
+- Correct answers earn points.
+- Faster answers, higher accuracy, and stronger streaks increase your final score.
+
+**Climbing the Ranks**
+- High scores are automatically synced to the cloud.
+- The leaderboard updates to reflect current top scores and rankings.
+
+---
+
+### 7. Multiplayer & Social Hub
+Multiplayer mode allows you to challenge friends in real time.
+
+**Managing Friends**
+- Go to **Profile** to view and manage your friends list.
+- The leaderboard indicates which players are in your friend list for easier comparison.
+
+**Starting a Multiplayer Match**
+1. From the Home Dashboard, select **Multiplayer Lobby**.
+2. Invite friends from your list into a live lobby.
+3. Both players receive the same song prompts.
+4. Points are awarded based on correct and timely guesses.
+
+---
+
 
