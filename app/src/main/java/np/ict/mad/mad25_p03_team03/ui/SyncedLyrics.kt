@@ -1,4 +1,4 @@
-package np.ict.mad.mad25_p03_team03
+package np.ict.mad.mad25_p03_team03.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import np.ict.mad.mad25_p03_team03.LyricsHelper
 
 @Composable
 fun SyncedLyrics(
@@ -55,7 +56,7 @@ fun SyncedLyrics(
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 200.dp),
+        contentPadding = PaddingValues(top = 16.dp, bottom = 100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         itemsIndexed(lyricList) { index, line ->

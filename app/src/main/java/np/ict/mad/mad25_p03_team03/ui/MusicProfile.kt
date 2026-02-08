@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.Player
+import kotlinx.coroutines.delay
 import np.ict.mad.mad25_p03_team03.R
 import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 
@@ -61,6 +62,19 @@ fun MusicProfileScreen(
 
     // Track Play/Pause state
     var isPlaying by remember { mutableStateOf(exoPlayer.isPlaying) }
+    val currentSong = MusicManager.currentSong
+
+    val player = MusicManager.getPlayer(context)
+    var currentPosition by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            if (exoPlayer.isPlaying) {
+                currentPosition = exoPlayer.currentPosition
+            }
+            delay(100)
+        }
+    }
 
     // Listener to update button if music ends or changes
     DisposableEffect(exoPlayer) {
@@ -143,20 +157,27 @@ fun MusicProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Scrolling the lyrics
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.weight(1f).fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
             ) {
-                Box(modifier = Modifier.padding(16.dp)) {
-                    val scrollState = rememberScrollState()
+                val lyricsText = currentSong?.lyrics
+
+                if (lyricsText.isNullOrBlank()) {
+                    // Fallback if no lyrics found
                     Text(
-                        text = lyrics.replace("\\n", "\n"),
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.verticalScroll(scrollState)
+                        "No lyrics available",
+                        color = Color.Gray,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    SyncedLyrics(
+                        rawLyrics = lyricsText,
+                        currentPosition = currentPosition,
+                        onSeek = { newTime ->
+                            exoPlayer.seekTo(newTime)
+                        }
                     )
                 }
             }

@@ -31,12 +31,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Working on Lyrics feature and figuring out the logic of how to implement the lyrics flowing with the song.">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/SyncedLyrics.kt" afterDir="false" />
+    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Working on Lyrics feature, creating sync lyrics to enable the song and lyrics to sync while playing.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/LyricsHelper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/LyricsHelper.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/SyncedLyrics.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SyncedLyrics.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/MusicProfile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/MusicProfile.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -487,7 +485,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770554601712</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Working on Lyrics feature, creating sync lyrics to enable the song and lyrics to sync while playing.">
+      <option name="closed" value="true" />
+      <created>1770556305471</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1770556305471</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -502,7 +508,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Updating SongLibrary logic so that we can track what song is being played and adding the repeat mode." />
     <MESSAGE value="Updating SongLibrary logic, updating the playaudio function into play song logic to adopt new features in." />
     <MESSAGE value="Updating SongLibrary logic, working on new feature parts, skip, repeat and next. Updating libraryscreen, song list and song row." />
     <MESSAGE value="Fixing SongLibrary bugs and issues." />
@@ -527,7 +532,8 @@
     <MESSAGE value="Update to Home Screen UI Design to fix all consistency." />
     <MESSAGE value="Update to LeaderboardScreen player profile design for overall consistency." />
     <MESSAGE value="Working on Lyrics feature and figuring out the logic of how to implement the lyrics flowing with the song." />
-    <option name="LAST_COMMIT_MESSAGE" value="Working on Lyrics feature and figuring out the logic of how to implement the lyrics flowing with the song." />
+    <MESSAGE value="Working on Lyrics feature, creating sync lyrics to enable the song and lyrics to sync while playing." />
+    <option name="LAST_COMMIT_MESSAGE" value="Working on Lyrics feature, creating sync lyrics to enable the song and lyrics to sync while playing." />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
