@@ -26,23 +26,32 @@ import np.ict.mad.mad25_p03_team03.R
 import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 
+// Variable - Color - Custom background color for this screen
 private val DarkBackground3 = Color(0xFF121212)
 private val CardColor3 = Color(0xFF2F2F45 )
 
+// Function - UI Component - The Main Game Screen logic
+// Flow 1.0: Screen Entry Point
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(
-    songRepository: SongRepository,
-    gameMode: GameMode,
-    difficulty: Difficulty,
-    onNavigateBack: () -> Unit
+    songRepository: SongRepository, // Variable - Input - Repository to fetch song data
+    gameMode: GameMode,             // Variable - Input - Selected language mode (English/Mandarin)
+    difficulty: Difficulty,         // Variable - Input - Selected difficulty (Time limit)
+    onNavigateBack: () -> Unit      // Variable - Input - Callback function to handle back navigation
 ) {
+    // Flow 1.1: Dependency Injection
+    // Get context for media player and Firebase instances for score saving
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
     val db = FirebaseFirestore.getInstance()
+
+    // Variable - State - Holds the list of questions for the game
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
+    // Variable - State - Indicates if data is still loading
     var isLoading by remember { mutableStateOf(true) }
 
+    // Variable - State - Game Progress Trackers
     var currentIndex by remember { mutableStateOf(0) }
     var score by remember { mutableStateOf(0) }
     var currentStreak by remember { mutableStateOf(0) }
@@ -52,26 +61,34 @@ fun GameScreen(
     var lives by remember { mutableStateOf(3) }
     var isGameOver by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
+
+    // Variable - State - Timer and Audio logic
     var timeLeft by remember { mutableStateOf(difficulty.timeLimitSeconds) }
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
     var currentTimer by remember { mutableStateOf<CountDownTimer?>(null) }
     var hasSavedScore by remember { mutableStateOf(false) }
 
+    // Flow 1.2: Derived State Calculation
+    // Check if all questions are answered or if game over flag is set
     val isAllQuestionsAnswered = !isLoading && questions.isNotEmpty() && currentIndex >= questions.size
     val isGameFinished = isGameOver || isAllQuestionsAnswered
     val currentQuestion = if (!isGameFinished) questions.getOrNull(currentIndex) else null
 
-    // standadized audio playback function
+    // Function - Internal Logic - Standardized audio playback function
+    // Flow 2.0: Audio Manager
     fun playAudio(url: String?) {
+        // Flow 2.1: URL Validation
         val cleanUrl = url?.trim() ?: return
         if (cleanUrl.isEmpty()) return
 
+        // Flow 2.2: Reset Previous Player
         mediaPlayer?.apply {
             if (isPlaying) stop()
             release()
         }
 
         try {
+            // Flow 2.3: Initialize New Player
             val mp = MediaPlayer().apply {
                 setAudioStreamType(android.media.AudioManager.STREAM_MUSIC)
                 setDataSource(cleanUrl)
@@ -87,9 +104,9 @@ fun GameScreen(
         }
     }
 
-    // game over sound effect
+    // Function - Internal Logic - Play Game Over Sound Effect
     fun playGameOverSound() {
-        // make sure release the current MediaPlayer
+        // Flow 2.4: Stop Music
         mediaPlayer?.apply {
             if (isPlaying) stop()
             release()
@@ -97,7 +114,7 @@ fun GameScreen(
         mediaPlayer = null
 
         try {
-            // make sure you have res/raw/gameover.mp3 file
+            // Flow 2.5: Play SFX
             val mp = MediaPlayer.create(context, R.raw.gameover)
             if (mp != null) {
                 mp.setOnCompletionListener { player -> player.release() }
@@ -110,8 +127,9 @@ fun GameScreen(
         }
     }
 
+    // Function - Internal Logic - Play Success Sound Effect
     fun playSuccessSound() {
-        // stop and release any existing MediaPlayer
+        // Flow 2.6: Stop Music
         mediaPlayer?.apply {
             if (isPlaying) stop()
             release()
@@ -119,7 +137,7 @@ fun GameScreen(
         mediaPlayer = null
 
         try {
-            // make sure you have res/raw/completegame.mp3 file
+            // Flow 2.7: Play SFX
             val resId = np.ict.mad.mad25_p03_team03.R.raw.completegame
 
             val mp = MediaPlayer.create(context, resId)
@@ -132,16 +150,21 @@ fun GameScreen(
         }
     }
 
-    // load questions from repository
+    // Flow 3.0: Data Loading (Side Effect)
     LaunchedEffect(Unit) {
         isLoading = true
+        // Flow 3.1: Fetch from Supabase
         val remoteSongs = songRepository.fetchSongsFromSupabase(gameMode)
+
+        // Flow 3.2: Map Data to Questions
         questions = if (remoteSongs.isNotEmpty()) {
             remoteSongs.map { songDto ->
+                // Shuffle options to ensure randomness
                 val options = (listOf(songDto.title) + songDto.fakeOptions).shuffled().take(4)
                 SongQuestion(songDto.title, options, songDto.audioUrl)
             }
         } else {
+            // Flow 3.3: Fallback Mock Data (if fetch fails)
             listOf(
                 SongQuestion(
                     "Blinding Lights",
@@ -158,16 +181,20 @@ fun GameScreen(
         isLoading = false
     }
 
-    // countdown timer for each question
+    // Flow 4.0: Game Loop & Timer
+    // Triggered whenever currentIndex changes (next question)
     LaunchedEffect(currentIndex, isLoading, isGameFinished) {
         if (!isLoading && !isGameFinished && currentIndex < questions.size) {
+            // Flow 4.1: Reset Timer
             currentTimer?.cancel()
 
             val maxTime = difficulty.timeLimitSeconds
             timeLeft = maxTime
 
+            // Flow 4.2: Start Audio for Question
             playAudio(questions[currentIndex].audioUrl)
 
+            // Flow 4.3: Start Countdown
             val timer = object : CountDownTimer(maxTime * 1000L, 1_000) {
                 override fun onTick(millisUntilFinished: Long) {
                     if (!isGameOver) {
@@ -176,15 +203,18 @@ fun GameScreen(
                 }
 
                 override fun onFinish() {
+                    // Flow 4.4: Timeout Logic
                     if (isGameOver) return
                     timeLeft = 0
                     if (lives > 0) {
                         lives -= 1
                         message = "⏰ Time's up!"
+                        // Check for Game Over
                         if (lives <= 0) {
                             isGameOver = true
-                            playGameOverSound() // game over sound
+                            playGameOverSound()
                         } else {
+                            // Move to next question if lives remain
                             currentIndex += 1
 
                             if (currentIndex >= questions.size) {
@@ -199,15 +229,18 @@ fun GameScreen(
         }
     }
 
-    // logic to advance to next question
+    // Function - Game Logic - Processes user's answer
+    // Flow 5.0: Answer Handling
     fun advanceToNextQuestion(isCorrect: Boolean) {
         if (isGameFinished) return
 
+        // Flow 5.1: Stop Timer
         currentTimer?.cancel()
 
         val timeUsed = difficulty.timeLimitSeconds - timeLeft
         totalTimeTaken += timeUsed
 
+        // Flow 5.2: Check Correctness
         if (isCorrect) {
             score += 10
             currentStreak += 1
@@ -217,16 +250,19 @@ fun GameScreen(
             }
             message = "✅ Correct!"
         } else {
+            // Flow 5.3: Wrong Answer Logic
             lives -= 1
-
             currentStreak = 0
             message = "❌ Wrong!"
+
             if (lives <= 0) {
                 isGameOver = true
-                playGameOverSound() // play game over sound
+                playGameOverSound()
                 return
             }
         }
+
+        // Flow 5.4: Next Question
         currentIndex += 1
 
         if (lives > 0 && currentIndex >= questions.size) {
@@ -234,7 +270,8 @@ fun GameScreen(
         }
     }
 
-    // save score to Firestore when game is finished
+    // Flow 6.0: Score Persistence
+    // Triggered when game finishes to save high score
     LaunchedEffect(isGameFinished) {
         if (isGameFinished && !hasSavedScore) {
             hasSavedScore = true
@@ -242,26 +279,25 @@ fun GameScreen(
             if (user != null) {
                 val userRef = db.collection("users").document(user.uid)
 
-
+                // Flow 6.1: Database Transaction
                 db.runTransaction { transaction ->
                     val snapshot = transaction.get(userRef)
                     val currentHigh = snapshot.getLong("highScore") ?: 0
 
-
+                    // Flow 6.2: Update if new score is higher
                     if (score > currentHigh) {
                         transaction.update(userRef, "highScore", score)
-
                     }
                 }.addOnSuccessListener {
-
+                    // Success callback
                 }.addOnFailureListener {
-
+                    // Failure callback
                 }
             }
         }
     }
 
-    // cleanup on dispose
+    // Flow 1.3: Lifecycle Cleanup
     DisposableEffect(Unit) {
         onDispose {
             currentTimer?.cancel()
@@ -270,9 +306,9 @@ fun GameScreen(
         }
     }
 
-    // ui layout
+    // Flow 7.0: UI Layout
     Scaffold(
-        containerColor = DarkBackground3,
+        containerColor = DarkBackground3, // Variable - Color - Dark Background
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("🎵 Song Guesser", color = Color.White, fontWeight = FontWeight.Bold) },
@@ -293,11 +329,14 @@ fun GameScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Flow 7.1: Loading View
                 if (isLoading) {
                     CircularProgressIndicator()
                     Text("Loading songs...")
-                } else if (!isGameFinished && currentQuestion != null) {
-                    // game in progress
+                }
+                // Flow 7.2: Active Game View
+                else if (!isGameFinished && currentQuestion != null) {
+                    // UI - Stats Header
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -307,6 +346,7 @@ fun GameScreen(
                         Text("Time: $timeLeft", color = Color.White, style = MaterialTheme.typography.bodyLarge)
                     }
 
+                    // UI - Question Header
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth()
@@ -323,6 +363,8 @@ fun GameScreen(
                             color = Color.White
                         )
                     }
+
+                    // UI - Replay Button
                     Button(
                         onClick = { playAudio(currentQuestion.audioUrl) },
                         modifier = Modifier
@@ -343,6 +385,7 @@ fun GameScreen(
                         )
                     }
 
+                    // UI - Option Buttons
                     currentQuestion.options.forEach { option ->
                         Button(
                             onClick = { advanceToNextQuestion(option == currentQuestion.correctTitle) },
@@ -356,6 +399,7 @@ fun GameScreen(
                         }
                     }
 
+                    // UI - Feedback Message
                     if (message.isNotEmpty()) {
                         Text(
                             message,
@@ -364,10 +408,11 @@ fun GameScreen(
                             fontWeight = FontWeight.Medium
                         )
                     }
-                } else if (isGameFinished) {
+                }
+                // Flow 7.3: Game Summary View
+                else if (isGameFinished) {
                     val attempts = currentIndex
                     val avgTime = if (attempts > 0) totalTimeTaken.toFloat() / attempts else 0f
-
 
                     GameSummaryScreen(
                         score = score,
@@ -377,6 +422,7 @@ fun GameScreen(
                         avgTime = avgTime,
                         isWin = lives > 0,
                         onPlayAgain = {
+                            // Flow 8.0: Reset Logic
                             currentIndex = 0
                             score = 0
                             lives = 3
@@ -396,9 +442,3 @@ fun GameScreen(
         }
     )
 }
-
-data class SongQuestion(
-    val correctTitle: String,
-    val options: List<String>,
-    val audioUrl: String?
-)

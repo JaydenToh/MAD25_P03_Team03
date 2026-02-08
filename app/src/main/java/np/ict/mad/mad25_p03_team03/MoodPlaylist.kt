@@ -64,6 +64,10 @@ private val emotionalTracks = listOf(
     MoodTrack("Late Night Letters", "Paperplanes", "Slow, reflective, and heartfelt.")
 )
 
+// Colour palette
+private val DarkBackground1 = Color(0xFF121212)
+private val CardColor1 = Color(0xFF2F2F45)
+
 @Composable
 fun MoodPlaylistScreen(
     onBackClick: () -> Unit,
@@ -115,52 +119,55 @@ fun MoodPlaylistScreen(
         )
     }
 
+    // UI colors (white text)
+    val primaryText = Color.White
+    val secondaryText = Color.White.copy(alpha = 0.78f)
+    val mutedText = Color.White.copy(alpha = 0.62f)
+    val outline = Color.White.copy(alpha = 0.12f)
+    val selectedPill = Color.White.copy(alpha = 0.14f)
+    val unselectedPill = Color.White.copy(alpha = 0.08f)
+    val tabSelected = Color.White.copy(alpha = 0.16f)
+    val tabUnselectedText = Color.White.copy(alpha = 0.72f)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF1C1B3A),
-                        Color(0xFF311B92)
-                    )
-                )
-            )
+            .background(DarkBackground1)
             .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 16.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+
+            // Top header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 12.dp),
+                    .padding(top = 6.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = primaryText
                     )
                 }
                 Text(
                     text = "Mood Playlist",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = primaryText,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
 
-            // segmented tab bar
+            // Segmented tab bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
                     .background(
-                        color = Color(0x33000000),
-                        shape = RoundedCornerShape(50.dp)
+                        color = CardColor1.copy(alpha = 0.55f),
+                        shape = RoundedCornerShape(18.dp)
                     )
                     .padding(4.dp)
             ) {
@@ -168,13 +175,10 @@ fun MoodPlaylistScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val selectedColor = Color(0xFF4C6FFF)
-                    val unselectedText = Color(0xCCFFFFFF)
-
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(14.dp))
                             .clickable { onHistoryClick() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -182,7 +186,7 @@ fun MoodPlaylistScreen(
                         Text(
                             text = "History",
                             fontSize = 13.sp,
-                            color = unselectedText,
+                            color = tabUnselectedText,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -190,7 +194,7 @@ fun MoodPlaylistScreen(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(14.dp))
                             .clickable { onIdentifierClick() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -198,7 +202,7 @@ fun MoodPlaylistScreen(
                         Text(
                             text = "Identifier",
                             fontSize = 13.sp,
-                            color = unselectedText,
+                            color = tabUnselectedText,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -206,7 +210,7 @@ fun MoodPlaylistScreen(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .background(color = selectedColor, shape = RoundedCornerShape(50.dp))
+                            .background(color = tabSelected, shape = RoundedCornerShape(14.dp))
                             .clickable { onMoodPlaylistClick() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -214,7 +218,7 @@ fun MoodPlaylistScreen(
                         Text(
                             text = "Playlist",
                             fontSize = 13.sp,
-                            color = Color.White,
+                            color = primaryText,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -223,18 +227,19 @@ fun MoodPlaylistScreen(
 
             Spacer(modifier = Modifier.padding(top = 4.dp))
 
+            // Mood card
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 190.dp)
                     .background(
-                        brush = Brush.horizontalGradient(
+                        brush = Brush.verticalGradient(
                             colors = listOf(
-                                Color(0xFF4C6FFF),
-                                Color(0xFF8E54E9)
+                                CardColor1,
+                                CardColor1.copy(alpha = 0.78f)
                             )
                         ),
-                        shape = RoundedCornerShape(24.dp)
+                        shape = RoundedCornerShape(22.dp)
                     )
                     .padding(horizontal = 20.dp, vertical = 18.dp)
             ) {
@@ -247,13 +252,13 @@ fun MoodPlaylistScreen(
                             text = "No mood detected yet",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White
+                            color = primaryText
                         )
                         Spacer(modifier = Modifier.padding(top = 8.dp))
                         Text(
                             text = "Tag moods in your Identifier History to unlock a personalised playlist.",
                             fontSize = 15.sp,
-                            color = Color(0xFFE0E0E0),
+                            color = secondaryText,
                             lineHeight = 20.sp
                         )
                     } else {
@@ -265,36 +270,37 @@ fun MoodPlaylistScreen(
 
                         Text(
                             text = headerLabel,
-                            fontSize = 15.sp,
-                            color = Color(0xFFE0E0E0)
+                            fontSize = 14.sp,
+                            color = secondaryText
                         )
-                        Spacer(modifier = Modifier.padding(top = 4.dp))
+                        Spacer(modifier = Modifier.padding(top = 6.dp))
                         Text(
                             text = activeMood,
-                            fontSize = 22.sp,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                            color = primaryText
                         )
-                        Spacer(modifier = Modifier.padding(top = 8.dp))
+                        Spacer(modifier = Modifier.padding(top = 10.dp))
 
                         if (overrideMood == null && moodCounts.isNotEmpty()) {
                             val totalTagged = moodCounts.values.sum()
                             Text(
                                 text = "Based on $totalTagged tagged songs in your Identifier History.",
-                                fontSize = 14.sp,
-                                color = Color(0xFFE0E0E0)
+                                fontSize = 13.sp,
+                                color = mutedText
                             )
                         } else if (overrideMood != null) {
                             Text(
                                 text = "You manually selected this mood for your playlist.",
-                                fontSize = 14.sp,
-                                color = Color(0xFFE0E0E0)
+                                fontSize = 13.sp,
+                                color = mutedText
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.padding(top = 12.dp))
+                    Spacer(modifier = Modifier.padding(top = 14.dp))
 
+                    // Mood override pills
                     val moodsForOverride = listOf("Auto", "Chill", "Hype", "Emotional")
 
                     Row(
@@ -307,11 +313,7 @@ fun MoodPlaylistScreen(
                                 else -> overrideMood == moodLabel
                             }
 
-                            val bgColor = if (isSelected) {
-                                Color(0xFF1B1F4A)
-                            } else {
-                                Color(0x33000000)
-                            }
+                            val bgColor = if (isSelected) selectedPill else unselectedPill
 
                             Box(
                                 modifier = Modifier
@@ -337,14 +339,14 @@ fun MoodPlaylistScreen(
                                     text = moodLabel,
                                     fontSize = 13.sp,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                    color = Color.White
+                                    color = primaryText
                                 )
                             }
                         }
                     }
 
                     // Mood Counter
-                    Spacer(modifier = Modifier.padding(top = 10.dp))
+                    Spacer(modifier = Modifier.padding(top = 12.dp))
 
                     val chillCount = moodCounts["Chill"] ?: 0
                     val hypeCount = moodCounts["Hype"] ?: 0
@@ -354,29 +356,29 @@ fun MoodPlaylistScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                color = Color(0x22000000),
+                                color = Color.White.copy(alpha = 0.06f),
                                 shape = RoundedCornerShape(14.dp)
                             )
-                            .padding(vertical = 8.dp, horizontal = 12.dp),
+                            .padding(vertical = 9.dp, horizontal = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "Chill: $chillCount",
                             fontSize = 13.sp,
-                            color = Color.White,
+                            color = primaryText,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "Hype: $hypeCount",
                             fontSize = 13.sp,
-                            color = Color.White,
+                            color = primaryText,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "Emotional: $emoCount",
                             fontSize = 13.sp,
-                            color = Color.White,
+                            color = primaryText,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -393,7 +395,14 @@ fun MoodPlaylistScreen(
                 contentPadding = PaddingValues(vertical = 4.dp)
             ) {
                 items(displayedTracks) { track ->
-                    PlaylistTrackRow(track = track)
+                    PlaylistTrackRow(
+                        track = track,
+                        cardColor = CardColor1,
+                        primaryText = primaryText,
+                        secondaryText = secondaryText,
+                        mutedText = mutedText,
+                        outline = outline
+                    )
                 }
             }
         }
@@ -401,18 +410,25 @@ fun MoodPlaylistScreen(
 }
 
 @Composable
-private fun PlaylistTrackRow(track: MoodTrack) {
+private fun PlaylistTrackRow(
+    track: MoodTrack,
+    cardColor: Color,
+    primaryText: Color,
+    secondaryText: Color,
+    mutedText: Color,
+    outline: Color
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF211A3B),
-                        Color(0xFF2B1F4F)
+                        cardColor,
+                        cardColor.copy(alpha = 0.82f)
                     )
                 ),
-                shape = RoundedCornerShape(22.dp)
+                shape = RoundedCornerShape(18.dp)
             )
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
@@ -421,7 +437,7 @@ private fun PlaylistTrackRow(track: MoodTrack) {
                 text = track.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = primaryText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -429,7 +445,7 @@ private fun PlaylistTrackRow(track: MoodTrack) {
             Text(
                 text = track.artist,
                 fontSize = 14.sp,
-                color = Color(0xCCFFFFFF),
+                color = secondaryText,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -437,8 +453,16 @@ private fun PlaylistTrackRow(track: MoodTrack) {
             Text(
                 text = track.note,
                 fontSize = 13.sp,
-                color = Color(0x99FFFFFF),
+                color = mutedText,
                 lineHeight = 18.sp
+            )
+
+            Spacer(modifier = Modifier.padding(top = 10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(outline, RoundedCornerShape(999.dp))
+                    .padding(vertical = 0.5.dp)
             )
         }
     }
