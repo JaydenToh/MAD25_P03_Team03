@@ -39,6 +39,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Colour palette
+private val DarkBackground1 = Color(0xFF121212)
+private val CardColor1 = Color(0xFF2F2F45)
+
 @Composable
 fun IdentifierHistoryScreen(
     onBackClick: () -> Unit,
@@ -54,22 +58,24 @@ fun IdentifierHistoryScreen(
 
     val historyItems = IdentifiedSongHistory.items
 
+    // UI colors
+    val primaryText = Color.White
+    val secondaryText = Color.White.copy(alpha = 0.78f)
+    val mutedText = Color.White.copy(alpha = 0.62f)
+    val outline = Color.White.copy(alpha = 0.12f)
+
+    val tabSelected = Color.White.copy(alpha = 0.16f)
+    val tabUnselectedText = Color.White.copy(alpha = 0.72f)
+    val tabContainer = CardColor1.copy(alpha = 0.55f)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF1C1B3A),
-                        Color(0xFF311B92)
-                    )
-                )
-            )
+            .background(DarkBackground1)
             .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 16.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,14 +86,14 @@ fun IdentifierHistoryScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = primaryText
                     )
                 }
                 Text(
                     text = "Identifier History",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = primaryText,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
@@ -98,8 +104,8 @@ fun IdentifierHistoryScreen(
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
                     .background(
-                        color = Color(0x33000000),
-                        shape = RoundedCornerShape(50.dp)
+                        color = tabContainer,
+                        shape = RoundedCornerShape(18.dp)
                     )
                     .padding(4.dp)
             ) {
@@ -107,13 +113,10 @@ fun IdentifierHistoryScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val selectedColor = Color(0xFF4C6FFF)
-                    val unselectedText = Color(0xCCFFFFFF)
-
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .background(color = selectedColor, shape = RoundedCornerShape(50.dp))
+                            .background(color = tabSelected, shape = RoundedCornerShape(14.dp))
                             .clickable { onHistoryClick() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -121,7 +124,7 @@ fun IdentifierHistoryScreen(
                         Text(
                             text = "History",
                             fontSize = 13.sp,
-                            color = Color.White,
+                            color = primaryText,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -129,7 +132,7 @@ fun IdentifierHistoryScreen(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(14.dp))
                             .clickable { onIdentifierClick() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -137,7 +140,7 @@ fun IdentifierHistoryScreen(
                         Text(
                             text = "Identifier",
                             fontSize = 13.sp,
-                            color = unselectedText,
+                            color = tabUnselectedText,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -145,7 +148,7 @@ fun IdentifierHistoryScreen(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .background(color = Color.Transparent, shape = RoundedCornerShape(50.dp))
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(14.dp))
                             .clickable { onMoodPlaylistClick() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -153,7 +156,7 @@ fun IdentifierHistoryScreen(
                         Text(
                             text = "Playlist",
                             fontSize = 13.sp,
-                            color = unselectedText,
+                            color = tabUnselectedText,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -171,7 +174,7 @@ fun IdentifierHistoryScreen(
                     Text(
                         text = "No songs identified yet.\nTry using the Song Identifier first.",
                         fontSize = 16.sp,
-                        color = Color(0xCCFFFFFF),
+                        color = secondaryText,
                         lineHeight = 20.sp
                     )
                 }
@@ -193,7 +196,12 @@ fun IdentifierHistoryScreen(
                             onDelete = {
                                 IdentifiedSongHistory.deleteAt(index)
                                 IdentifiedSongHistory.saveToPreferences(context)
-                            }
+                            },
+                            cardColor = CardColor1,
+                            primaryText = primaryText,
+                            secondaryText = secondaryText,
+                            mutedText = mutedText,
+                            outline = outline
                         )
                     }
                 }
@@ -206,9 +214,18 @@ fun IdentifierHistoryScreen(
 private fun HistoryItemRow(
     item: IdentifiedSongHistory.Item,
     onMoodChange: (String) -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    cardColor: Color,
+    primaryText: Color,
+    secondaryText: Color,
+    mutedText: Color,
+    outline: Color
 ) {
     var showMoodOptions by remember { mutableStateOf(false) }
+
+    val iconBg = Color.White.copy(alpha = 0.08f)
+    val pillSelected = Color.White.copy(alpha = 0.16f)
+    val pillUnselected = Color.White.copy(alpha = 0.08f)
 
     Box(
         modifier = Modifier
@@ -216,30 +233,27 @@ private fun HistoryItemRow(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF211A3B),
-                        Color(0xFF2B1F4F)
+                        cardColor,
+                        cardColor.copy(alpha = 0.82f)
                     )
                 ),
-                shape = RoundedCornerShape(22.dp)
+                shape = RoundedCornerShape(18.dp)
             )
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
             ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
+
                     Text(
                         text = item.title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
+                        color = primaryText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -249,7 +263,7 @@ private fun HistoryItemRow(
                     Text(
                         text = item.artist,
                         fontSize = 14.sp,
-                        color = Color(0xCCFFFFFF),
+                        color = secondaryText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -259,7 +273,7 @@ private fun HistoryItemRow(
                     Text(
                         text = item.timestamp,
                         fontSize = 12.sp,
-                        color = Color(0x99FFFFFF)
+                        color = mutedText
                     )
 
                     Spacer(modifier = Modifier.padding(top = 8.dp))
@@ -268,29 +282,40 @@ private fun HistoryItemRow(
                     Text(
                         text = "Mood: $moodLabel",
                         fontSize = 14.sp,
-                        color = if (item.mood == null) Color(0x99FFFFFF) else Color(0xFFB3E5FC),
+                        color = if (item.mood == null) mutedText else primaryText,
                         fontWeight = FontWeight.Medium
                     )
                 }
 
-                // icon stacked vertically
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    IconButton(onClick = { showMoodOptions = !showMoodOptions }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit mood",
-                            tint = Color(0xFFFFD54F)
-                        )
+                // icon stacked verticall
+                Column(horizontalAlignment = Alignment.End) {
+
+                    Box(
+                        modifier = Modifier
+                            .background(iconBg, RoundedCornerShape(12.dp))
+                    ) {
+                        IconButton(onClick = { showMoodOptions = !showMoodOptions }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit mood",
+                                tint = primaryText
+                            )
+                        }
                     }
 
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = Color(0xFFFF6B6B)
-                        )
+                    Spacer(modifier = Modifier.padding(top = 6.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .background(iconBg, RoundedCornerShape(12.dp))
+                    ) {
+                        IconButton(onClick = onDelete) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = primaryText
+                            )
+                        }
                     }
                 }
             }
@@ -311,19 +336,28 @@ private fun HistoryItemRow(
                                 showMoodOptions = false
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (item.mood == mood) Color(0xFF4C6FFF) else Color(0x33000000)
+                                containerColor = if (item.mood == mood) pillSelected else pillUnselected
                             ),
                             shape = RoundedCornerShape(999.dp),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
                                 text = mood,
-                                color = Color.White,
-                                fontSize = 13.sp
+                                color = primaryText,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(outline, RoundedCornerShape(999.dp))
+                        .padding(vertical = 0.5.dp)
+                )
             }
         }
     }
