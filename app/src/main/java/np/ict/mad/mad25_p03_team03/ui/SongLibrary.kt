@@ -1,7 +1,6 @@
 package np.ict.mad.mad25_p03_team03.ui
 
 import android.content.Intent
-import android.R.attr.repeatMode
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
@@ -32,19 +30,10 @@ import androidx.compose.ui.unit.sp
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.FirebaseFirestore
+import np.ict.mad.mad25_p03_team03.SongItem
 import np.ict.mad.mad25_p03_team03.R
 import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
-
-data class SongItem(
-    val title: String = "",
-    val artist: String = "",
-    val album: String = "",
-    val audioUrl: String = "",
-    @get:Exclude // Tells Firebase to ignore this field
-    var drawableId: Int = R.drawable.arcanepic
-)
 
 class SongLibrary : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,40 +55,18 @@ fun SongLibraryScreen(
     onNavigateBack: () -> Unit
 ){
     val context = LocalContext.current
+
     var songList by remember { mutableStateOf(listOf<SongItem>()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var searchQuery by remember { mutableStateOf("") }
-
-    // 2. SETUP EXOPLAYER
-    val exoPlayer = remember { MusicManager.getPlayer(context) }
-
-    // Track playing state
-    var isPlaying by remember { mutableStateOf(false) }
-    var currentSong by remember { mutableStateOf(-1) }
-    var repeat by remember { mutableStateOf(ExoPlayer.REPEAT_MODE_OFF) }
-
     var currentCollection by remember { mutableStateOf(collectionName) }
 
     // Listener
-    DisposableEffect(exoPlayer) {
-        val listener = object : Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
-            }
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                currentSong = exoPlayer.currentMediaItemIndex
-            }
-        }
-        exoPlayer.addListener(listener)
-        onDispose { exoPlayer.removeListener(listener) }
-    }
-
     LaunchedEffect(currentCollection) {
         loading = true
-        // Clear list so user sees it's refreshing
+        // Clear list
         songList = emptyList()
-        currentSong = -1
 
         FirebaseFirestore.getInstance().collection(currentCollection).get()
             .addOnSuccessListener { result ->
@@ -109,69 +76,6 @@ fun SongLibraryScreen(
                 loading = false
             }
             .addOnFailureListener { e -> error = e.message; loading = false }
-    }
-
-    LaunchedEffect(collectionName) {
-        loading = true
-        FirebaseFirestore.getInstance()
-            .collection(collectionName)
-            .get()
-            .addOnSuccessListener { result ->
-                val songs =
-                    result.documents.mapNotNull { doc -> doc.toObject(SongItem::class.java) }
-
-                songs.forEach { song ->
-                    song.drawableId = getAlbumArtFromName(song.title)
-            }
-
-                songList = songs
-                loading = false
-            }
-
-            .addOnFailureListener { e ->
-                error = e.message
-                loading = false
-            }
-    }
-
-    fun playSong(index: Int) {
-        if(currentSong == index) {
-            if(isPlaying) exoPlayer.pause()
-            else exoPlayer.play()
-            return
-        }
-
-        if(exoPlayer.mediaItemCount != songList.size) {
-            exoPlayer.clearMediaItems()
-            val mediaItems = songList.map { MediaItem.fromUri(it.audioUrl) }
-            exoPlayer.setMediaItems(mediaItems)
-        }
-
-        exoPlayer.seekTo(index, 0)
-        exoPlayer.prepare()
-        exoPlayer.play()
-
-        currentSong = index
-        isPlaying = true
-    }
-
-    fun openMusicProfile() {
-        if (currentSong != -1) {
-            val song = songList[currentSong]
-            val intent = Intent(context, MusicProfile::class.java).apply {
-                putExtra("TITLE", song.title)
-                putExtra("ARTIST", song.artist)
-                //putExtra("LYRICS", song.lyrics)
-                putExtra("IMAGE_ID", song.drawableId)
-            }
-            context.startActivity(intent)
-        }
-    }
-
-    fun toggleRepeat() {
-        val newMode = if (repeat == ExoPlayer.REPEAT_MODE_OFF) ExoPlayer.REPEAT_MODE_ONE else ExoPlayer.REPEAT_MODE_OFF
-        exoPlayer.repeatMode = newMode
-        repeat = newMode
     }
 
     val filteredSongs by remember(songList, searchQuery) {
@@ -184,21 +88,6 @@ fun SongLibraryScreen(
     }
 
     Scaffold(
-        bottomBar = {
-            if (currentSong != -1 && songList.isNotEmpty() && currentSong < songList.size) {
-                Box(modifier = Modifier.clickable { openMusicProfile() }) {
-                    BottomPlayerBar(
-                        song = songList[currentSong],
-                        isPlaying = isPlaying,
-                        repeatMode = repeatMode,
-                        onPlayPause = { if (isPlaying) exoPlayer.pause() else exoPlayer.play() },
-                        onNext = { if (exoPlayer.hasNextMediaItem()) exoPlayer.seekToNext() },
-                        onPrevious = { if (exoPlayer.hasPreviousMediaItem()) exoPlayer.seekToPrevious() },
-                        onRepeat = { toggleRepeat() }
-                    )
-                }
-            }
-        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -251,12 +140,17 @@ fun SongLibraryScreen(
                         SongList(
                             songs = filteredSongs,
                             onPlayClick = { song ->
+                                // 1. Find the index of the clicked song
                                 val index = songList.indexOf(song)
-                                if (index != -1) playSong(index)
+
+                                if (index != -1) {
+                                    MusicManager.setPlaylistAndPlay(songList, index, context)
+                                }
                             },
-                            currentSong = currentSong,
+                            //Read state from MusicManager so the UI updates
+                            currentSong = if (MusicManager.currentSong != null) MusicManager.currentIndex else -1,
                             allSongs = songList,
-                            isPlaying = isPlaying
+                            isPlaying = MusicManager.isPlaying
                         )
                     }
                 }

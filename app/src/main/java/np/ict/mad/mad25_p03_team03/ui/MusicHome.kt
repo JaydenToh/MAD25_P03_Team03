@@ -31,18 +31,19 @@ fun MusicHome(navController: NavHostController, songRepository: SongRepository,o
                         val intent = Intent(context, MusicProfile::class.java).apply {
                             putExtra("TITLE", playingSong.title)
                             putExtra("ARTIST", playingSong.artist)
-                            putExtra("LYRICS", playingSong.lyrics)
+                            //putExtra("LYRICS", playingSong.lyrics)
                             putExtra("IMAGE_ID", playingSong.drawableId)
                         }
                         context.startActivity(intent)
                     }) {
-                        // 5. PASS ALL PARAMETERS
                         BottomPlayerBar(
                             song = playingSong,
                             isPlaying = MusicManager.isPlaying,
+                            repeatMode = 0,
                             onPlayPause = { MusicManager.playPause(context) },
                             onNext = { MusicManager.next(context) },
-                            onPrevious = { MusicManager.previous(context) }
+                            onPrevious = { MusicManager.previous(context) },
+                            onRepeat = { }
                         )
                     }
                 }

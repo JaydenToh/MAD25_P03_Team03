@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.exoplayer.ExoPlayer
+import np.ict.mad.mad25_p03_team03.SongItem
 
 @Composable
 fun BottomPlayerBar(
