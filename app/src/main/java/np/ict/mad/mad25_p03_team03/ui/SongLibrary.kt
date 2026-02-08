@@ -135,25 +135,19 @@ fun SongLibraryScreen(
             SearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
             Spacer(modifier = Modifier.height(16.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-
-            ) {
-                SongList(
-                    songs = filteredSongs,
-                    onPlayClick = { song ->
-                        // 1. Find the index of the clicked song
-                        val index = songList.indexOf(song)
-                                if (index != -1) { MusicManager.setPlaylistAndPlay(songList, index, context) }
-                                  },
-                    //Read state from MusicManager so the UI updates
-                    currentSong = if (MusicManager.currentSong != null) MusicManager.currentIndex else -1,
-                    allSongs = songList,
-                    isPlaying = MusicManager.isPlaying
-                )
-            }
+            SongList(
+                songs = filteredSongs,
+                onPlayClick = { song ->
+                    // 1. Find the index of the clicked song
+                    val index = songList.indexOf(song)
+                    if (index != -1) { MusicManager.setPlaylistAndPlay(songList, index, context) }
+                              },
+                //Read state from MusicManager so the UI updates
+                currentSong = if (MusicManager.currentSong != null) MusicManager.currentIndex else -1,
+                allSongs = songList,
+                isPlaying = MusicManager.isPlaying,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -177,10 +171,11 @@ fun SongList(
     onPlayClick: (SongItem) -> Unit,
     currentSong: Int,
     allSongs: List<SongItem>,
-    isPlaying: Boolean
+    isPlaying: Boolean,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(bottom = 100.dp)
     ) {
