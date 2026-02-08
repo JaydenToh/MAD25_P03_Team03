@@ -35,14 +35,9 @@ import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 class MusicProfile : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val title = intent.getStringExtra("TITLE") ?: "Unknown"
-        val artist = intent.getStringExtra("ARTIST") ?: "Unknown"
-        val lyrics = intent.getStringExtra("LYRICS") ?: "No lyrics available."
-        val drawableId = intent.getIntExtra("IMAGE_ID", R.drawable.arcanepic)
         setContent {
             MAD25_P03_Team03Theme {
-                        MusicProfileScreen(title, artist, lyrics, drawableId, onBack = { finish() })
+                        MusicProfileScreen(onBack = { finish() })
             }
         }
     }
@@ -50,10 +45,6 @@ class MusicProfile : ComponentActivity() {
 
 @Composable
 fun MusicProfileScreen(
-    title: String,
-    artist: String,
-    lyrics: String,
-    drawableId: Int,
     onBack: () -> Unit
 ){
     val context = LocalContext.current
@@ -112,6 +103,7 @@ fun MusicProfileScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+            val drawable = currentSong?.drawableId ?: R.drawable.arcanepic
             // Album Art
             Card(
                 shape = RoundedCornerShape(24.dp),
@@ -119,7 +111,7 @@ fun MusicProfileScreen(
                 modifier = Modifier.size(300.dp)
             ) {
                 Image(
-                    painter = painterResource(id = drawableId),
+                    painter = painterResource(id = drawable),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -128,8 +120,8 @@ fun MusicProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(title, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text(artist, fontSize = 18.sp, color = Color.Gray)
+            Text(currentSong?.title ?: "Unknown", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(currentSong?.artist ?: "Unknown", fontSize = 18.sp, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(24.dp))
 
