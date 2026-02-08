@@ -18,7 +18,6 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 
 private val DarkBackground2 = Color(0xFF121212)
 private val CardColor2 = Color(0xFF2F2F45)
-private val Purple = Color(0xFFBB86FC)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,7 +118,7 @@ fun ModeSelectionScreen(
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Purple,
+                    containerColor = CardColor2,
                     contentColor = Color.White
                 )
             ) {

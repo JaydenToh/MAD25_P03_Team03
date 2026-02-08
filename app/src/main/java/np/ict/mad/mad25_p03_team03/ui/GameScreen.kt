@@ -6,12 +6,14 @@ import GameSummaryScreen
 import android.media.MediaPlayer
 import android.os.CountDownTimer
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -23,6 +25,9 @@ import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.R
 import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
+
+private val DarkBackground3 = Color(0xFF121212)
+private val CardColor3 = Color(0xFF651FFF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -267,14 +272,16 @@ fun GameScreen(
 
     // ui layout
     Scaffold(
+        containerColor = DarkBackground3,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("🎵 Song Guesser", fontWeight = FontWeight.Bold) },
+                title = { Text("🎵 Song Guesser", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = DarkBackground3)
             )
         },
         content = { paddingValues ->
@@ -308,32 +315,44 @@ fun GameScreen(
                             text = "🎵 What is this song? 🎶",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = Color.White
                         )
                         Text(
-                            text = "🎧 Select your correct answer below ⬇️",
+                            text = "🎧 Select your correct answer below",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.White
                         )
                     }
-
                     Button(
                         onClick = { playAudio(currentQuestion.audioUrl) },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
+                            containerColor = Color(0xFF2F2F45)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                     ) {
-                        Text("▶️ Replay Song Clip", fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "Replay Song Clip",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
 
                     currentQuestion.options.forEach { option ->
                         Button(
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                            onClick = { advanceToNextQuestion(option == currentQuestion.correctTitle) }
+                            onClick = { advanceToNextQuestion(option == currentQuestion.correctTitle) },
+                            colors = ButtonDefaults.buttonColors(containerColor = CardColor3),
+                            shape = RoundedCornerShape(25.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
                         ) {
-                            Text(option, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            Text(option, fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Medium)
                         }
                     }
 
