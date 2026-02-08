@@ -31,8 +31,16 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Update to overall ui design consistency.">
+    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Update to overall ui design consistency for login and sign up screen.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.kotlin/errors/errors-1764984900291.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/OTPScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/OTPScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/navigation/AppRoot.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/navigation/AppRoot.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/GameSummaryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/GameSummaryScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/ModeSelectionScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/ModeSelectionScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SongLibrary.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SongLibrary.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/theme/Theme.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/theme/Theme.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/data/remote/dto/SimpleSong.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/data/remote/dto/SimpleSong.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/data/remote/dto/SongDto.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/data/remote/dto/SongDto.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/navigation/AppRoot.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/navigation/AppRoot.kt" afterDir="false" />
@@ -537,7 +545,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770580667926</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="Update to overall ui design consistency for login and sign up screen.">
+      <option name="closed" value="true" />
+      <created>1770581648059</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1770581648059</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -552,7 +568,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixing SongLibrary logic, &#10;continue updating the songlibraryscreen with the skip, pause, play, and repeat fun to enable it to work." />
     <MESSAGE value="Fixing SongLibrary logic, &#10;fixing the UI logic so that I can use Bottom Player Bar. &#10;&#10;Fixing bugs and errors to code and adjusting old code off to make way for new code." />
     <MESSAGE value="Fixing SongLibrary logic, &#10;fixing the UI logic so that I can use Bottom Player Bar for the music.&#10;&#10;Fixing bugs and errors to code and adjusting old code off to make way for new code." />
     <MESSAGE value="Fixing SongLibrary logic, &#10;adding in the language toggle button so users can easily toggle on and off the to change the language of songs." />
@@ -577,7 +592,8 @@
     <MESSAGE value="Update to music profile to fix issue that when song is click next, the database field did not sync. Adjusted bottomplayerbar to fix the ui." />
     <MESSAGE value="Update to rules screen for song guesser game and modeselectionscreen for ui design consistency." />
     <MESSAGE value="Update to overall ui design consistency." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update to overall ui design consistency." />
+    <MESSAGE value="Update to overall ui design consistency for login and sign up screen." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update to overall ui design consistency for login and sign up screen." />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">

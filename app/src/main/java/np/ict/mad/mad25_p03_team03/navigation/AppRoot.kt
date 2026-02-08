@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import np.ict.mad.mad25_p03_team03.LoginScreen
-import np.ict.mad.mad25_p03_team03.OTPScreen
+//import np.ict.mad.mad25_p03_team03.OTPScreen
 import np.ict.mad.mad25_p03_team03.SignUpScreen
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.*
@@ -55,13 +55,6 @@ fun AppRoot() {
             onBackToLoginClick = { currentScreen = RootScreen.Login }
         )
 
-        // Flow 3.6: OTP Screen Rendering
-        is RootScreen.OTP -> OTPScreen(
-            // Flow 3.7: Navigation to Music Home
-            onContinueToApp = { currentScreen = RootScreen.Music }
-        )
-
-        // Flow 3.8: Music Content Rendering
         is RootScreen.Music -> {
             MusicRoot(
                 // Variable - Input - Passing the song repository
@@ -81,6 +74,5 @@ fun AppRoot() {
 sealed class RootScreen {
     object Login : RootScreen()
     object SignUp : RootScreen()
-    object OTP : RootScreen()
     object Music : RootScreen()
 }

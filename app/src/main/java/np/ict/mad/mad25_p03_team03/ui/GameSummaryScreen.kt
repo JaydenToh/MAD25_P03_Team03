@@ -134,15 +134,14 @@ fun GameSummaryScreen(
             }
         }
 
-        // Flow 3.3: Add Vertical Spacing
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
 
 
         // UI - Row - Container for multiple horizontal statistic cards
         // Flow 4.0: Stats Row Construction
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Flow 4.1: Accuracy Card Rendering
             StatCard(
@@ -167,47 +166,52 @@ fun GameSummaryScreen(
             )
         }
 
-        // Flow 4.4: Flexible Spacing for alignment
-        Spacer(Modifier.weight(1.5f))
+        Spacer(Modifier.weight(1f))
 
-        // UI - Row - Layout for action buttons
-        // Flow 5.0: Action Buttons Layout
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp) // FIX: Adds 16dp gap between the top row and bottom button
         ) {
-            // UI - Button - Triggers game restart
-            // Flow 5.1: Play Again Button Rendering
-            OutlinedButton(
-                onClick = onPlayAgain,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp),
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp) // 按钮间的间距
             ) {
-                // Flow 5.2: Refresh Icon
-                Icon(Icons.Default.Refresh, null)
-                // Flow 5.3: Horizontal Gap
-                Spacer(Modifier.width(8.dp))
-                // Flow 5.4: Button Text
-                Text("Play Again", fontSize = 16.sp)
+                // 1. Play Again Button
+                OutlinedButton(
+                    onClick = onPlayAgain,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                ) {
+                    Icon(Icons.Default.Refresh, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Play Again", fontSize = 16.sp)
+                }
+
+                // 2. Back to Rules Button
+                OutlinedButton(
+                    onClick = onBack,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                ) {
+                    // Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                    Text("Back to Rules", fontSize = 16.sp)
+                }
             }
 
+            Spacer(Modifier.height(2.dp))
 
-        }
-
-        // Flow 5.5: Add Vertical Spacing
-        Spacer(Modifier.height(2.dp))
-
-        // UI - Button - Triggers return to main menu
-        // Flow 5.6: Back to Menu Button Rendering
-        OutlinedButton(
-            onClick = onBack,
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextGray),
-            modifier = Modifier.fillMaxWidth().height(56.dp)
-        ) {
-            // Flow 5.7: Button Text
-            Text("Back to Menu")
+            OutlinedButton(
+                onClick = onBack,
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextGray),
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                Text("Back to Menu")
+            }
         }
     }
 }
