@@ -159,17 +159,21 @@ This application falls under the Music & Audio category, as it focuses on provid
 
 | Name | Feature | Description |
 |------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| Liew Zhan Yang | Advanced Song Quiz | Expanded the quiz with new song categories such as Mandarin Pop, and integrated a Difficulty System (Easy, Middle, Hard) for a tailored user experience. |
-| Liew Zhan Yang | Game Statistics | Developed a comprehensive post-game overview that displays detailed performance statistics after each session. |
-| Liew Zhan Yang | Multiplayer Infrastructure | Built a real-time multiplayer waiting room and lobby system to manage room creation and matchmaking. |
-| Liew Zhan Yang | Multiplayer Game Modes | Implemented synchronized competitive modes including Trivia Quiz, Rhythm Tap, and the Humming/Mimic challenge. |
-| Liew Zhan Yang | Solo & AI Play | Created a Single Player Humming Game and integrated an AI-driven Bot mode for users to practice against automated opponents. |
-| Liew Zhan Yang | Social Ecosystem | Developed a Friends System and a real-time Chatting system, allowing users to connect and communicate within the app. |
-| Liew Zhan Yang | Competitive Features | Implemented a global Leaderboard and customizable Player Profiles to track progress and rank users. |
-| Liew Zhan Yang | Account Management | Enhanced security with email-verified login, a “Forget Password” recovery system, and a dedicated Log Out function. |
 | Garence Wong Kar Kang | Mood Tagging | Mood selection after a song is identified (Chill / Hype / Emotional). |
 | Garence Wong Kar Kang | Identifier History | Saves identified songs into a persistent history (SharedPreferences)  | 
 | Garence Wong Kar Kang |  Mood Playlist | Generates playlist suggestions based on tagged moods in history  | 
+| Liew Zhan Yang | Expanded Quiz Categories | • Integrated a dynamic category selection system that allows users to switch between English and Mandarin Pop music datasets.<br>• Leveraged Supabase to fetch language-specific song metadata and audio assets, ensuring a diverse and localized gaming experience. |
+| Liew Zhan Yang | Performance Statistics | • Designed a comprehensive post-game summary screen that tracks and displays user performance metrics.<br>• Provides detailed feedback including accuracy percentages and total points earned to help users monitor their progress over time. |
+| Liew Zhan Yang | Dynamic Difficulty System | • Implemented three distinct difficulty levels—Easy, Middle, and Hard—allowing users to tailor the challenge to their skill level.<br>• Difficulty adjustments influence game mechanics such as timer duration and the complexity of trivia questions. |
+| Liew Zhan Yang | Multiplayer Waiting Room | • Developed a real-time “Lobby” system using Cloud Firestore to facilitate room discovery and matchmaking.<br>• Users can create private rooms or join existing sessions, with live status updates (e.g., “waiting” or “playing”) synchronized across all clients. |
+| Liew Zhan Yang | Multiplayer Trivia Mode | • Built a real-time PvP trivia engine where players compete head-to-head to identify songs simultaneously.<br>• Synchronizes question indices and player scores instantly through Firestore document listeners to ensure fair and competitive play. |
+| Liew Zhan Yang | Multiplayer Rhythm Mode | • Introduced a timing-based competitive mode where players must tap in synchronization with music beats.<br>• Uses real-time data streaming to track and compare rhythm accuracy between opponents in a shared game room. |
+| Liew Zhan Yang | Humming / Mimic Challenge | • Developed an innovative multiplayer mode that requires users to mimic or hum the melody of a track.<br>• Utilizes frequency-based pitch detection logic to evaluate and score the accuracy of the user's vocal performance against the original song. |
+| Liew Zhan Yang | Automated Bot System | • Engineered sophisticated AI logic modules (TriviaBotLogic and RhythmBotLogic) to provide challenging opponents for solo players.<br>• Bots simulate human-like behavior with variable reaction times and accuracy levels based on the selected game difficulty. |
+| Liew Zhan Yang | Global Leaderboard | • Implemented a centralized ranking system that displays top-performing players across the entire platform.<br>• Fetches and sorts user data from Firebase to encourage global competition and community engagement. |
+| Liew Zhan Yang | Social & Messaging System | • Built a comprehensive social ecosystem featuring a Friends System for managing connections and a real-time Chat for direct communication.<br>• Messages are synchronized instantly using Firestore, supporting a seamless social experience within the application. |
+| Liew Zhan Yang | Personalized User Profiles | • Created customizable user profiles that showcase individual achievements, player stats, and social status.<br>• Allows users to view both their own profiles and those of other players to foster a sense of community. |
+| Liew Zhan Yang | Account Security & Recovery | • Enhanced platform integrity with email-verified login and a secure “Forget Password” recovery workflow.<br>• Integrated a dedicated Log Out function and session management to ensure user data remains protected across different devices. |
 
 
 
