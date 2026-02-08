@@ -1,73 +1,82 @@
-// 放在 ModeSelectionScreen.kt 或单独的文件
+// Place in ModeSelectionScreen.kt or a separate file like MatchmakingUtils.kt
 package np.ict.mad.mad25_p03_team03.ui
 
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 
+// Function - Helper Logic - Handles matchmaking: finds an open room or creates a new one
+// Flow 1.0: Entry Point
 fun findOrCreateGame(
-    db: FirebaseFirestore,
-    currentUser: FirebaseUser,
-    songRepository: SongRepository, // 传入 Repository 用来生成题目
-    onGameFound: (String) -> Unit,
-    onFail: (String) -> Unit
+    db: FirebaseFirestore,          // Variable - Input - Firestore Database Instance
+    currentUser: FirebaseUser,      // Variable - Input - The currently logged-in user
+    songRepository: SongRepository, // Variable - Input - Repository to fetch questions (passed for context)
+    onGameFound: (String) -> Unit,  // Variable - Input - Callback triggered when a room ID is ready
+    onFail: (String) -> Unit        // Variable - Input - Callback triggered on error
 ) {
-    // 1. 先找有没有等待中的房间
+    // Flow 1.1: Query Firestore
+    // Look for any document in 'pvp_rooms' where status is 'waiting'
     db.collection("pvp_rooms")
         .whereEqualTo("status", "waiting")
-        .limit(1)
+        .limit(1) // Logic - Optimization: We only need one available slot
         .get()
         .addOnSuccessListener { snapshot ->
+            // Flow 2.0: Check Results
             if (!snapshot.isEmpty) {
-                // ✅ A. 找到了房间 -> 加入 (Join)
+                // Flow 2.1: Room Found Logic (Join Path)
+                // Get the first available room document
                 val room = snapshot.documents[0]
                 val roomId = room.id
 
-                // 防止自己进自己房间
+                // Flow 2.2: Self-Join Prevention
+                // Guard clause: Ensure the player doesn't join a room they created themselves (stale room)
                 if (room.getString("player1Id") == currentUser.uid) {
                     onGameFound(roomId)
                     return@addOnSuccessListener
                 }
 
+                // Flow 2.3: Join Operation
+                // Update the room document to register Player 2 and start the game immediately
                 db.collection("pvp_rooms").document(roomId)
                     .update(
                         mapOf(
                             "player2Id" to currentUser.uid,
-                            "status" to "playing" // 马上开始
+                            "status" to "playing" // Logic - State Change to 'playing'
                         )
                     )
-                    .addOnSuccessListener { onGameFound(roomId) }
-                    .addOnFailureListener { onFail("Failed to join room") }
+                    .addOnSuccessListener {
+                        // Flow 2.4: Success Callback
+                        onGameFound(roomId)
+                    }
+                    .addOnFailureListener {
+                        // Flow 2.5: Failure Callback
+                        onFail("Failed to join room")
+                    }
 
             } else {
-                // 🆕 B. 没找到 -> 创建新房间并生成题目 (Create)
-
-                // 这里我们使用协程或者简单的回调来获取题目
-                // 注意：SongRepository.fetchSongsFromSupabase 是 suspend 函数
-                // 简单起见，我们假设你能在 CoroutineScope 里调用，或者 Repository 有 callback 版本
-                // 这里演示假设有一个 fetchRandomQuestionsSync 或者在 UI 层级调用
-
-                // 为了简单，我们先创建房间，题目留空，然后在 PvpGameScreen 只有 Player 1 生成题目？
-                // 不，最好的办法是在这里生成。为了代码简洁，我们假定这里能拿到 songRepository 的数据。
-                // ⚠️ 实际代码中，你应该在 LaunchedEffect 里调用这个，或者把这个函数变成 suspend function
-
+                // Flow 3.0: Create Room Logic (Create Path)
+                // No waiting rooms found, so we must create a new one
+                // Logic - Note: Question generation is deferred to the Game Screen to keep this UI responsive
                 createRoomWithQuestions(db, currentUser, songRepository, onGameFound, onFail)
             }
         }
-        .addOnFailureListener { onFail(it.message ?: "Error finding room") }
+        .addOnFailureListener {
+            // Flow 1.3: Query Failure
+            onFail(it.message ?: "Error finding room")
+        }
 }
 
-// 辅助函数：创建带题目的房间
+// Function - Helper Logic - Generates a new room document in Firestore
+// Flow 4.0: Creation Entry Point
 private fun createRoomWithQuestions(
-    db: FirebaseFirestore,
-    currentUser: FirebaseUser,
-    songRepository: SongRepository,
-    onSuccess: (String) -> Unit,
-    onFail: (String) -> Unit
+    db: FirebaseFirestore,          // Variable - Input - DB Instance
+    currentUser: FirebaseUser,      // Variable - Input - Host User
+    songRepository: SongRepository, // Variable - Input - Data Source
+    onSuccess: (String) -> Unit,    // Variable - Input - Success Callback
+    onFail: (String) -> Unit        // Variable - Input - Failure Callback
 ) {
-    // ⚠️ 注意：这需要运行在 CoroutineScope 中，或者 Repository 提供回调
-    // 这里示意数据结构
-
+    // Flow 4.1: Data Construction
+    // Create the initial state map for the new game room
     val newRoom = hashMapOf(
         "player1Id" to currentUser.uid,
         "player2Id" to null,
@@ -75,12 +84,20 @@ private fun createRoomWithQuestions(
         "currentQuestionIndex" to 0,
         "scores" to hashMapOf(currentUser.uid to 0),
         "roundWinnerId" to null,
-        // 🆕 预留一个空数组，或者在这里填入 fetch 到的题目
-        // 建议：为了不阻塞 UI，我们可以先创建房间，进去后再由 Player 1 填充题目
+        // Logic - Initialize empty questions list
+        // Note: Actual song data will be populated by Player 1 in the Game Screen to handle async loading better
         "questions" to emptyList<Map<String, Any>>()
     )
 
+    // Flow 4.2: Database Write
+    // Add the new map to the 'pvp_rooms' collection
     db.collection("pvp_rooms").add(newRoom)
-        .addOnSuccessListener { docRef -> onSuccess(docRef.id) }
-        .addOnFailureListener { onFail(it.message ?: "Failed to create") }
+        .addOnSuccessListener { docRef ->
+            // Flow 4.3: Creation Success
+            onSuccess(docRef.id)
+        }
+        .addOnFailureListener {
+            // Flow 4.4: Creation Failure
+            onFail(it.message ?: "Failed to create")
+        }
 }
