@@ -28,8 +28,7 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 
 // Variable - Color - Custom background color for this screen
 private val DarkBackground3 = Color(0xFF121212)
-// Variable - Color - Custom card color for option buttons
-private val CardColor3 = Color(0xFF651FFF)
+private val CardColor3 = Color(0xFF2F2F45 )
 
 // Function - UI Component - The Main Game Screen logic
 // Flow 1.0: Screen Entry Point
@@ -342,9 +341,9 @@ fun GameScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Score: $score", style = MaterialTheme.typography.bodyLarge)
-                        Text("Lives: $lives", style = MaterialTheme.typography.bodyLarge)
-                        Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
+                        Text("Score: $score", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                        Text("Lives: $lives", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                        Text("Time: $timeLeft", color = Color.White, style = MaterialTheme.typography.bodyLarge)
                     }
 
                     // UI - Question Header
@@ -373,7 +372,7 @@ fun GameScreen(
                             .height(55.dp),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2F2F45)
+                            containerColor = Color(0xFF651FFF)
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                     ) {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Refresh
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,7 +54,7 @@ fun GameSummaryScreen(
         accuracy == 100 -> "🎵 Music God 🎵"
         accuracy >= 80 -> "🎸 Rock Star"
         accuracy >= 50 -> "🎤 Karaoke Singer"
-        else -> "👂 Need Practice"
+        else -> "Need Practice"
     }
 
 
@@ -92,7 +94,7 @@ fun GameSummaryScreen(
         Text(
             text = rankTitle,
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = Color.White
         )
 
         // Flow 2.5: Spacing
@@ -103,19 +105,19 @@ fun GameSummaryScreen(
         // Highlights the final numeric score
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            colors = CardDefaults.cardColors(containerColor = CardColor),
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("FINAL SCORE", style = MaterialTheme.typography.labelLarge)
+                Text("FINAL SCORE", color = Color.White, style = MaterialTheme.typography.labelLarge)
                 Text(
                     text = "$score",
                     style = MaterialTheme.typography.displayLarge,
                     fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.primary
+                    color = TextWhite
                 )
             }
         }
@@ -133,6 +135,7 @@ fun GameSummaryScreen(
             // Flow 4.1: Accuracy Card
             StatCard(
                 modifier = Modifier.weight(1f),
+                //color = CardColor,
                 label = "Accuracy",
                 value = "$accuracy%",
                 icon = "🎯"
@@ -166,10 +169,10 @@ fun GameSummaryScreen(
             // Resets game state via onPlayAgain callback
             Button(
                 onClick = onPlayAgain,
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
                 modifier = Modifier
                     .weight(1f)
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = mainColor)
             ) {
                 Icon(Icons.Default.Refresh, null)
                 Spacer(Modifier.width(8.dp))
@@ -186,6 +189,7 @@ fun GameSummaryScreen(
         // Navigates back to setup screen
         OutlinedButton(
             onClick = onBack,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextGray),
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
             Text("Back to Rules")
@@ -197,13 +201,23 @@ fun GameSummaryScreen(
 // Function - UI Component - Reusable card for a single statistic
 // Flow 7.0: Stat Card Component
 @Composable
-fun StatCard(modifier: Modifier = Modifier, label: String, value: String, icon: String) {
+fun StatCard(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String,
+    icon: String
+) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        // FIX: Explicitly set the background to your requested color
+        colors = CardDefaults.cardColors(containerColor = CardColor),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(vertical = 16.dp, horizontal = 4.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Flow 7.1: Icon Emoji
