@@ -64,6 +64,8 @@ This application falls under the Music & Audio category, as it focuses on provid
 - Gemini
 - Copilot
 - Perplexity
+- Mermaid AI
+- Grok
 
 ---------------------------
 
