@@ -39,11 +39,11 @@ fun MusicHome(navController: NavHostController, songRepository: SongRepository,o
                         BottomPlayerBar(
                             song = playingSong,
                             isPlaying = MusicManager.isPlaying,
-                            repeatMode = 0,
+                            repeatMode = MusicManager.repeatMode,
                             onPlayPause = { MusicManager.playPause(context) },
                             onNext = { MusicManager.next(context) },
                             onPrevious = { MusicManager.previous(context) },
-                            onRepeat = { }
+                            onRepeat = { MusicManager.toggleRepeat() }
                         )
                     }
                 }

@@ -1,5 +1,6 @@
 package np.ict.mad.mad25_p03_team03.ui
 
+import android.R.attr.repeatMode
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ object MusicManager {
     var isPlaying by mutableStateOf(false)
     var playlist by mutableStateOf(listOf<SongItem>())
     var currentIndex by mutableStateOf(-1)
+    var repeatMode by mutableStateOf(Player.REPEAT_MODE_OFF)
 
     fun getPlayer(context: Context): ExoPlayer {
         if (player == null) {
@@ -33,6 +35,9 @@ object MusicManager {
                         currentIndex = index
                         currentSong = playlist[index]
                     }
+                }
+                override fun onRepeatModeChanged(mode: Int) {
+                    repeatMode = mode
                 }
             })
         }
@@ -71,6 +76,17 @@ object MusicManager {
     fun previous(context: Context) {
         val p = getPlayer(context)
         if (p.hasPreviousMediaItem()) p.seekToPrevious()
+    }
+
+    fun toggleRepeat() {
+        val p = player ?: return
+        val newMode = when (p.repeatMode) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ALL
+            else -> Player.REPEAT_MODE_OFF
+        }
+        p.repeatMode = newMode
+        repeatMode = newMode
     }
 
     fun release() {

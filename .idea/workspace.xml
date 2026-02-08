@@ -31,12 +31,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Updating the overall the music manager, bottomplayerbar, music profile. Adjusting the Music Home so that music can be played any where from the other screens of the app.">
+    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Adjusting and updating the file to clean to remove unneccesary stuff. Adjusting music home for universal music adjustment.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/BottomPlayerBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/BottomPlayerBar.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/MusicHome.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/MusicHome.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/MusicManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/MusicManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SongLibrary.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SongLibrary.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -427,7 +425,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770512867261</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Adjusting and updating the file to clean to remove unneccesary stuff. Adjusting music home for universal music adjustment.">
+      <option name="closed" value="true" />
+      <created>1770515517668</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1770515517668</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -466,7 +472,8 @@
     <MESSAGE value="Updating the overall disposaleffect and centralised music exoplayer so that music can be played in the background even if screen is turned off." />
     <MESSAGE value="Updating the overall the music manager so users can skip, pause, or play music still even when they leave the screen. Adding a bottomplayerbar file to allow it to seperate from the songlibrary screen." />
     <MESSAGE value="Updating the overall the music manager, bottomplayerbar, music profile. Adjusting the Music Home so that music can be played any where from the other screens of the app." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updating the overall the music manager, bottomplayerbar, music profile. Adjusting the Music Home so that music can be played any where from the other screens of the app." />
+    <MESSAGE value="Adjusting and updating the file to clean to remove unneccesary stuff. Adjusting music home for universal music adjustment." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adjusting and updating the file to clean to remove unneccesary stuff. Adjusting music home for universal music adjustment." />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
