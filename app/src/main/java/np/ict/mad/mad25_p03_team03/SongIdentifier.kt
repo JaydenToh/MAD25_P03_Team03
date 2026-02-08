@@ -59,18 +59,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-
-private const val USE_FAKE_IDENTIFY_RESULT = true
-
-// Fake results for quick UI testing
-private val fakeIdentifyResults = listOf(
-    "Song: Blinding Lights\nArtist: The Weeknd",
-    "Song: Shape of You\nArtist: Ed Sheeran",
-    "Song: Levitating\nArtist: Dua Lipa",
-    "Song: Stay\nArtist: The Kid LAROI & Justin Bieber",
-    "Song: Perfect\nArtist: Ed Sheeran"
-)
-
 // Colour palette
 private val DarkBackground1 = Color(0xFF121212)
 private val CardColor1 = Color(0xFF2F2F45)
@@ -264,12 +252,6 @@ private fun stopRecording(
         return
     }
 
-    // Fake mode for testing UI without using real API
-    if (USE_FAKE_IDENTIFY_RESULT) {
-        val fake = fakeIdentifyResults.random()
-        onStateChange(false, "Tap the music note to identify another song", fake)
-        return
-    }
 
     // Send audio file to AudD API for song recognition
     uploadToAudD(file, onStateChange)
@@ -613,7 +595,7 @@ private fun ResultCard(
                     .padding(top = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // left placeholder (same width as the close button)
+
                 Box(modifier = Modifier.size(40.dp))
 
                 Text(
