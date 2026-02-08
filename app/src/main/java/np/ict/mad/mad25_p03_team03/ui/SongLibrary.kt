@@ -35,6 +35,11 @@ import np.ict.mad.mad25_p03_team03.SongItem
 import np.ict.mad.mad25_p03_team03.R
 import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 
+
+val DarkBackground = Color(0xFF121212)
+val CardColor = Color(0xFF2F2F45)
+val ButtonColor = Color(0xFF3A3A50)
+
 class SongLibrary : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,21 +93,26 @@ fun SongLibraryScreen(
     }
 
     Scaffold(
+        containerColor = DarkBackground
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(DarkBackground)
+                .padding(horizontal = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
-                Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                Text("Song Library",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White)
                 Spacer(modifier = Modifier.weight(1f))
 
                 // Toggle button
@@ -111,49 +121,38 @@ fun SongLibraryScreen(
                         currentCollection = if (currentCollection == "songs") "songs_mandarin" else "songs"
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A50)),
-                    shape = RoundedCornerShape(50),
+                    shape = RoundedCornerShape(70),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     modifier = Modifier.height(36.dp)
                 ) {
                     Text(
-                        text = if (currentCollection == "songs") "EN" else "CN",
-                        fontSize = 12.sp,
+                        text = if (currentCollection == "songs") "English" else "Chinese",
+                        fontSize = 15.sp,
                         color = Color.White
                     )
                 }
             }
-            when {
-                loading -> Text("Loading...", color = Color.White, modifier = Modifier.align(Alignment.Center))
-                error != null -> Text("Error: $error", color = Color.Red, modifier = Modifier.align(Alignment.Center))
-                else -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .statusBarsPadding()
-                            .padding(horizontal = 16.dp, vertical = 20.dp)
-                    ) {
-                        Text("Song Library", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        SearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
-                        Spacer(modifier = Modifier.height(20.dp))
+            SearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
+            Spacer(modifier = Modifier.height(16.dp))
 
-                        SongList(
-                            songs = filteredSongs,
-                            onPlayClick = { song ->
-                                // 1. Find the index of the clicked song
-                                val index = songList.indexOf(song)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
 
-                                if (index != -1) {
-                                    MusicManager.setPlaylistAndPlay(songList, index, context)
-                                }
-                            },
-                            //Read state from MusicManager so the UI updates
-                            currentSong = if (MusicManager.currentSong != null) MusicManager.currentIndex else -1,
-                            allSongs = songList,
-                            isPlaying = MusicManager.isPlaying
-                        )
-                    }
-                }
+            ) {
+                SongList(
+                    songs = filteredSongs,
+                    onPlayClick = { song ->
+                        // 1. Find the index of the clicked song
+                        val index = songList.indexOf(song)
+                                if (index != -1) { MusicManager.setPlaylistAndPlay(songList, index, context) }
+                                  },
+                    //Read state from MusicManager so the UI updates
+                    currentSong = if (MusicManager.currentSong != null) MusicManager.currentIndex else -1,
+                    allSongs = songList,
+                    isPlaying = MusicManager.isPlaying
+                )
             }
         }
     }
@@ -182,7 +181,8 @@ fun SongList(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 100.dp)
     ) {
         items(songs) { song ->
             // Check if this song is the one currently playing
