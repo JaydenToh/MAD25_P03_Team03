@@ -107,12 +107,12 @@ fun GameSummaryScreen(
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
 
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Accuracy Card
             StatCard(
@@ -138,46 +138,52 @@ fun GameSummaryScreen(
             )
         }
 
-        Spacer(Modifier.weight(1.5f))
+        Spacer(Modifier.weight(1f))
 
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp) // 按钮间的间距
+            verticalArrangement = Arrangement.spacedBy(16.dp) // FIX: Adds 16dp gap between the top row and bottom button
         ) {
-            // 1. Play Again Button
-            OutlinedButton(
-                onClick = onPlayAgain,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp),
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp) // 按钮间的间距
             ) {
-                Icon(Icons.Default.Refresh, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Play Again", fontSize = 16.sp)
+                // 1. Play Again Button
+                OutlinedButton(
+                    onClick = onPlayAgain,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                ) {
+                    Icon(Icons.Default.Refresh, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Play Again", fontSize = 16.sp)
+                }
+
+                // 2. Back to Rules Button
+                OutlinedButton(
+                    onClick = onBack,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                ) {
+                    // Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                    Text("Back to Rules", fontSize = 16.sp)
+                }
             }
 
-            // 2. Back to Rules Button
+            Spacer(Modifier.height(2.dp))
+
             OutlinedButton(
                 onClick = onBack,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextWhite),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp)
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextGray),
+                modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                // Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                Text("Back to Rules", fontSize = 16.sp)
+                Text("Back to Menu")
             }
-        }
-
-        Spacer(Modifier.height(2.dp))
-
-        OutlinedButton(
-            onClick = onBack,
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextGray),
-            modifier = Modifier.fillMaxWidth().height(56.dp)
-        ) {
-            Text("Back to Menu")
         }
     }
 }

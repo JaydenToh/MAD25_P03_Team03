@@ -122,7 +122,7 @@ fun ModeSelectionScreen(
                     contentColor = Color.White
                 )
             ) {
-                Text("🚀 START SINGLE PLAYER", style = MaterialTheme.typography.titleMedium)
+                Text("START SINGLE PLAYER", style = MaterialTheme.typography.titleMedium)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -146,9 +146,8 @@ fun ModeSelectionScreen(
                     contentColor = Color.White
                 )
             ) {
-                Icon(Icons.Default.FlashOn, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("⚡ PLAY PVP (1 VS 1)", style = MaterialTheme.typography.titleMedium)
+                Text("PLAY PVP (1 VS 1)", style = MaterialTheme.typography.titleMedium)
             }
         }
     }

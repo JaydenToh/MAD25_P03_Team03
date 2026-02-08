@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import np.ict.mad.mad25_p03_team03.LoginScreen
-import np.ict.mad.mad25_p03_team03.OTPScreen
+//import np.ict.mad.mad25_p03_team03.OTPScreen
 import np.ict.mad.mad25_p03_team03.SignUpScreen
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import np.ict.mad.mad25_p03_team03.ui.*
@@ -28,15 +28,11 @@ fun AppRoot() {
     when (currentScreen) {
         is RootScreen.Login -> LoginScreen(
             onSignUpClick = { currentScreen = RootScreen.SignUp },
-            onLoginSuccess = { currentScreen = RootScreen.OTP }
+            onLoginSuccess = { currentScreen = RootScreen.Music }
         )
 
         is RootScreen.SignUp -> SignUpScreen(
             onBackToLoginClick = { currentScreen = RootScreen.Login }
-        )
-
-        is RootScreen.OTP -> OTPScreen(
-            onContinueToApp = { currentScreen = RootScreen.Music }
         )
 
         is RootScreen.Music -> {
@@ -52,6 +48,5 @@ fun AppRoot() {
 sealed class RootScreen {
     object Login : RootScreen()
     object SignUp : RootScreen()
-    object OTP : RootScreen()
     object Music : RootScreen()
 }
