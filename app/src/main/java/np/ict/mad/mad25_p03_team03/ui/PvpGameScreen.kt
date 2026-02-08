@@ -37,6 +37,13 @@ private val TextWhite = Color.White
 private val SuccessGreen = Color(0xFF4CAF50)
 private val ErrorRed = Color(0xFFCF6679)
 
+// Class - Data Model - Structure for a single question
+data class SongQuestion(
+    val correctTitle: String,
+    val options: List<String>,
+    val audioUrl: String?
+)
+
 // Function - Main Screen - The "Tug of War" style PvP Game Screen
 // Flow 1.0: Screen Entry Point
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,9 +98,7 @@ fun PvpGameScreen(
     // Flow 2.0: Audio System
     fun playAudio(url: String) {
         try {
-
             mediaPlayer?.release()
-
             mediaPlayer = MediaPlayer().apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
@@ -103,19 +108,15 @@ fun PvpGameScreen(
                 )
                 setDataSource(url)
                 prepareAsync()
-                setOnPreparedListener {
-                    start()
-                }
-                setOnErrorListener { _, _, _ ->
-                    true
-                }
+                setOnPreparedListener { start() }
+                setOnErrorListener { _, _, _ -> true }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-
+    // Function - Audio Logic - Stops playback
     fun stopAudio() {
         try {
             if (mediaPlayer?.isPlaying == true) {
@@ -127,7 +128,6 @@ fun PvpGameScreen(
             e.printStackTrace()
         }
     }
-
 
     // Function - Game Logic - Handles user leaving the screen
     // Flow 3.0: Exit Strategy
@@ -178,18 +178,15 @@ fun PvpGameScreen(
     // Flow 5.0: Audio Trigger Logic
     // Watches 'currentIdx' -> When it changes, play the new song
     LaunchedEffect(currentIdx, status, questions) {
-
         if (status == "playing" && questions.isNotEmpty()) {
             val currentQuestion = questions.getOrNull(currentIdx)
             val url = currentQuestion?.audioUrl
 
             if (!url.isNullOrEmpty()) {
-
-                delay(300)
+                delay(300) // Small buffer
                 playAudio(url)
             }
         } else {
-
             stopAudio()
         }
     }
@@ -199,6 +196,7 @@ fun PvpGameScreen(
     LaunchedEffect(roomData) {
         val p1Id = roomData?.get("player1Id") as? String
         val questionsInRoom = roomData?.get("questions") as? List<*>
+
         if (p1Id == myId && (questionsInRoom == null || questionsInRoom.isEmpty())) {
             // Logic - Fetch Songs
             val songs = songRepository.fetchSongsFromSupabase(GameMode.ENGLISH).take(10)
@@ -220,9 +218,7 @@ fun PvpGameScreen(
     }
 
     val roundWinnerId = roomData?.get("roundWinnerId") as? String
-
     val gameWinnerId = roomData?.get("winnerId") as? String
-
 
     // Function - Game Logic - Processes a user's answer
     // Flow 7.0: Answer Submission & Ball Movement
@@ -255,34 +251,26 @@ fun PvpGameScreen(
 
                     // Logic - Check Win Condition (Reaching 3 or -3)
                     if (newPos == 3) {
-
                         updates["winnerId"] = player1Id ?: "" // P1 Wins
                         updates["status"] = "finished"
                     } else if (newPos == -3) {
-
                         updates["winnerId"] = if (isPlayer1) "opponent" else myId // P2 Wins
                         updates["status"] = "finished"
                     }
 
-                    transaction.update(
-                        db.collection("pvp_rooms").document(roomId),
-                        updates
-                    )
+                    transaction.update(db.collection("pvp_rooms").document(roomId), updates)
                 }
             }
         } else {
             message = "Wrong answer! 😱"
-
         }
     }
-
 
     // Flow 8.0: Round Reset Logic
     LaunchedEffect(roundWinnerId) {
         if (roundWinnerId != null) {
             message = if (roundWinnerId == myId) "💪 PUSHED!" else "🛡️ PUSHED BACK!"
             delay(1500)
-
 
             // Logic - Host advances the round
             if (player1Id == myId && gameWinnerId == null) {
@@ -291,7 +279,6 @@ fun PvpGameScreen(
                         mapOf("currentQuestionIndex" to currentIdx + 1, "roundWinnerId" to null)
                     )
                 } else {
-
                     db.collection("pvp_rooms").document(roomId).update("status", "finished")
                 }
             }
@@ -317,9 +304,10 @@ fun PvpGameScreen(
                 CenterAlignedTopAppBar(
                     title = { Text("Tug of War PVP", color = TextWhite) },
                     navigationIcon = {
-                        IconButton(onClick = { handleExit() }) { Text("❌", fontSize = 18.sp, color = TextWhite) }
-                    }
-                    ,
+                        IconButton(onClick = { handleExit() }) {
+                            Text("❌", fontSize = 18.sp, color = TextWhite)
+                        }
+                    },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = DarkBackground1
                     )
@@ -347,15 +335,12 @@ fun PvpGameScreen(
             // Flow 10.2: Gameplay Screen
             else if (status == "playing") {
 
-
-
                 Spacer(Modifier.height(16.dp))
 
                 // UI - Ball Track Visualization
                 BallTrackUI(ballPosition = ballPosition, isPlayer1 = isPlayer1)
 
                 Spacer(Modifier.height(24.dp))
-
 
                 val question = questions.getOrNull(currentIdx)
                 if (question != null) {
@@ -368,12 +353,11 @@ fun PvpGameScreen(
 
                     // UI - Replay Button
                     Button(
-                        onClick = { val url = question.audioUrl
-                            if (!url.isNullOrEmpty()) {
-                                playAudio(url)
-                            } else {
-                                Toast.makeText(context, "No audio available", Toast.LENGTH_SHORT).show()
-                            } },
+                        onClick = {
+                            val url = question.audioUrl
+                            if (!url.isNullOrEmpty()) playAudio(url)
+                            else Toast.makeText(context, "No audio available", Toast.LENGTH_SHORT).show()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = CardColor1)
                     ) {
                         Text("▶️ Replay Song", color = PurpleAccent)
@@ -392,23 +376,27 @@ fun PvpGameScreen(
                     Spacer(Modifier.height(16.dp))
 
                     // UI - Answer Buttons
-                    question.options.forEach { option ->
-                        Button(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            enabled = roundWinnerId == null,
-                            onClick = { submitAnswer(option) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (roundWinnerId == null) PurpleAccent else Color.Gray
-                            )
-                        ) {
-                            Text(option, fontSize = 18.sp, color = TextWhite)
+                    // Fix: Hide options when round is finished (roundWinnerId != null) to prevent old words from persisting
+                    if (roundWinnerId == null) {
+                        question.options.forEach { option ->
+                            Button(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                onClick = { submitAnswer(option) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = PurpleAccent
+                                )
+                            ) {
+                                Text(option, fontSize = 18.sp, color = TextWhite)
+                            }
                         }
+                    } else {
+                        // Placeholder to maintain spacing during transition
+                        Spacer(modifier = Modifier.height(50.dp))
                     }
                 }
             }
             // Flow 10.3: Game Over Screen
             else {
-                // --- Game Over  ---
                 Spacer(Modifier.height(40.dp))
                 Text(
                     "GAME OVER",
@@ -417,9 +405,6 @@ fun PvpGameScreen(
                     color = TextWhite
                 )
                 Spacer(Modifier.height(24.dp))
-
-                // ballPosition == 3 -> P1
-                // ballPosition == -3 -> P2
 
                 // Logic - Determine Winner based on ball position
                 // ballPosition >= 3 -> P1 Won
@@ -447,7 +432,6 @@ fun PvpGameScreen(
     }
 }
 
-
 // Function - UI Component - Visualizes the "Tug of War" status
 // Flow 11.0: Ball Track Component
 @Composable
@@ -473,15 +457,12 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
 
         Spacer(Modifier.height(8.dp))
 
-
         // Flow 11.2: The Track and Ball
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Text("👤", fontSize = 24.sp)
-
 
             Box(
                 modifier = Modifier
@@ -496,7 +477,7 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                     color = Color.Gray
                 )
 
-                //  (-2, -1, 0, 1, 2)
+                // UI - Position Markers (-2, -1, 0, 1, 2)
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -511,8 +492,8 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                     }
                 }
 
-
-                // BiasAlignment
+                // UI - The "Ball" (Bomb)
+                // We use BiasAlignment to position the ball proportionally
                 if (ballPosition in -2..2) {
                     val hBias = ballPosition / 2f
 
@@ -521,8 +502,6 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                             .fillMaxSize()
                             .align(Alignment.Center)
                     ) {
-                        // UI - The "Ball" (Bomb)
-                        // We use BiasAlignment to position the ball proportionally
                         Box(
                             modifier = Modifier
                                 .align(BiasAlignment(horizontalBias = hBias, verticalBias = 0f))
@@ -538,17 +517,14 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                 }
             }
 
-
             Text("👤", fontSize = 24.sp)
         }
-
 
         // Flow 11.3: Crush Status
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             Text(
                 if (ballPosition <= -3) "💥 CRUSHED!" else "",
                 color = ErrorRed,
