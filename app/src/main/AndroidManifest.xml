@@ -20,6 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD25_P03_Team03">
         <activity
+            android:name=".LyricsHelper"
+            android:exported="false"
+            android:label="@string/title_activity_lyrics_helper"
+            android:theme="@style/Theme.MAD25_P03_Team03" />
+        <activity
             android:name=".SongItem"
             android:exported="false"
             android:label="@string/title_activity_song_item"

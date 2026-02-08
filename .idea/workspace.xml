@@ -31,11 +31,11 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Update to Home Screen UI Design to fix all consistency.">
+    <list default="true" id="233c690f-1599-4dcf-8fc7-59fe25fdf1b8" name="Changes" comment="Update to LeaderboardScreen player profile design for overall consistency.">
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/LyricsHelper.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/LeaderboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/LeaderboardScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/PlayerProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/PlayerProfileScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SongLibrary.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/np/ict/mad/mad25_p03_team03/ui/SongLibrary.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,6 +132,9 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Jayden\AndroidStudioProjects\New\app\src\main\res\drawable" />
       <recent name="C:\Users\Jayden\AndroidStudioProjects\MAD25_P03_Team03\app" />
+    </key>
+    <key name="android.template.467603340">
+      <recent name="np.ict.mad.mad25_p03_team03" />
     </key>
     <key name="android.template.870064820">
       <recent name="np.ict.mad.mad25_p03_team03" />
@@ -466,7 +469,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770541537847</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Update to LeaderboardScreen player profile design for overall consistency.">
+      <option name="closed" value="true" />
+      <created>1770551622303</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1770551622303</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -481,7 +492,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Update SongLibrary Testing, testing UI. Testing Search Feature and seeing how it can be implemented. Planning to work on Modern Navigation Next." />
     <MESSAGE value="Update to SongLibrary File from unversioned to versioned file linking to git. Testing." />
     <MESSAGE value="Updating SongLibrary logic so that we can track what song is being played and adding the repeat mode." />
     <MESSAGE value="Updating SongLibrary logic, updating the playaudio function into play song logic to adopt new features in." />
@@ -506,7 +516,8 @@
     <MESSAGE value="Adjustment to songlibrary screen for better ui consistency." />
     <MESSAGE value="Update to Home Screen UI Design to fix all consistency and adjustment to songlibrary." />
     <MESSAGE value="Update to Home Screen UI Design to fix all consistency." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update to Home Screen UI Design to fix all consistency." />
+    <MESSAGE value="Update to LeaderboardScreen player profile design for overall consistency." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update to LeaderboardScreen player profile design for overall consistency." />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
