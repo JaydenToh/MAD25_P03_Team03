@@ -27,21 +27,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Function - UI Component - Displays final stats after game ends
+// Flow 1.0: Screen Entry Point
 @Composable
 fun GameSummaryScreen(
-    score: Int,
-    totalQuestions: Int,
-    correctCount: Int,
-    longestStreak: Int,
-    avgTime: Float,
-    isWin: Boolean,
-    onPlayAgain: () -> Unit,
-    onBack: () -> Unit
+    score: Int,              // Variable - Input - Final score achieved
+    totalQuestions: Int,     // Variable - Input - Number of questions attempted
+    correctCount: Int,       // Variable - Input - Number of correct answers
+    longestStreak: Int,      // Variable - Input - Highest streak of correct answers
+    avgTime: Float,          // Variable - Input - Average time taken per question
+    isWin: Boolean,          // Variable - Input - True if lives > 0, False if lives = 0
+    onPlayAgain: () -> Unit, // Variable - Input - Callback to restart game
+    onBack: () -> Unit       // Variable - Input - Callback to return to menu
 ) {
 
+    // Flow 1.1: Calculate Accuracy
+    // Calculates percentage of correct answers (0-100)
     val accuracy = if (totalQuestions > 0) (correctCount.toFloat() / totalQuestions * 100).toInt() else 0
 
 
+    // Flow 1.2: Determine Rank Title
+    // Assigns a fun title based on accuracy percentage
     val rankTitle = when {
         accuracy == 100 -> "🎵 Music God 🎵"
         accuracy >= 80 -> "🎸 Rock Star"
@@ -50,8 +56,12 @@ fun GameSummaryScreen(
     }
 
 
+    // Flow 1.3: Determine Theme Color
+    // Sets color to Primary (Green-ish usually) if win, Error (Red) if lose
     val mainColor = if (isWin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
 
+    // Flow 2.0: Main Layout Container
+    // Vertical column to stack elements (Icon -> Title -> Score -> Stats -> Buttons)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,28 +70,37 @@ fun GameSummaryScreen(
         verticalArrangement = Arrangement.Top
     ) {
 
+        // Flow 2.1: Outcome Icon
+        // Shows Trophy if win, Sad Face if lose
         Icon(
             imageVector = if (isWin) Icons.Default.EmojiEvents else Icons.Default.SentimentVeryDissatisfied,
             contentDescription = null,
             tint = mainColor,
             modifier = Modifier.size(80.dp)
         )
+        // Flow 2.2: Spacing
         Spacer(Modifier.height(12.dp))
+
+        // Flow 2.3: Victory/Defeat Text
         Text(
             text = if (isWin) "Victory!" else "Game Over",
             style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
             color = mainColor
         )
+        // Flow 2.4: Rank Title Text
         Text(
             text = rankTitle,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        // Flow 2.5: Spacing
         Spacer(Modifier.height(24.dp))
 
 
+        // Flow 3.0: Score Card
+        // Highlights the final numeric score
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -101,28 +120,31 @@ fun GameSummaryScreen(
             }
         }
 
+        // Flow 3.1: Spacing
         Spacer(Modifier.height(16.dp))
 
 
+        // Flow 4.0: Statistics Row
+        // Displays Accuracy, Streak, and Avg Time horizontally
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Accuracy Card
+            // Flow 4.1: Accuracy Card
             StatCard(
                 modifier = Modifier.weight(1f),
                 label = "Accuracy",
                 value = "$accuracy%",
                 icon = "🎯"
             )
-            // Streak Card
+            // Flow 4.2: Streak Card
             StatCard(
                 modifier = Modifier.weight(1f),
                 label = "Best Streak",
                 value = "$longestStreak",
                 icon = "🔥"
             )
-            // Time Card
+            // Flow 4.3: Time Card
             StatCard(
                 modifier = Modifier.weight(1f),
                 label = "Avg Speed",
@@ -131,13 +153,17 @@ fun GameSummaryScreen(
             )
         }
 
+        // Flow 5.0: Flexible Spacing
+        // Pushes buttons to the bottom
         Spacer(Modifier.weight(1.5f))
 
+        // Flow 6.0: Action Buttons Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp) // 按钮间的间距
         ) {
-            // 1. Play Again Button
+            // Flow 6.1: Play Again Button
+            // Resets game state via onPlayAgain callback
             Button(
                 onClick = onPlayAgain,
                 modifier = Modifier
@@ -150,30 +176,26 @@ fun GameSummaryScreen(
                 Text("Play Again", fontSize = 16.sp)
             }
 
-            // 2. Back to Rules Button
-            OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp)
-            ) {
-                // Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                Text("Back to Rules", fontSize = 16.sp)
-            }
+
         }
 
+        // Flow 6.2: Spacing
         Spacer(Modifier.height(2.dp))
 
+        // Flow 6.3: Back Button
+        // Navigates back to setup screen
         OutlinedButton(
             onClick = onBack,
             modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
-            Text("Back to Menu")
+            Text("Back to Rules")
         }
     }
 }
 
 
+// Function - UI Component - Reusable card for a single statistic
+// Flow 7.0: Stat Card Component
 @Composable
 fun StatCard(modifier: Modifier = Modifier, label: String, value: String, icon: String) {
     Card(
@@ -184,9 +206,12 @@ fun StatCard(modifier: Modifier = Modifier, label: String, value: String, icon: 
             modifier = Modifier.padding(12.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Flow 7.1: Icon Emoji
             Text(icon, fontSize = 24.sp)
             Spacer(Modifier.height(4.dp))
+            // Flow 7.2: Stat Value
             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            // Flow 7.3: Stat Label
             Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
         }
     }
