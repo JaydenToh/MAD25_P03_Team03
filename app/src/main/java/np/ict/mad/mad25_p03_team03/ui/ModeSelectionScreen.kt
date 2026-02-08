@@ -37,7 +37,7 @@ fun ModeSelectionScreen(
                 title = { Text("Game Setup", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, tint = Color.White, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -68,13 +68,13 @@ fun ModeSelectionScreen(
                 FilterChip(
                     selected = selectedMode == GameMode.ENGLISH,
                     onClick = { selectedMode = GameMode.ENGLISH },
-                    label = { Text("🇺🇸 English") },
+                    label = { Text("English") },
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 FilterChip(
                     selected = selectedMode == GameMode.MANDARIN,
                     onClick = { selectedMode = GameMode.MANDARIN },
-                    label = { Text("🇨🇳 Mandarin") }
+                    label = { Text("Mandarin") }
                 )
             }
 

@@ -17,6 +17,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 
+private val DarkBackground = Color(0xFF121212)
+
 @Composable
 fun LoginScreen(
     onSignUpClick: () -> Unit,

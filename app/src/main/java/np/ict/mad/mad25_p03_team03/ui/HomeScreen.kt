@@ -54,12 +54,6 @@ fun HomeScreen(
                 modifier = Modifier
                     .padding(top = 48.dp) // Space from top
             ) {
-                Icon(
-                    imageVector = Icons.Default.MusicNote,
-                    contentDescription = null,
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.White
-                )
                 Text(
                     text = "Music App",
                     style = MaterialTheme.typography.headlineMedium,
@@ -163,7 +157,7 @@ private fun HomeCard(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(155.dp),
+            .height(160.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = CardColor1,

@@ -27,7 +27,7 @@ import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 
 private val DarkBackground3 = Color(0xFF121212)
-private val CardColor3 = Color(0xFF651FFF)
+private val CardColor3 = Color(0xFF2F2F45 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -302,9 +302,9 @@ fun GameScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Score: $score", style = MaterialTheme.typography.bodyLarge)
-                        Text("Lives: $lives", style = MaterialTheme.typography.bodyLarge)
-                        Text("Time: $timeLeft", style = MaterialTheme.typography.bodyLarge)
+                        Text("Score: $score", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                        Text("Lives: $lives", color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                        Text("Time: $timeLeft", color = Color.White, style = MaterialTheme.typography.bodyLarge)
                     }
 
                     Column(
@@ -330,7 +330,7 @@ fun GameScreen(
                             .height(55.dp),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2F2F45)
+                            containerColor = Color(0xFF651FFF)
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                     ) {
