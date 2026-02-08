@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 
 private val DarkBackground = Color(0xFF121212)
+private val CardColor = Color(0xFF2F2F45)
 
 @Composable
 fun LoginScreen(
@@ -31,12 +32,8 @@ fun LoginScreen(
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
 
-    val gradientBrush = Brush.linearGradient(
-        listOf(Color(0xFF59168B), Color(0xFF1C398E), Color(0xFF312C85))
-    )
-
     Column(
-        modifier = Modifier.fillMaxSize().background(gradientBrush).padding(16.dp),
+        modifier = Modifier.fillMaxSize().background(DarkBackground).padding(16.dp).background(DarkBackground),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -47,9 +44,11 @@ fun LoginScreen(
         Spacer(Modifier.height(32.dp))
 
         Card(
-            modifier = Modifier.fillMaxWidth().border(2.dp, Color.White, RoundedCornerShape(16.dp))
+            modifier = Modifier.fillMaxWidth().border(0.dp, Color.White, RoundedCornerShape(16.dp))
                 .shadow(6.dp, RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = CardColor),
             shape = RoundedCornerShape(16.dp)
+
         ) {
             Column(Modifier.padding(16.dp)) {
 
@@ -101,7 +100,7 @@ fun LoginScreen(
                             }
                         }
                     ) {
-                        Text("Forgot Password?")
+                        Text("Forgot Password?", color = Color.White)
                     }
                 }
 
