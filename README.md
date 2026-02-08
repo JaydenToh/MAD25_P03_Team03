@@ -176,6 +176,10 @@ This application falls under the Music & Audio category, as it focuses on provid
 | Liew Zhan Yang | Social & Messaging System | • Built a comprehensive social ecosystem featuring a Friends System for managing connections and a real-time Chat for direct communication.<br>• Messages are synchronized instantly using Firestore, supporting a seamless social experience within the application. |
 | Liew Zhan Yang | Personalized User Profiles | • Created customizable user profiles that showcase individual achievements, player stats, and social status.<br>• Allows users to view both their own profiles and those of other players to foster a sense of community. |
 | Liew Zhan Yang | Account Security & Recovery | • Enhanced platform integrity with email-verified login and a secure “Forget Password” recovery workflow.<br>• Integrated a dedicated Log Out function and session management to ensure user data remains protected across different devices. |
+| Jayden Toh Xuan Ming | Music Profile with Media Control | • An individual profile for each music within SongLibrary that allows you to skip, repeat, pause, and play the song. |
+| Jayden Toh Xuan Ming | Lyrics Syncing with Song | • This is within music profile where I synced the song that is played with the lyrics played, as it automatically highlights the part being played. <br> This allows you to see where the song is currently being played at so that users can mute the audio and sing to it if they wanted. |
+| Jayden Toh Xuan Ming | Music Player Bar | • A persistent mini player bar at the bottom of the screen displays the current track info and artist, with quick access to play, pause, repeat and skip controls. |
+| Jayden Toh Xuan Ming | Background Playing | • This relates back to the music profile features that I did, where when you have playe a song, you can close the android application and the song is still able to play. |
 
 
 ## System Architecture Diagram
