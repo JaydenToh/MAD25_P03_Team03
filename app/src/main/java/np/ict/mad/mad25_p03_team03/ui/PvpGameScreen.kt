@@ -28,31 +28,58 @@ import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
 import androidx.compose.runtime.DisposableEffect
 
+
+// Variable - Color Theme - Custom colors for the dark theme UI
+private val DarkBackground1 = Color(0xFF121212)
+private val CardColor1 = Color(0xFF2F2F45)
+private val PurpleAccent = Color(0xFFBB86FC)
+private val TextWhite = Color.White
+private val SuccessGreen = Color(0xFF4CAF50)
+private val ErrorRed = Color(0xFFCF6679)
+
+// Function - Main Screen - The "Tug of War" style PvP Game Screen
+// Flow 1.0: Screen Entry Point
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PvpGameScreen(
-    roomId: String,
-    songRepository: SongRepository,
-    onNavigateBack: () -> Unit
+    roomId: String,                 // Variable - Input - The ID of the room in Firestore
+    songRepository: SongRepository, // Variable - Input - To fetch songs if hosting
+    onNavigateBack: () -> Unit      // Variable - Input - Callback to exit
 ) {
+    // Flow 1.1: Dependency Setup
     val db = FirebaseFirestore.getInstance()
     val auth = FirebaseAuth.getInstance()
     val currentUser = auth.currentUser
     val myId = currentUser?.uid ?: ""
     val context = LocalContext.current
 
+    // Variable - State - Holds all raw data from the Firestore room document
     var roomData by remember { mutableStateOf<Map<String, Any>?>(null) }
+    // Variable - State - The list of questions for this match
     var questions by remember { mutableStateOf<List<SongQuestion>>(emptyList()) }
+    // Variable - State - Status message displayed to the user
     var message by remember { mutableStateOf("Waiting for opponent...") }
-
-    val player2Id = roomData?.get("player2Id") as? String
-
-    val isBotGame = player2Id == "BOT" || player2Id == "AI"
-
+    // Variable - State - Media Player for playing song snippets
     var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+
+    // Variable - Derived State - Extract specific fields from roomData
+    val player1Id = roomData?.get("player1Id") as? String
+    val player2Id = roomData?.get("player2Id") as? String
+    val status = roomData?.get("status") as? String ?: "waiting"
     val currentIdx = (roomData?.get("currentQuestionIndex") as? Long)?.toInt() ?: 0
 
+    // Variable - Game Logic - Check if we are Player 1 (Host)
+    val isPlayer1 = myId == player1Id
+    // Variable - Game Logic - Check if opponent is a Bot
+    val isBotGame = player2Id == "BOT" || player2Id == "AI"
 
+    // Variable - Game Logic - "Tug of War" Ball Position
+    // 0 = Center
+    // Positive (+) = Towards Player 2 (P1 is winning)
+    // Negative (-) = Towards Player 1 (P2 is winning)
+    val ballPosition = (roomData?.get("ballPosition") as? Long)?.toInt() ?: 0
+
+    // Flow 1.2: Cleanup on Exit
     DisposableEffect(Unit) {
         onDispose {
             mediaPlayer?.release()
@@ -60,7 +87,8 @@ fun PvpGameScreen(
         }
     }
 
-
+    // Function - Audio Logic - Plays the song from a URL
+    // Flow 2.0: Audio System
     fun playAudio(url: String) {
         try {
 
@@ -101,23 +129,14 @@ fun PvpGameScreen(
     }
 
 
-    val player1Id = roomData?.get("player1Id") as? String
-    val status = roomData?.get("status") as? String ?: "waiting"
-
-
-    // 0 = Center
-    // Positive (+) = Towards Player 2
-    // Negative (-) = Towards Player 1
-    val ballPosition = (roomData?.get("ballPosition") as? Long)?.toInt() ?: 0
-
-
-    val isPlayer1 = myId == player1Id
-
-
+    // Function - Game Logic - Handles user leaving the screen
+    // Flow 3.0: Exit Strategy
     val handleExit = {
         if (player1Id == myId) {
+            // Logic - Host deletes the room
             db.collection("pvp_rooms").document(roomId).delete()
         } else {
+            // Logic - Guest just leaves (resets room to waiting)
             if (status == "waiting" || status == "playing") {
                 db.collection("pvp_rooms").document(roomId).update(
                     mapOf("player2Id" to null, "status" to "waiting", "ballPosition" to 0)
@@ -129,13 +148,16 @@ fun PvpGameScreen(
 
     BackHandler { handleExit() }
 
-
+    // Flow 4.0: Real-time Room Sync
+    // Listens for changes in the Firestore document
     LaunchedEffect(roomId) {
         val docRef = db.collection("pvp_rooms").document(roomId)
         docRef.addSnapshotListener { snapshot, e ->
             if (e != null) return@addSnapshotListener
             if (snapshot != null && snapshot.exists()) {
                 roomData = snapshot.data
+
+                // Logic - Parse Questions
                 val questionsData = snapshot.get("questions") as? List<Map<String, Any>>
                 if (questionsData != null && questionsData.isNotEmpty()) {
                     questions = questionsData.map { q ->
@@ -153,6 +175,8 @@ fun PvpGameScreen(
         }
     }
 
+    // Flow 5.0: Audio Trigger Logic
+    // Watches 'currentIdx' -> When it changes, play the new song
     LaunchedEffect(currentIdx, status, questions) {
 
         if (status == "playing" && questions.isNotEmpty()) {
@@ -170,17 +194,22 @@ fun PvpGameScreen(
         }
     }
 
-
+    // Flow 6.0: Host Initialization Logic
+    // Only Player 1 runs this to generate questions if they are missing
     LaunchedEffect(roomData) {
         val p1Id = roomData?.get("player1Id") as? String
         val questionsInRoom = roomData?.get("questions") as? List<*>
         if (p1Id == myId && (questionsInRoom == null || questionsInRoom.isEmpty())) {
+            // Logic - Fetch Songs
             val songs = songRepository.fetchSongsFromSupabase(GameMode.ENGLISH).take(10)
+
+            // Logic - Map to Questions
             val mappedQuestions = songs.map { song ->
                 val options = (listOf(song.title) + song.fakeOptions).shuffled().take(4)
                 mapOf("correctTitle" to song.title, "options" to options, "audioUrl" to song.audioUrl)
             }
 
+            // Logic - Upload to Firestore
             db.collection("pvp_rooms").document(roomId).update(
                 mapOf(
                     "questions" to mappedQuestions,
@@ -195,21 +224,27 @@ fun PvpGameScreen(
     val gameWinnerId = roomData?.get("winnerId") as? String
 
 
+    // Function - Game Logic - Processes a user's answer
+    // Flow 7.0: Answer Submission & Ball Movement
     fun submitAnswer(selectedOption: String) {
+        // Logic - Validation
         if (status != "playing" || roundWinnerId != null || gameWinnerId != null) return
         val currentQuestion = questions.getOrNull(currentIdx) ?: return
 
         if (selectedOption == currentQuestion.correctTitle) {
+            // Logic - Atomic Transaction for Fairness
             db.runTransaction { transaction ->
                 val snapshot = transaction.get(db.collection("pvp_rooms").document(roomId))
 
+                // Only proceed if no one has won this round yet
                 if (snapshot.getString("roundWinnerId") == null) {
                     val currentPos = snapshot.getLong("ballPosition")?.toInt() ?: 0
 
-
+                    // Logic - Move Ball
+                    // P1 moves +1, P2 moves -1
                     var newPos = if (isPlayer1) currentPos + 1 else currentPos - 1
 
-
+                    // Logic - Clamp Values (-3 to 3)
                     if (newPos > 3) newPos = 3
                     if (newPos < -3) newPos = -3
 
@@ -218,14 +253,14 @@ fun PvpGameScreen(
                         "ballPosition" to newPos
                     )
 
-
+                    // Logic - Check Win Condition (Reaching 3 or -3)
                     if (newPos == 3) {
 
-                        updates["winnerId"] = player1Id ?: "" // P1 ID
+                        updates["winnerId"] = player1Id ?: "" // P1 Wins
                         updates["status"] = "finished"
                     } else if (newPos == -3) {
 
-                        updates["winnerId"] = if (isPlayer1) "opponent" else myId
+                        updates["winnerId"] = if (isPlayer1) "opponent" else myId // P2 Wins
                         updates["status"] = "finished"
                     }
 
@@ -242,12 +277,14 @@ fun PvpGameScreen(
     }
 
 
+    // Flow 8.0: Round Reset Logic
     LaunchedEffect(roundWinnerId) {
         if (roundWinnerId != null) {
             message = if (roundWinnerId == myId) "💪 PUSHED!" else "🛡️ PUSHED BACK!"
             delay(1500)
 
 
+            // Logic - Host advances the round
             if (player1Id == myId && gameWinnerId == null) {
                 if (currentIdx + 1 < questions.size) {
                     db.collection("pvp_rooms").document(roomId).update(
@@ -263,6 +300,7 @@ fun PvpGameScreen(
         }
     }
 
+    // Flow 9.0: Bot Logic Injection
     TriviaBotLogic(
         roomId = roomId,
         status = status,
@@ -271,14 +309,20 @@ fun PvpGameScreen(
         currentQuestionIndex = currentIdx
     )
 
+    // Flow 10.0: UI Construction
     Scaffold(
+        containerColor = DarkBackground1, // Variable - Color - Dark Background
         topBar = {
             if (status == "waiting" || status == "playing") {
                 CenterAlignedTopAppBar(
-                    title = { Text("Tug of War PVP") },
+                    title = { Text("Tug of War PVP", color = TextWhite) },
                     navigationIcon = {
-                        IconButton(onClick = { handleExit() }) { Text("❌", fontSize = 18.sp) }
+                        IconButton(onClick = { handleExit() }) { Text("❌", fontSize = 18.sp, color = TextWhite) }
                     }
+                    ,
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = DarkBackground1
+                    )
                 )
             }
         }
@@ -287,18 +331,27 @@ fun PvpGameScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .background(DarkBackground1),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Flow 10.1: Waiting Screen
             if (status == "waiting") {
-                CircularProgressIndicator()
-                Text("Waiting for opponent...", modifier = Modifier.padding(top = 16.dp))
-            } else if (status == "playing") {
+                CircularProgressIndicator(color = PurpleAccent)
+                Text(
+                    "Waiting for opponent...",
+                    color = TextWhite,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            // Flow 10.2: Gameplay Screen
+            else if (status == "playing") {
 
 
 
                 Spacer(Modifier.height(16.dp))
 
+                // UI - Ball Track Visualization
                 BallTrackUI(ballPosition = ballPosition, isPlayer1 = isPlayer1)
 
                 Spacer(Modifier.height(24.dp))
@@ -306,9 +359,14 @@ fun PvpGameScreen(
 
                 val question = questions.getOrNull(currentIdx)
                 if (question != null) {
-                    Text("Question ${currentIdx + 1}", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        "Question ${currentIdx + 1}",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.Gray
+                    )
                     Spacer(Modifier.height(8.dp))
 
+                    // UI - Replay Button
                     Button(
                         onClick = { val url = question.audioUrl
                             if (!url.isNullOrEmpty()) {
@@ -316,60 +374,73 @@ fun PvpGameScreen(
                             } else {
                                 Toast.makeText(context, "No audio available", Toast.LENGTH_SHORT).show()
                             } },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        colors = ButtonDefaults.buttonColors(containerColor = CardColor1)
                     ) {
-                        Text("▶️ Replay Song")
+                        Text("▶️ Replay Song", color = PurpleAccent)
                     }
 
                     Spacer(Modifier.height(16.dp))
 
+                    // UI - Feedback Message
                     Text(
                         text = message,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = PurpleAccent
                     )
 
                     Spacer(Modifier.height(16.dp))
 
+                    // UI - Answer Buttons
                     question.options.forEach { option ->
                         Button(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             enabled = roundWinnerId == null,
                             onClick = { submitAnswer(option) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (roundWinnerId == null) MaterialTheme.colorScheme.primaryContainer else Color.Gray
+                                containerColor = if (roundWinnerId == null) PurpleAccent else Color.Gray
                             )
                         ) {
-                            Text(option, fontSize = 18.sp)
+                            Text(option, fontSize = 18.sp, color = TextWhite)
                         }
                     }
                 }
-            } else {
+            }
+            // Flow 10.3: Game Over Screen
+            else {
                 // --- Game Over  ---
                 Spacer(Modifier.height(40.dp))
-                Text("GAME OVER", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
+                Text(
+                    "GAME OVER",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black,
+                    color = TextWhite
+                )
                 Spacer(Modifier.height(24.dp))
 
                 // ballPosition == 3 -> P1
                 // ballPosition == -3 -> P2
 
+                // Logic - Determine Winner based on ball position
+                // ballPosition >= 3 -> P1 Won
+                // ballPosition <= -3 -> P2 Won
                 val didIWin = if (isPlayer1) (ballPosition >= 3) else (ballPosition <= -3)
 
                 if (didIWin) {
-                    Text("🏆 YOU WON!", style = MaterialTheme.typography.displayMedium, color = Color(0xFF4CAF50))
-                    Text("You smashed them!", style = MaterialTheme.typography.bodyLarge)
+                    Text("🏆 YOU WON!", style = MaterialTheme.typography.displayMedium, color = SuccessGreen)
+                    Text("You smashed them!", style = MaterialTheme.typography.bodyLarge, color = TextWhite)
                 } else {
-                    Text("💀 YOU LOST", style = MaterialTheme.typography.displayMedium, color = Color.Red)
-                    Text("Crushed by the ball...", style = MaterialTheme.typography.bodyLarge)
+                    Text("💀 YOU LOST", style = MaterialTheme.typography.displayMedium, color = ErrorRed)
+                    Text("Crushed by the ball...", style = MaterialTheme.typography.bodyLarge, color = TextWhite)
                 }
 
                 Spacer(Modifier.height(48.dp))
                 Button(
                     onClick = { handleExit() },
-                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = PurpleAccent)
                 ) {
-                    Text("Back to Lobby")
+                    Text("Back to Lobby", color = TextWhite)
                 }
             }
         }
@@ -377,10 +448,13 @@ fun PvpGameScreen(
 }
 
 
+// Function - UI Component - Visualizes the "Tug of War" status
+// Flow 11.0: Ball Track Component
 @Composable
 fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
+        // Flow 11.1: Player Labels
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -388,18 +462,19 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
             Text(
                 text = if (isPlayer1) "YOU" else "ENEMY",
                 fontWeight = FontWeight.Bold,
-                color = if (isPlayer1) Color.Blue else Color.Red
+                color = if (isPlayer1) PurpleAccent else ErrorRed
             )
             Text(
                 text = if (isPlayer1) "ENEMY" else "YOU",
                 fontWeight = FontWeight.Bold,
-                color = if (isPlayer1) Color.Red else Color.Blue
+                color = if (isPlayer1) ErrorRed else PurpleAccent
             )
         }
 
         Spacer(Modifier.height(8.dp))
 
 
+        // Flow 11.2: The Track and Ball
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -414,11 +489,11 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                     .height(50.dp)
                     .padding(horizontal = 8.dp)
             ) {
-
+                // UI - Center Line
                 Divider(
                     modifier = Modifier.align(Alignment.Center),
                     thickness = 4.dp,
-                    color = Color.LightGray
+                    color = Color.Gray
                 )
 
                 //  (-2, -1, 0, 1, 2)
@@ -431,7 +506,7 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                         Box(
                             modifier = Modifier
                                 .size(8.dp)
-                                .background(Color.Gray, CircleShape)
+                                .background(Color.DarkGray, CircleShape)
                         )
                     }
                 }
@@ -446,14 +521,15 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
                             .fillMaxSize()
                             .align(Alignment.Center)
                     ) {
-
+                        // UI - The "Ball" (Bomb)
+                        // We use BiasAlignment to position the ball proportionally
                         Box(
                             modifier = Modifier
                                 .align(BiasAlignment(horizontalBias = hBias, verticalBias = 0f))
                                 .size(34.dp)
                                 .shadow(4.dp, CircleShape)
                                 .background(Color.Black, CircleShape)
-                                .border(2.dp, Color.White, CircleShape),
+                                .border(2.dp, PurpleAccent, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text("💣", fontSize = 18.sp)
@@ -467,14 +543,23 @@ fun BallTrackUI(ballPosition: Int, isPlayer1: Boolean) {
         }
 
 
+        // Flow 11.3: Crush Status
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Text(if (ballPosition <= -3) "💥 CRUSHED!" else "", color = Color.Red, fontWeight = FontWeight.Bold)
+            Text(
+                if (ballPosition <= -3) "💥 CRUSHED!" else "",
+                color = ErrorRed,
+                fontWeight = FontWeight.Bold
+            )
 
-            Text(if (ballPosition >= 3) "💥 CRUSHED!" else "", color = Color.Red, fontWeight = FontWeight.Bold)
+            Text(
+                if (ballPosition >= 3) "💥 CRUSHED!" else "",
+                color = ErrorRed,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
