@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,14 +51,19 @@ fun PlayerProfileScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFF121212),
         topBar = {
             TopAppBar(
                 title = { Text("Player Profile") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF121212),
+                    titleContentColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -84,14 +90,14 @@ fun PlayerProfileScreen(
                 Surface(
                     modifier = Modifier.size(120.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    color = Color(0xFF2F2F45)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
                             modifier = Modifier.size(60.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = Color.White
                         )
                     }
                 }
@@ -101,6 +107,7 @@ fun PlayerProfileScreen(
                 // 用户名
                 Text(
                     text = username,
+                    color = Color.White,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -110,7 +117,7 @@ fun PlayerProfileScreen(
                 // 最高分展示
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        containerColor = Color(0xFF2F2F45)
                     )
                 ) {
                     Text(
@@ -118,7 +125,7 @@ fun PlayerProfileScreen(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = Color.Yellow
                     )
                 }
 
@@ -128,18 +135,19 @@ fun PlayerProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        containerColor = Color(0xFF2F2F45)
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "About Me",
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
+                            color = Color.White
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
                             text = bio,
+                            color = Color.White,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }

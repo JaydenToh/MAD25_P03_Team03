@@ -3,4 +3,11 @@
     <string name="title_activity_song_identifier">SongIdentifier</string>
     <string name="title_activity_song_library">SongLibrary</string>
     <string name="title_activity_song_navigation">SongNavigation</string>
+    <string name="title_activity_music_manager.kt">MusicManager.kt</string>
+    <string name="title_activity_music_profile">MusicProfile</string>
+    <string name="title_activity_offline_music">OfflineMusic</string>
+    <string name="title_activity_bottom_player_bar">BottomPlayerBar</string>
+    <string name="title_activity_song_item">SongItem</string>
+    <string name="title_activity_lyrics_helper">LyricsHelper</string>
+    <string name="title_activity_synced_lyrics">SyncedLyrics</string>
 </resources>

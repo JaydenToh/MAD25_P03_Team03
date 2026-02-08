@@ -2,8 +2,6 @@
 package np.ict.mad.mad25_p03_team03.navigation
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -14,16 +12,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.SongIdentifier
-import np.ict.mad.mad25_p03_team03.SongLibraryScreen
+import np.ict.mad.mad25_p03_team03.ui.SongLibraryScreen
 import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
-import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
 import np.ict.mad.mad25_p03_team03.ui.ChatScreen
 import np.ict.mad.mad25_p03_team03.ui.FriendListScreen
 import np.ict.mad.mad25_p03_team03.ui.GameScreen
@@ -35,8 +31,8 @@ import np.ict.mad.mad25_p03_team03.ui.PlayerProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.ProfileScreen
 import np.ict.mad.mad25_p03_team03.ui.PvpGameScreen
 import np.ict.mad.mad25_p03_team03.ui.RulesScreen
-import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
-import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
+//import np.ict.mad.mad25_p03_team03.ui.SongCategoryScreen
+//import np.ict.mad.mad25_p03_team03.ui.SongDetailScreen
 import np.ict.mad.mad25_p03_team03.ui.findOrCreateGame
 import kotlinx.coroutines.launch
 import np.ict.mad.mad25_p03_team03.ui.MimicGameScreen
@@ -299,49 +295,52 @@ fun AppNavGraph(navController: NavHostController,
             }
 
 
+//            composable("library") {
+//                SongCategoryScreen(
+//                    onCategorySelected = { collectionName ->
+//
+//                        navController.navigate("library_list/$collectionName")
+//                    },
+//                    onBack = { navController.popBackStack() }
+//                )
+//            }
+
             composable("library") {
-                SongCategoryScreen(
-                    onCategorySelected = { collectionName ->
-
-                        navController.navigate("library_list/$collectionName")
-                    },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-
-
-            composable(
-                route = "library_list/{collectionName}",
-                arguments = listOf(navArgument("collectionName") { type = NavType.StringType })
-            ) { backStackEntry ->
-
-                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: "songs"
-
                 SongLibraryScreen(
-                    collectionName = collectionName,
-                    onNavigateBack = { navController.popBackStack() },
-                    onSongClick = { songTitle ->
-                        navController.navigate("song_detail/$collectionName/$songTitle")
-                    }
+                    collectionName = "songs",
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            composable(
-                route = "song_detail/{collectionName}/{songTitle}",
-                arguments = listOf(
-                    navArgument("collectionName") { type = NavType.StringType },
-                    navArgument("songTitle") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
-                val songTitle = backStackEntry.arguments?.getString("songTitle") ?: ""
+//            composable(
+//                route = "library_list/{collectionName}",
+//                arguments = listOf(navArgument("collectionName") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//
+//                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: "songs"
+//
+//                SongLibraryScreen(
+//                    collectionName = collectionName,
+//                    onNavigateBack = { navController.popBackStack() }
+//                )
+//            }
 
-                SongDetailScreen(
-                    collectionName = collectionName,
-                    songTitle = songTitle,
-                    onBack = { navController.popBackStack() }
-                )
-            }
+//            composable(
+//                route = "song_detail/{collectionName}/{songTitle}",
+//                arguments = listOf(
+//                    navArgument("collectionName") { type = NavType.StringType },
+//                    navArgument("songTitle") { type = NavType.StringType }
+//                )
+//            ) { backStackEntry ->
+//                val collectionName = backStackEntry.arguments?.getString("collectionName") ?: ""
+//                val songTitle = backStackEntry.arguments?.getString("songTitle") ?: ""
+//
+//                SongDetailScreen(
+//                    collectionName = collectionName,
+//                    songTitle = songTitle,
+//                    onBack = { navController.popBackStack() }
+//                )
+//            }
 
             composable(
                 route = "pvp_game/{roomId}",

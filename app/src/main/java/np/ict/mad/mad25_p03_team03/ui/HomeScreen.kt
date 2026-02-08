@@ -2,25 +2,31 @@
 
 package np.ict.mad.mad25_p03_team03.ui
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+private val DarkBackground1 = Color(0xFF121212)
+private val CardColor1 = Color(0xFF2F2F45)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,22 +38,13 @@ fun HomeScreen(
     onOpenMimic: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            // can be empty to avoid default elevation
-            TopAppBar(
-                title = {},
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
+        containerColor = DarkBackground1
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
@@ -60,14 +57,14 @@ fun HomeScreen(
                 Icon(
                     imageVector = Icons.Default.MusicNote,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(36.dp),
+                    tint = Color.White
                 )
                 Text(
                     text = "Music App",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = Color.White,
                     modifier = Modifier.padding(start = 12.dp)
                 )
             }
@@ -76,125 +73,123 @@ fun HomeScreen(
                 text = "Choose your adventure:",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.White,
                 modifier = Modifier.padding(top = 32.dp, bottom = 24.dp)
             )
 
-            // Cards
-            HomeCard(
-                icon = "🎮",
-                title = "Song Guessing Game",
-                description = "Test your music knowledge!",
-                onClick = onStartGame
-            )
-
-            HomeCard(
-                icon = "🎤",
-                title = "Humming Challenge",
-                description = "Test your pitch accuracy!",
-                onClick = {
-                    onOpenMimic()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                item(span = { GridItemSpan(1) }) {
+                    HomeCard(
+                        Icons.Default.VideogameAsset,
+                        title = "Guessing Game",
+                        contentColor = Color.Black,
+                        onClick = onStartGame
+                    )
                 }
-            )
 
-            HomeCard(
-                icon = "🔍",
-                title = "Song Identifier",
-                description = "Recognize songs by listening",
-                onClick = onIdentifySong
-            )
+                item(span = { GridItemSpan(1) }) {
+                    HomeCard(
+                        Icons.Default.Mic,
+                        title = "Humming Challenge",
+                        contentColor = Color.Black,
+                        onClick = onOpenMimic
+                    )
+                }
 
-            HomeCard(
-                icon = "🤝",
-                title = "Multiplayer Lobby",
-                description = "Challenge other players in PVP",
-                onClick = onOpenLobby
-            )
+                item(span = { GridItemSpan(1) }) {
+                    HomeCard(
+                        Icons.Default.Search,
+                        title = "Song Identifier",
+                        contentColor = Color.Black,
+                        onClick = onIdentifySong
+                    )
+                }
 
-            // Sign Out Card - Added after Song Library
-            HomeCard(
-                icon = "🔒",
-                title = "Log Out",
-                description = "Log out of your account",
-                onClick = onSignOut
-            )
+                item(span = { GridItemSpan(1) }) {
+                    HomeCard(
+                        Icons.Default.Groups,
+                        title = "Multiplayer Lobby",
+                        contentColor = Color.Black,
+                        onClick = onOpenLobby
+                    )
+                }
+            }
 
+            Spacer(modifier = Modifier.height(48.dp))
 
-            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                onClick = onSignOut,
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Logout,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = "Log Out",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-            // Footer
             Text(
-                text = "v1.0 • MAD25 P03 Team 03",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+                text = "v1.0 • MAD25 P02 Team 02",
+                fontSize = 16.sp,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 24.dp)
             )
         }
     }
 }
 
+
 @Composable
 private fun HomeCard(
-    icon: String,
+    icon: ImageVector,
     title: String,
-    description: String,
-    onClick: () -> Unit
+    contentColor: Color = Color.White,
+    onClick: () -> Unit,
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .height(155.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = CardColor1,
+            contentColor = contentColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = icon,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
             Icon(
-                imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                contentDescription = "Go",
-                tint = MaterialTheme.colorScheme.primary
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(45.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
         }
     }

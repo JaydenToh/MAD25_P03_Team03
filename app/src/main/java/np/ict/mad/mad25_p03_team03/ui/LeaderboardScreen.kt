@@ -28,7 +28,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
-
 data class LeaderboardEntry(
     val userId: String,
     val username: String,
@@ -106,77 +105,93 @@ fun LeaderboardScreen(onPlayerClick: (String) -> Unit = {}) {
                 Toast.makeText(context, "Failed to add friend", Toast.LENGTH_SHORT).show()
             }
     }
+    Scaffold(
+        containerColor = Color(0xFF121212)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Title
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint = Color(0xFFFFD700), // Gold color
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Leaderboard",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Title
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.EmojiEvents,
-                contentDescription = null,
-                tint = Color(0xFFFFD700), // Gold color
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Leaderboard",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                text = "Top Players",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
             )
-        }
 
-        Text(
-            text = "Top Players",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Content
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (errorMessage.isNotEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
-            }
-        } else if (leaderboardData.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No scores yet. Be the first to play!", style = MaterialTheme.typography.bodyLarge)
-            }
-        } else {
-            // Header Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Rank", fontWeight = FontWeight.Bold, modifier = Modifier.width(40.dp))
-                Text("Player", fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text("Score", fontWeight = FontWeight.Bold)
-                Spacer(Modifier.width(48.dp))
-            }
-
-            Divider()
-
-            // List
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 16.dp)
-            ) {
-                itemsIndexed(leaderboardData) { index, entry ->
-                    val isFriend = myFriendsList.contains(entry.userId)
-                    val isMe = entry.userId == currentUser?.uid
-
-                    LeaderboardItem(rank = index + 1, entry = entry,isMe = isMe,
-                        isFriend = isFriend, onClick = {onPlayerClick(entry.userId)},onAddFriend = { addFriend(entry.userId) }
+            // Content
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color.Yellow)
+                }
+            } else if (errorMessage.isNotEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+                }
+            } else if (leaderboardData.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        "No scores yet. Be the first to play!",
+                        style = MaterialTheme.typography.bodyLarge
                     )
+                }
+            } else {
+                // Header Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Rank", fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.width(40.dp))
+                    Text("Player", fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.weight(1f))
+                    Text("Score", fontWeight = FontWeight.Bold, color = Color.White)
+                    Spacer(Modifier.width(48.dp))
+                }
+
+
+                // List
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        bottom = paddingValues.calculateBottomPadding() + 24.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    itemsIndexed(leaderboardData) { index, entry ->
+                        val isFriend = myFriendsList.contains(entry.userId)
+                        val isMe = entry.userId == currentUser?.uid
+
+                        LeaderboardItem(
+                            rank = index + 1,
+                            entry = entry,
+                            isMe = isMe,
+                            isFriend = isFriend,
+                            onClick = { onPlayerClick(entry.userId) },
+                            onAddFriend = { addFriend(entry.userId) }
+                        )
+                    }
                 }
             }
         }
@@ -190,7 +205,7 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,isMe: Boolean,
         1 -> Color(0xFFFFD700) // Gold
         2 -> Color(0xFFC0C0C0) // Silver
         3 -> Color(0xFFCD7F32) // Bronze
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        else -> Color.White
     }
 
     Card(
@@ -199,7 +214,7 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,isMe: Boolean,
             .padding(vertical = 4.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color(0xFF2F2F45)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -231,7 +246,8 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,isMe: Boolean,
                 text = entry.username,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f),
-                maxLines = 1
+                maxLines = 1,
+                color = Color.White
             )
 
             // Score
@@ -239,7 +255,7 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,isMe: Boolean,
                 text = "${entry.highScore}",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = Color.Yellow
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -258,7 +274,7 @@ fun LeaderboardItem(rank: Int, entry: LeaderboardEntry,isMe: Boolean,
                         Icon(
                             imageVector = Icons.Default.PersonAdd,
                             contentDescription = "Add Friend",
-                            tint = MaterialTheme.colorScheme.secondary
+                            tint = if (isFriend) Color.Red else Color.White
                         )
                     }
                 }
