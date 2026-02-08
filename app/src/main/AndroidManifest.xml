@@ -20,6 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MAD25_P03_Team03">
         <activity
+            android:name=".BottomPlayerBar"
+            android:exported="false"
+            android:label="@string/title_activity_bottom_player_bar"
+            android:theme="@style/Theme.MAD25_P03_Team03" />
+        <activity
             android:name=".MusicProfile"
             android:exported="false"
             android:label="@string/title_activity_music_profile"
