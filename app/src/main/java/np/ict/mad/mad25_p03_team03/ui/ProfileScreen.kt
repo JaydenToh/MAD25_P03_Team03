@@ -93,17 +93,28 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
     }
 
     Scaffold(
+        containerColor = Color(0xFF121212),
         topBar = {
             TopAppBar(
-                title = { Text("My Profile") },
+                title = { Text("My Profile", color = Color.White) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF121212)
+                ),
                 actions = {
                     if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp).padding(end = 16.dp))
+                        CircularProgressIndicator(
+                            color = Color(0xFFBB86FC),
+                            modifier = Modifier.size(24.dp).padding(end = 16.dp)
+                        )
                     } else {
                         Button(
                             onClick = saveProfile,
                             enabled = currentUser != null && !isLoading,
-                            modifier = Modifier.padding(end = 8.dp)
+                            modifier = Modifier.padding(end = 8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF2F2F45),
+                                contentColor = Color.White
+                            ),
                         ) {
                             Text("Save")
                         }
@@ -127,14 +138,14 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
             Surface(
                 modifier = Modifier.size(100.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = Color(0xFF2F2F45)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
                         modifier = Modifier.size(50.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = Color.White
                     )
                 }
             }
@@ -148,7 +159,7 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
                     .clickable {
                         onViewFriends()
                     },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF2F2F45))
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
@@ -160,7 +171,8 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
                     Text(
                         text = "My Friends: $friendsCount",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
                     Spacer(Modifier.weight(1f))
                     Text("View >", color = Color.Gray)
@@ -174,7 +186,18 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
                 label = { Text("Username") },
                 singleLine = true,
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Color(0xFF2F2F45),
+                    unfocusedContainerColor = Color(0xFF2F2F45),
+                    focusedBorderColor = Color(0xFFBB86FC),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = Color(0xFFBB86FC),
+                    unfocusedLabelColor = Color(0xFFB0B0B0),
+                    cursorColor = Color(0xFFBB86FC)
+                )
             )
 
 
@@ -184,14 +207,24 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
                 label = { Text("Email (Cannot be changed here)") },
                 readOnly = true,
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color(0xFFB0B0B0),
+                    unfocusedTextColor = Color(0xFFB0B0B0),
+                    focusedContainerColor = Color(0xFF2F2F45),
+                    unfocusedContainerColor = Color(0xFF2F2F45),
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = Color(0xFFB0B0B0),
+                    unfocusedLabelColor = Color(0xFFB0B0B0)
+                )
             )
 
 
             val isVerified = currentUser?.isEmailVerified == true
             Text(
                 if (isVerified) "✅ Verified Account" else "⚠️ Email not verified (Check Login Page)",
-                color = if (isVerified) Color(0xFF00AA00) else Color.Red,
+                color = if (isVerified) Color(0xFF00AA00) else Color(0xFFFF5555),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.align(Alignment.Start).padding(start = 16.dp)
             )
@@ -205,7 +238,18 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
                 label = { Text("Bio / About Me") },
                 minLines = 3,
                 maxLines = 5,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp).padding(bottom = 32.dp)
+                modifier = Modifier.fillMaxWidth().heightIn(min = 100.dp).padding(bottom = 32.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Color(0xFF2F2F45),
+                    unfocusedContainerColor = Color(0xFF2F2F45),
+                    focusedBorderColor = Color(0xFFBB86FC),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = Color(0xFFBB86FC),
+                    unfocusedLabelColor = Color(0xFFB0B0B0),
+                    cursorColor = Color(0xFFBB86FC)
+                )
             )
 
             
@@ -224,7 +268,7 @@ fun ProfileScreen(onViewFriends: () -> Unit = {}) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2F2F45))
             ) {
                 Text("Send Password Reset Link")
             }

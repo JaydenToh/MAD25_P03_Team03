@@ -2,6 +2,7 @@ package np.ict.mad.mad25_p03_team03.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FlashOn
@@ -15,6 +16,10 @@ import androidx.compose.ui.unit.dp
 import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 
+private val DarkBackground2 = Color(0xFF121212)
+private val CardColor2 = Color(0xFF2F2F45)
+private val Purple = Color(0xFFBB86FC)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModeSelectionScreen(
@@ -27,14 +32,18 @@ fun ModeSelectionScreen(
     var selectedDifficulty by remember { mutableStateOf(Difficulty.EASY) }
 
     Scaffold(
+        containerColor = DarkBackground2,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Game Setup", fontWeight = FontWeight.Bold) },
+                title = { Text("Game Setup", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = DarkBackground
+                )
             )
         }
     ) { paddingValues ->
@@ -50,6 +59,7 @@ fun ModeSelectionScreen(
                 text = "Select Language",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
                 modifier = Modifier.align(Alignment.Start)
             )
             Spacer(Modifier.height(8.dp))
@@ -76,6 +86,7 @@ fun ModeSelectionScreen(
                 text = "Select Difficulty",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
+                color = Color.White,
                 modifier = Modifier.align(Alignment.Start)
             )
             Spacer(Modifier.height(16.dp))
@@ -101,14 +112,16 @@ fun ModeSelectionScreen(
 
             Spacer(Modifier.weight(1f))
 
-
-
             Button(
                 onClick = { onStartGame(selectedMode, selectedDifficulty) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Purple,
+                    contentColor = Color.White
+                )
             ) {
                 Text("🚀 START SINGLE PLAYER", style = MaterialTheme.typography.titleMedium)
             }
@@ -130,7 +143,8 @@ fun ModeSelectionScreen(
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF9C27B0)
+                    containerColor = CardColor2,
+                    contentColor = Color.White
                 )
             ) {
                 Icon(Icons.Default.FlashOn, contentDescription = null)
@@ -153,9 +167,9 @@ fun DifficultyOption(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surface
+            containerColor = CardColor2
         ),
         border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
     ) {
@@ -165,15 +179,18 @@ fun DifficultyOption(
         ) {
             RadioButton(selected = isSelected, onClick = null)
             Spacer(Modifier.width(8.dp))
+
             Column {
                 Text(
                     text = difficulty.name,
                     style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "${difficulty.timeLimitSeconds} seconds per song",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.LightGray
                 )
             }
         }
