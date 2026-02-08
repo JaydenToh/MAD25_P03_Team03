@@ -178,6 +178,31 @@ This application falls under the Music & Audio category, as it focuses on provid
 | Liew Zhan Yang | Account Security & Recovery | • Enhanced platform integrity with email-verified login and a secure “Forget Password” recovery workflow.<br>• Integrated a dedicated Log Out function and session management to ensure user data remains protected across different devices. |
 
 
+## System Architecture Diagram
+
+<img width="789" height="690" alt="Screenshot 2026-02-08 145157" src="https://github.com/user-attachments/assets/e8a86420-b7e2-49fd-bd67-0565424076a5" />
+
+The Presentation Layer (Frontend)
+Modern UI Framework: The application is built entirely using Jetpack Compose, allowing for a reactive and modern user interface that adapts to complex game states.
+Centralized Navigation: We implemented a sophisticated AppNavGraph that manages all routing, from single-player modes to real-time multiplayer lobbies and social screens.
+Real-time UI Syncing: Screens like the PvpGameScreen and ChatScreen use state observers to reflect live data updates from the backend without requiring manual refreshes.
+
+The Data Layer (Logic & Integration)
+Hybrid Data Strategy: We transitioned from local data to a hybrid model where SongRepository handles static content and FirestoreService handles dynamic interactions.
+Advanced Networking with Retrofit: For the Song Identification feature, we use Retrofit to handle multipart uploads, allowing the app to send raw audio samples to an external AI API for fingerprinting.
+Game Engine Logic: Dedicated logic components, such as RhythmBotLogic and TriviaBotLogic, manage the "Bot Mode" to ensure a consistent experience even when playing offline or without a partner.
+
+The Backend Layer (Cloud Infrastructure)
+
+Google Firebase (The Social Engine):
+Authentication: Manages secure user identities and email verification.
+Cloud Firestore: Acts as the real-time backbone for the Friends System, Messaging, and Matchmaking, synchronizing player scores and game status across devices instantly.
+
+Supabase (The Content Engine):
+PostgreSQL Database: We leveraged Supabase to store our expanded song metadata (English and Mandarin collections), allowing us to scale our library far beyond the limits of a traditional mobile app.
+External Asset Management: Supabase manages the remote URLs for all audio files, ensuring that the app stays lightweight by streaming music rather than storing it locally.
+
+
 
 ## User Interview
 
