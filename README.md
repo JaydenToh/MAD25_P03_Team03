@@ -167,6 +167,10 @@ This application falls under the Music & Audio category, as it focuses on provid
 | Liew Zhan Yang | Social Ecosystem | Developed a Friends System and a real-time Chatting system, allowing users to connect and communicate within the app. |
 | Liew Zhan Yang | Competitive Features | Implemented a global Leaderboard and customizable Player Profiles to track progress and rank users. |
 | Liew Zhan Yang | Account Management | Enhanced security with email-verified login, a “Forget Password” recovery system, and a dedicated Log Out function. |
+| Garence Wong Kar Kang | Social Ecosystem | Mood selection after a song is identified (Chill / Hype / Emotional). |
+| Garence Wong Kar Kang | Identifier History | Saves identified songs into a persistent history (SharedPreferences)  | 
+| Garence Wong Kar Kang |  Mood Playlist | Generates playlist suggestions based on tagged moods in history  | 
+
 
 
 ## User Interview
