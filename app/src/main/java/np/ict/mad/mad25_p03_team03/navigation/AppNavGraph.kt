@@ -2,8 +2,6 @@
 package np.ict.mad.mad25_p03_team03.navigation
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -14,16 +12,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import np.ict.mad.mad25_p03_team03.SongIdentifier
-import np.ict.mad.mad25_p03_team03.SongLibraryScreen
+import np.ict.mad.mad25_p03_team03.ui.SongLibraryScreen
 import np.ict.mad.mad25_p03_team03.data.Difficulty
 import np.ict.mad.mad25_p03_team03.data.GameMode
 import np.ict.mad.mad25_p03_team03.data.SongRepository
-import np.ict.mad.mad25_p03_team03.ui.BottomNavBar
 import np.ict.mad.mad25_p03_team03.ui.ChatScreen
 import np.ict.mad.mad25_p03_team03.ui.FriendListScreen
 import np.ict.mad.mad25_p03_team03.ui.GameScreen

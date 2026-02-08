@@ -1,12 +1,10 @@
-package np.ict.mad.mad25_p03_team03
+package np.ict.mad.mad25_p03_team03.ui
 
 import android.content.Context
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 
 object MusicManager {
     private var player: ExoPlayer? = null

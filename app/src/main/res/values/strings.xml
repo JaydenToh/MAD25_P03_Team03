@@ -7,4 +7,5 @@
     <string name="title_activity_music_profile">MusicProfile</string>
     <string name="title_activity_offline_music">OfflineMusic</string>
     <string name="title_activity_bottom_player_bar">BottomPlayerBar</string>
+    <string name="title_activity_song_item">SongItem</string>
 </resources>

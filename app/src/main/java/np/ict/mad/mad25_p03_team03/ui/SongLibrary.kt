@@ -1,4 +1,4 @@
-package np.ict.mad.mad25_p03_team03
+package np.ict.mad.mad25_p03_team03.ui
 
 import android.content.Intent
 import android.R.attr.repeatMode
@@ -17,11 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.RepeatOne
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,9 +30,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.FirebaseFirestore
+import np.ict.mad.mad25_p03_team03.R
 import np.ict.mad.mad25_p03_team03.ui.theme.MAD25_P03_Team03Theme
 
 data class SongItem(
@@ -86,7 +83,7 @@ fun SongLibraryScreen(
 
     // Listener
     DisposableEffect(exoPlayer) {
-        val listener = object : androidx.media3.common.Player.Listener {
+        val listener = object : Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
                 isPlaying = playing
             }
@@ -278,59 +275,6 @@ fun getAlbumArtFromName(songTitle: String): Int {
         "blood sweat & tears" -> R.drawable.bloodsweattearspic
         // Add a default case to prevent crashes if a song title doesn't match
         else -> R.drawable.arcanepic
-    }
-}
-
-@Composable
-fun BottomPlayerBar(
-    song: SongItem,
-    isPlaying: Boolean,
-    repeatMode: Int,
-    onPlayPause: () -> Unit,
-    onNext: () -> Unit,
-    onPrevious: () -> Unit,
-    onRepeat: () -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E2C)),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        modifier = Modifier.fillMaxWidth().height(85.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Left: Image & Text
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                Image(
-                    painter = painterResource(id = song.drawableId),
-                    contentDescription = null,
-                    modifier = Modifier.size(50.dp).clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(song.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
-                    Text(song.artist, color = Color.Gray, fontSize = 12.sp, maxLines = 1)
-                }
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onRepeat) {
-                    val color = if (repeatMode == ExoPlayer.REPEAT_MODE_OFF) Color.Gray else Color(0xFFBB86FC)
-                    Icon(if (repeatMode == ExoPlayer.REPEAT_MODE_ONE) Icons.Filled.RepeatOne else Icons.Filled.Repeat, "Repeat", tint = color)
-                }
-                IconButton(onClick = onPrevious) { Icon(Icons.Filled.SkipPrevious, "Prev", tint = Color.White) }
-                IconButton(
-                    onClick = onPlayPause,
-                    modifier = Modifier.background(Color(0xFFBB86FC), shape = RoundedCornerShape(50)).size(40.dp)
-                ) {
-                    Icon(if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow, "Play", tint = Color.Black)
-                }
-                IconButton(onClick = onNext) { Icon(Icons.Filled.SkipNext, "Next", tint = Color.White) }
-            }
-        }
     }
 }
 

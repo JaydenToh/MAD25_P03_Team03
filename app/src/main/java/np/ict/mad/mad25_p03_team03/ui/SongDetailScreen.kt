@@ -32,7 +32,7 @@
 //import com.google.firebase.firestore.FirebaseFirestore
 //import com.google.mlkit.vision.segmentation.subject.Subject
 //import kotlinx.coroutines.delay
-//import np.ict.mad.mad25_p03_team03.SongItem
+//import np.ict.mad.mad25_p03_team03.ui.SongItem
 //import androidx.media3.common.MediaMetadata
 //import np.ict.mad.mad25_p03_team03.rememberMediaController
 //
