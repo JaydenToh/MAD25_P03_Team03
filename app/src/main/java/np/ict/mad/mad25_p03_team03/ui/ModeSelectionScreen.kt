@@ -142,33 +142,10 @@ fun ModeSelectionScreen(
                     contentColor = TextWhite
                 )
             ) {
-                Text("START SINGLE PLAYER", style = MaterialTheme.typography.titleMedium)
+                Text("🚀 START GAME", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
 
             Spacer(Modifier.height(16.dp))
-
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Divider(modifier = Modifier.weight(1f))
-                Text(" OR ", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 8.dp))
-                Divider(modifier = Modifier.weight(1f))
-            }
-            Spacer(Modifier.height(16.dp))
-
-
-            Button(
-                onClick = onStartPvp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CardColor2,
-                    contentColor = Color.White
-                )
-            ) {
-                Spacer(Modifier.width(8.dp))
-                Text("PLAY PVP (1 VS 1)", style = MaterialTheme.typography.titleMedium)
-            }
         }
     }
 }
